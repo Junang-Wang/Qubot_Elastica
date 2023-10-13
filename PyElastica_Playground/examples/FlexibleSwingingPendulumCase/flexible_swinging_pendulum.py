@@ -61,14 +61,20 @@ class HingeBC(ea.ConstraintBase):
     the end of the rod fixed x[0]
     """
 
-    def __init__(self, fixed_position, fixed_directors, **kwargs):
+    def __init__(self, fixed_position, *fixed_directors,**kwargs):
         super().__init__(**kwargs)
         self.fixed_position = np.array(fixed_position)
-        self.fixed_directors = np.array(fixed_directors)
+        self.fixed_directors = fixed_directors
+        # self.fixed_directors = np.array(fixed_directors)
+        # self.fixed_directors = np.array([[1.,0.,0.],[0.,1.,0.],[0.,0.,1.]])
+        # print(self.fixed_directors)
+        # print('idx:',self.constrained_director_idx)
 
     def constrain_values(self, rod, time):
+        for i,director in enumerate(self.fixed_directors):
+            rod.director_collection[..., self.constrained_director_idx[i]] = np.array(director)
         rod.position_collection[..., 0] = self.fixed_position
-        #rod.director_collection[..., 0] = self.fixed_directors
+        # rod.director_collection[..., 0] = self.fixed_directors
         #print(self.fixed_position,self.fixed_directors)
 
     def constrain_rates(self, rod, time):
@@ -76,7 +82,7 @@ class HingeBC(ea.ConstraintBase):
 
 
 pendulum_sim.constrain(pendulum_rod).using(
-    HingeBC, constrained_position_idx=(0,1,), constrained_director_idx=(0,1,)
+    HingeBC, constrained_position_idx=(0,), constrained_director_idx=(0,10)
 )
 
 # Add gravitational forces
