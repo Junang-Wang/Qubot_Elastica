@@ -98,6 +98,7 @@ def plot_video(
             ax.set_ylim(-0.25, 0.25)
             ax.set_zlim(0, 0.4)
             writer.grab_frame()
+    
 
 
 def plot_video_xy(

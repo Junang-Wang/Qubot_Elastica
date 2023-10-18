@@ -2,14 +2,16 @@ __doc__ = """Fixed joint example, for detailed explanation refer to Zhang et. al
 
 import numpy as np
 import elastica as ea
-from examples.JointCases.joint_cases_postprocessing import (
+import matplotlib.pyplot as plt
+from joint_cases_postprocessing import (
     plot_position,
     plot_video,
     plot_video_xy,
     plot_video_xz,
 )
-
-
+import os
+current_work_dir = os.path.dirname(__file__)
+print(current_work_dir)
 class FixedJointSimulator(
     ea.BaseSystemCollection,
     ea.Constraints,
@@ -28,6 +30,7 @@ n_elem = 10
 direction = np.array([0.0, 0.0, 1.0])
 normal = np.array([0.0, 1.0, 0.0])
 roll_direction = np.cross(direction, normal)
+
 base_length = 0.2
 base_radius = 0.007
 base_area = np.pi * base_radius ** 2
@@ -85,7 +88,15 @@ fixed_joint_sim.add_forcing_to(rod2).using(
     tangent_direction=direction,
     normal_direction=normal,
 )
-
+# Add force to rod2
+origin_force = np.array([0.0,0.0,0.0])
+end_force = np.array([1.0,0.0,0.0])
+fixed_joint_sim.add_forcing_to(rod2).using(
+    ea.EndpointForces,
+    origin_force,
+    end_force,
+    ramp_up_time=0.2
+)
 # add damping
 damping_constant = 0.4
 dt = 1e-4
@@ -131,10 +142,10 @@ if PLOT_FIGURE:
 
 if PLOT_VIDEO:
     filename = "fixed_joint_test.mp4"
-    plot_video(pp_list_rod1, pp_list_rod2, video_name=filename, margin=0.2, fps=100)
+    plot_video(pp_list_rod1, pp_list_rod2, video_name=current_work_dir+'/'+filename, margin=0.2, fps=100)
     plot_video_xy(
-        pp_list_rod1, pp_list_rod2, video_name=filename + "_xy.mp4", margin=0.2, fps=100
+        pp_list_rod1, pp_list_rod2, video_name=current_work_dir+'/'+filename + "_xy.mp4", margin=0.2, fps=100
     )
     plot_video_xz(
-        pp_list_rod1, pp_list_rod2, video_name=filename + "_xz.mp4", margin=0.2, fps=100
+        pp_list_rod1, pp_list_rod2, video_name=current_work_dir+'/'+filename + "_xz.mp4", margin=0.2, fps=100
     )

@@ -3,7 +3,7 @@ __doc__ = """Fixed joint example, for detailed explanation refer to Zhang et. al
 import numpy as np
 import elastica as ea
 
-from examples.BoundaryConditionsCases.bc_cases_postprocessing import (
+from bc_cases_postprocessing import (
     plot_position,
     plot_orientation,
     plot_video,
