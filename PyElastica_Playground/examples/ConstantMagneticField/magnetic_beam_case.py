@@ -34,7 +34,7 @@ base_radius = 0.15
 
 # setting up magnetic properties
 magnetization_density = 1e5
-magnetic_field_angle = 2 * np.pi / 3
+magnetic_field_angle = 0 #2 * np.pi / 3
 magnetic_field = 1e-2
 magnetization_direction = np.ones((n_elem)) * direction.reshape(3, 1)
 

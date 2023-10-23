@@ -61,8 +61,6 @@ def plot_video_2D(normal:np.array, x_lim, y_lim, *plot_params:dict, video_name =
                         a.remove()
                         v = Arrow(position[i][time][zeros_index[0]][-1], position[i][time][zeros_index[1]][-1], velocity[i][time][zeros_index[0]][-1], velocity[i][time][zeros_index[1]][-1])
                         a = ax.add_patch(v)
-                        # plt.draw()
-                        # fig.canvas.draw_idle()
 
                 writer.grab_frame()
     plt.close(fig)
