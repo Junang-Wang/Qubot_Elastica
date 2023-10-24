@@ -5,14 +5,14 @@ import numpy as np
 '''
 this function plot 2D video, and end of the rod curve, the end of plot_params should be at the last order
 '''
-def plot_video_2D(normal:np.array, x_lim, y_lim, *plot_params:dict, video_name = "video.mp4", fps = 15):
+def plot_video_2D(normal:np.array, x_lim, y_lim, *plot_params:dict, video_name = "video.mp4", fps = 15, PLOT_VELOCITY = True, VELOCITY_SCALE = 0.1):
     position = []
     lines = []
     velocity = []
     for plot_param in plot_params:
         t = np.array(plot_param['time'])
         position.append(np.array(plot_param["position"]))
-        velocity.append(0.1*np.array(plot_param["velocity"]))
+        velocity.append(VELOCITY_SCALE*np.array(plot_param["velocity"]))
     total_time = int(np.around(t[...,-1],1))
     total_frame = total_time * fps
     step = round(len(t)/ total_frame)
@@ -33,6 +33,8 @@ def plot_video_2D(normal:np.array, x_lim, y_lim, *plot_params:dict, video_name =
         lines.append(rod_lines_2d)
     ax.set_xlim(x_lim)
     ax.set_ylim(y_lim)
+    plt.xlabel('Position x (mm)')
+    plt.ylabel('Position y (mm)')
     # -------bonus---------
     l = plt.plot([],[],"k--")[0] # end of rod curve
     l_x = []
@@ -57,10 +59,11 @@ def plot_video_2D(normal:np.array, x_lim, y_lim, *plot_params:dict, video_name =
                         l_x.append(position[i][time][zeros_index[0]][-1]) # the x position of end of line i at time t
                         l_y.append(position[i][time][zeros_index[1]][-1])
                         l.set_data(l_x,l_y)
-
-                        a.remove()
-                        v = Arrow(position[i][time][zeros_index[0]][-1], position[i][time][zeros_index[1]][-1], velocity[i][time][zeros_index[0]][-1], velocity[i][time][zeros_index[1]][-1])
-                        a = ax.add_patch(v)
+                        if PLOT_VELOCITY:
+                            a.remove()
+                            v = Arrow(position[i][time][zeros_index[0]][-1], position[i][time][zeros_index[1]][-1], velocity[i][time][zeros_index[0]][-1], velocity[i][time][zeros_index[1]][-1])
+                            a = ax.add_patch(v)
+                        
 
                 writer.grab_frame()
     plt.close(fig)
