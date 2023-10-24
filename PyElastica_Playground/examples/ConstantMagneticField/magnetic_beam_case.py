@@ -57,8 +57,11 @@ magnetic_beam_sim.constrain(magnetic_rod).using(
 )
 
 # Set the constant magnetic field object
+# magnetic_field_amplitude = magnetic_field * np.array(
+#     [np.cos(magnetic_field_angle), np.sin(magnetic_field_angle), 0]
+# )
 magnetic_field_amplitude = magnetic_field * np.array(
-    [np.cos(magnetic_field_angle), np.sin(magnetic_field_angle), 0]
+    [0,1, 0]
 )
 magnetic_field_object = ConstantMagneticField(
     magnetic_field_amplitude, ramp_interval=500.0, start_time=0.0, end_time=100000

@@ -54,7 +54,7 @@ def plot_video_2D(normal:np.array, x_lim, y_lim, *plot_params:dict, video_name =
                     lines[i].set_data(position[i][time][zeros_index[0]],position[i][time][zeros_index[1]])
                     
                     if i == len(lines)-1:
-                        l_x.append(position[i][time][zeros_index[0]][-1])
+                        l_x.append(position[i][time][zeros_index[0]][-1]) # the x position of end of line i at time t
                         l_y.append(position[i][time][zeros_index[1]][-1])
                         l.set_data(l_x,l_y)
 
