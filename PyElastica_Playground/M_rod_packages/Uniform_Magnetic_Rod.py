@@ -1,25 +1,7 @@
 import numpy as np
-import matplotlib.pyplot as plt
-from IPython.display import Video
-from elastica.modules import BaseSystemCollection, Constraints, Forcing, Damping 
-
-from elastica.rod.cosserat_rod import CosseratRod 
-from elastica.dissipation import AnalyticalLinearDamper
-from elastica.boundary_conditions import OneEndFixedBC
-from elastica.external_forces import EndpointForces, GravityForces 
-from elastica import Connections
-from elastica import FixedJoint
-from elastica.callback_functions import CallBackBaseClass
-from elastica.timestepper import integrate, PositionVerlet, extend_stepper_interface
-from elastica import CallBacks
-
-from elastica.timestepper.symplectic_steppers import PositionVerlet
-from collections import defaultdict
+from elastica import *
 from magneto_pyelastica import *
-
-magnetic_amplitude = 0
-magnetic_field_direction = np.array([0.0, 0.0, 1.0])
-def Sim_init(Uniform_M_Sim, density = 2.273, base_length = 6, base_radius = 0.3,scale_E=1e-3, E= 1.4e9, dt = 1.4e-4, nu =5):
+def Sim_init(Uniform_M_Sim, magnetic_field, density = 2.273, base_length = 6, base_radius = 0.3,scale_E=1e-3, E= 1.4e9, dt = 1.4e-4, nu =5):
     #--------mmGS unit----------
     '''
     density = 2.273  #mg/mm^3 
@@ -46,14 +28,16 @@ def Sim_init(Uniform_M_Sim, density = 2.273, base_length = 6, base_radius = 0.3,
 
     Uniform_M_Sim.append(M_rod)
     #--------magnetic properties-----
-    sclae_E_s = 1e2 # separate contribution of density and magnetic field
-    magnetization_density = 1.28e5 * 1e-3 * 1/sclae_E_s#A/mm
-    rescale_magnetic_amplitude = magnetic_amplitude*scale_E* sclae_E_s # mg/(s^2*A)
+    # sclae_E_s = 1e2 # separate contribution of density and magnetic field
+    magnetization_density = 1.28e5 * 1e-3 #A/mm
+    
 
     magnetization_direction = np.ones((n_elem)) * direction.reshape(3, 1)
 
     #------set the constant magnetic field object-----
-    magnetic_field = rescale_magnetic_amplitude* magnetic_field_direction
+    # rescale_magnetic_amplitude = magnetic_amplitude*scale_E # mg/(s^2*A)
+    # magnetic_field = rescale_magnetic_amplitude* magnetic_field_direction
+
     magnetic_field_object = ConstantMagneticField(
         magnetic_field, ramp_interval = 0.1, start_time = 0, end_time = endtime
     )
