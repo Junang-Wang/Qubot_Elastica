@@ -4,7 +4,7 @@ import json, os
 from utils import *
 from elastica.modules import BaseSystemCollection, Constraints, Forcing, Damping 
 from elastica import CallBacks
-from Uniform_Magnetic_Rod import Sim_init
+from PyElastica_Playground.M_rod_packages.Uniform_Magnetic_Rod import Sim_init
 import numpy as np
 import matplotlib.pyplot as plt
 from IPython.display import Video
@@ -212,6 +212,6 @@ while running:
     rescale_pos =100*M_rod.position_collection[1:] + (wall_start_point+wall_end_point).reshape(-1,1) /2
     rod_pos = [(rescale_pos[0,i], rescale_pos[1,i]) for i in range(rescale_pos.shape[-1])]
     pygame.draw.lines(screen, 'black', closed=False, points = rod_pos, width=3)
-    clock.tick(60)
+    clock.tick(200)
     pygame.display.update()
         
