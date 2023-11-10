@@ -33,7 +33,7 @@ class OneEndFixed_screen_setting:
         self.wall_end_point = np.array([self.Screen_W//15 ,self.Screen_H//2 + self.wall_length//2])
         
         
-        self.arrow_start = np.array([self.Screen_W-80, 225])
+        self.arrow_centra = np.array([self.Screen_W-80, 225])
 
         # amplitude bar
         bar_x = self.Screen_W - 200
@@ -43,6 +43,7 @@ class OneEndFixed_screen_setting:
     
     def draw(self,M_rod,magnetic_amplitude, magnetic_field_direction, normal_direction, width, fps, tri_size =10):
         '''
+        draw rod configuration and bar and magnetic_direction
         M_rod: pyelastica rod object
         tri_size: arrow triangle size
         '''
@@ -52,10 +53,12 @@ class OneEndFixed_screen_setting:
         self.canvas.blit(self.logo_S, (self.Screen_W-80,25))
 
         # draw arrow
-        arrow_end = self.arrow_start + magnetic_field_direction[1:]*self.wall_length/2
-    
-        pygame.draw.line(self.canvas, "black",self.arrow_start - magnetic_field_direction[1:]*self.wall_length/2, arrow_end, width=2)
-        pygame.draw.polygon(self.canvas, "black", [arrow_end + tri_size*normal_direction , arrow_end-tri_size*normal_direction, arrow_end + tri_size*magnetic_field_direction[1:]*np.sqrt(3)])
+        rotate_matrix = np.array([[1.0,0.0],[0.0,-1.0]]) # since pygame's origin start in left up corner, we have to rotate the coordinate
+        normal_direction = rotate_matrix@normal_direction
+        arrow_end = self.arrow_centra +rotate_matrix@magnetic_field_direction[1:]*self.wall_length/2
+        arrow_start = self.arrow_centra -rotate_matrix@ magnetic_field_direction[1:]*self.wall_length/2
+        pygame.draw.line(self.canvas, "black",arrow_start, arrow_end, width=2)
+        pygame.draw.polygon(self.canvas, "black", [arrow_end + tri_size*normal_direction , arrow_end-tri_size*normal_direction, arrow_end + tri_size*rotate_matrix@magnetic_field_direction[1:]*np.sqrt(3)])
 
         # draw amplitude bar 
         bar_hight = np.array([0, magnetic_amplitude/self.bar_ratio])
@@ -65,7 +68,8 @@ class OneEndFixed_screen_setting:
         self.screen.blit(self.canvas,(0,0))
         draw_text(self.screen, f"{magnetic_amplitude*1e-3:.0f} mT", "black", x=self.bar_pos[0], y= self.bar_pos[1], font=self.font)
         # draw rod
-        rescale_pos = 100*M_rod.position_collection[1:] + (self.wall_start_point+self.wall_end_point).reshape(-1,1) /2
+        # rescale rod pos to large pixels rod and rotate the coordinate
+        rescale_pos = 100*rotate_matrix@ M_rod.position_collection[1:] + (self.wall_start_point+self.wall_end_point).reshape(-1,1) /2
         rod_pos = [(rescale_pos[0,i], rescale_pos[1,i]) for i in range(rescale_pos.shape[-1])]
         pygame.draw.lines(self.screen, 'black', closed=False, points = rod_pos, width= width)
         self.clock.tick(fps)
