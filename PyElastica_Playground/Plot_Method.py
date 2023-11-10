@@ -2,10 +2,12 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Arrow
 import matplotlib.animation as animation
 import numpy as np
-'''
-this function plot 2D video, and end of the rod curve, the end of plot_params should be at the last order
-'''
+
 def plot_video_2D(normal:np.array, x_lim, y_lim, *plot_params:dict, video_name = "video.mp4", fps = 15, PLOT_VELOCITY = True, VELOCITY_SCALE = 0.1):
+    '''
+    this function plot 2D video, and end of the rod curve, the end of plot_params should be at the last order
+    position: [num_rods, time, dim, n_elem]
+    '''
     position = []
     lines = []
     velocity = []
@@ -67,3 +69,38 @@ def plot_video_2D(normal:np.array, x_lim, y_lim, *plot_params:dict, video_name =
 
                 writer.grab_frame()
     plt.close(fig)
+
+def plot_SISO_controller_performance(y_lim, ref_position, *plot_params:dict, figure_name = "figure.jpg"):
+    """
+    position: [num_rods][time, dim, n_elem]
+    """
+    position = []
+    for plot_param in plot_params:
+        t = np.array(plot_param['time'])
+        position.append(np.array(plot_param["position"]))
+    total_time = int(np.around(t[...,-1],1))
+    fig = plt.figure()
+    ax1 = fig.add_subplot(121)
+    ax2 = fig.add_subplot(122)
+    for i in range(len(position)):
+        delta_x = position[i][:,1,-1].reshape(-1) 
+        delta_y = position[i][:,2,-1].reshape(-1)
+        ax1.plot(
+        t, delta_x, linewidth = 3
+        )
+        ax1.axhline(y=ref_position[1],color='r', linestyle= '--') 
+        ax2.plot(
+        t, delta_y, linewidth = 3
+        )
+        ax2.axhline(y=ref_position[2],color='r', linestyle= '--')
+
+    ax1.set_ylim(y_lim)
+    ax1.set_xlim([0.0,total_time])
+    ax2.set_ylim(y_lim)
+    ax2.set_xlim([0.0,total_time])
+    plt.xlabel('Time t ')
+    plt.ylabel('Position y (mm)')
+    plt.savefig(figure_name)
+    plt.show()
+
+

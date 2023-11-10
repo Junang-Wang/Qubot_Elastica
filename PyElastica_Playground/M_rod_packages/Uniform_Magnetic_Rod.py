@@ -83,4 +83,4 @@ def Sim_init(Uniform_M_Sim, magnetic_field, density = 2.273, base_length = 6, ba
     timestepper = PositionVerlet()
     do_step, stages_and_updates = extend_stepper_interface(timestepper, Uniform_M_Sim)
     
-    return do_step, stages_and_updates, timestepper, M_rod 
+    return do_step, stages_and_updates, timestepper, M_rod, MR_list 
