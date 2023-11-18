@@ -36,6 +36,10 @@ def main(PID=True):
 
 #----------------main loop----------------------
     while running:
+        for event in pygame.event.get():
+            #--------define quit button----------
+            if event.type == pygame.QUIT:
+                running = False
 
         #---------update rod and screen---------
 
@@ -49,7 +53,7 @@ def main(PID=True):
         
         #------------------------PID controller on of off ------------
         if PID:
-            magnetic_amplitude, magnetic_field_direction = PIDController.calculate_magnetic_field(Kp=0.6*0.02, Ki= 1.2*0.02/0.28, Kd = 3*0.02*0.28/400000, target_pos=ref_position, current_pos=current_pos, magnetic_field=magnetic_field, scale_E=scale_E,time_step=dt, magnetic_amplitude_max=magnetic_amplitude_max)
+            magnetic_amplitude, magnetic_field_direction = PIDController.calculate_magnetic_field(Kp=0.6*0.007, Ki= 1.2*0.02/0.28, Kd = 3*0.0001*0.28/400000, target_pos=ref_position, current_pos=current_pos, magnetic_field=magnetic_field, scale_E=scale_E,time_step=dt, magnetic_amplitude_max=magnetic_amplitude_max)
             normal_direction = np.array([-magnetic_field_direction[2],magnetic_field_direction[1]])
         
 
