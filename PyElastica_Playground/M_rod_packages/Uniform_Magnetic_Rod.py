@@ -70,12 +70,15 @@ def Sim_init(Uniform_M_Sim, magnetic_field, density = 2.273, base_length = 6, ba
         def make_callback(self, system, time, current_step: int):
             if current_step % self.step_skip == 0:
                 self.callback_params["time"].append(time)
-                self.callback_params["position"].append(system.position_collection.copy())
-                self.callback_params["velocity"].append(system.velocity_collection.copy())
+                self.callback_params["position"].append(system.position_collection.copy().T)
+                self.callback_params["velocity"].append(system.velocity_collection.copy().T)
+                self.callback_params["omega"].append(system.omega_collection.copy().T)
+                self.callback_params['d'].append(system.director_collection.copy().transpose(2,0,1))
+                self.callback_params['B_field'].append(np.ones((n_elem,1))*magnetic_field[np.newaxis,:])
                 return
     MR_list = defaultdict(list)
     Uniform_M_Sim.collect_diagnostics(M_rod).using(
-        MagneticRodCallBack, step_skip = 100, callback_params = MR_list
+        MagneticRodCallBack, step_skip = 10, callback_params = MR_list
     )
 
     Uniform_M_Sim.finalize()
