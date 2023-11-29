@@ -1,5 +1,6 @@
 from M_rod_packages import *
 from Plot_Method import *
+from utils import *
 def main(PID=True):
     global magnetic_field
     magnetic_amplitude = 0
