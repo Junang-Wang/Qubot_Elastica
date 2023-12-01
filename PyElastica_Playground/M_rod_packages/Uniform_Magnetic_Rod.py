@@ -1,7 +1,7 @@
 import numpy as np
 from elastica import *
 from magneto_pyelastica import *
-def Sim_init(Uniform_M_Sim, magnetic_field, density = 2.273, base_length = 6, base_radius = 0.3,scale_E=1e-3, E= 1.4e9, dt = 1.4e-4, nu =5):
+def Sim_init(Uniform_M_Sim, magnetic_field, density = 2.273, base_length = 6, base_radius = 0.3,scale_E=1e-3, E= 1.4e9, dt = 1.4e-4, nu =5, step_skip = 100):
     #--------mmGS unit----------
     '''
     density = 2.273  #mg/mm^3 
@@ -70,15 +70,17 @@ def Sim_init(Uniform_M_Sim, magnetic_field, density = 2.273, base_length = 6, ba
         def make_callback(self, system, time, current_step: int):
             if current_step % self.step_skip == 0:
                 self.callback_params["time"].append(time)
-                self.callback_params["position"].append(system.position_collection.copy().T)
-                self.callback_params["velocity"].append(system.velocity_collection.copy().T)
-                self.callback_params["omega"].append(system.omega_collection.copy().T)
-                self.callback_params['d'].append(system.director_collection.copy().transpose(2,0,1))
-                self.callback_params['B_field'].append(np.ones((n_elem,1))*magnetic_field[np.newaxis,:])
+                self.callback_params["position"].append(system.position_collection.copy())
+                self.callback_params["velocity"].append(system.velocity_collection.copy())
+                # self.callback_params["position"].append(system.position_collection.copy()[1:,1:].T) # capture yz plane and nodes start from 1
+                # self.callback_params["velocity"].append(system.velocity_collection.copy()[1:,1:].T)
+                # self.callback_params["omega"].append(system.omega_collection.copy()[1:].T)
+                # self.callback_params['d'].append(system.director_collection.copy()[1:,1:].transpose(2,0,1).reshape(n_elem,-1))
+                # self.callback_params['B_field'].append(np.ones((n_elem,1))*magnetic_field[np.newaxis,1:])
                 return
     MR_list = defaultdict(list)
     Uniform_M_Sim.collect_diagnostics(M_rod).using(
-        MagneticRodCallBack, step_skip = 10, callback_params = MR_list
+        MagneticRodCallBack, step_skip = step_skip, callback_params = MR_list
     )
 
     Uniform_M_Sim.finalize()

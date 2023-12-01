@@ -5,7 +5,7 @@ print(sys.path)
 from M_rod_packages import *
 from Plot_Method import *
 from tqdm import tqdm
-def Data_Generator(end_time, amplitude_period, direction_period):
+def Data_Generator(end_time, amplitude_period, direction_period,step_skip=100):
     global magnetic_field
     magnetic_amplitude = 0
     magnetic_field_direction = np.array([0.0,0.0,1.0])
@@ -22,7 +22,7 @@ def Data_Generator(end_time, amplitude_period, direction_period):
     Uniform_M_Sim = UnitMagneticRodSimulator()
     dt = 1.4e-4 # time step
     time = 0
-    do_step, stages_and_updates, timestepper, M_rod, M_list = Sim_init(Uniform_M_Sim, magnetic_field, dt=dt, scale_E=scale_E)
+    do_step, stages_and_updates, timestepper, M_rod, M_list = Sim_init(Uniform_M_Sim, magnetic_field, dt=dt, scale_E=scale_E, step_skip=step_skip)
 
 
     tspan = np.arange(0,end_time,dt)
