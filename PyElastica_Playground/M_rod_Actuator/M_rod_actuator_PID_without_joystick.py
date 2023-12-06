@@ -1,8 +1,8 @@
 import sys,os 
 sys.path.append("./PyElastica_Playground")
 # sys.path.append(os.path.abspath('./PyElastica_Playground'))
-print(sys.path)
 from M_rod_packages import *
+import Actuator_Rod
 from Plot_Method import *
 from utils import *
 def main(PID=True):
@@ -18,20 +18,21 @@ def main(PID=True):
     Screen_W, Screen_H = 960, 1200
     wall_length = 100 # 100 pixes long wall
     bar_length = 100 # 100 pixes long magnetic amplitude bar
-    magnetic_amplitude_max = 120e3
-    my_screen_setting = OneEndFixed_screen_setting(Screen_W, Screen_H, wall_length, bar_length, magnetic_amplitude_max)
-    my_screen_setting.init(current_dir) # initiate screen in pygame 
+    magnetic_amplitude_max = 60e3
+    my_screen_setting = screen_setting(current_dir, Screen_W, Screen_H, bar_length, magnetic_amplitude_max)
+    # initiate screen in pygame 
     fps = 60
     running = True
 #----------------PyElastica Simulator-------------
-    class UnitMagneticRodSimulator(BaseSystemCollection, Constraints, Forcing, Damping, CallBacks):
+    class UnitMagneticRodSimulator(BaseSystemCollection, Constraints, Connections, Forcing, Damping, CallBacks):
         pass
     Uniform_M_Sim = UnitMagneticRodSimulator()
     dt = 1.4e-4 # time step
     time = 0
     frames_per_sec = int(1/60 / dt)
     frame = 0
-    do_step, stages_and_updates, timestepper, M_rod, M_list = Sim_init(Uniform_M_Sim, magnetic_field, dt=dt, scale_E=scale_E)
+    actuator_velocity_omega = np.array([5,0])
+    do_step, stages_and_updates, timestepper, S_rod, M_rod, M_list = Actuator_Rod.Sim_init(Uniform_M_Sim, magnetic_field, dt=dt, scale_E=scale_E, actuator_velocity_omega= actuator_velocity_omega)
 
     #-------------------plot time-dependent end position versus ref end position--------------------------
     # ref_position = np.array([0.0, 3.9457, 4.0515])
@@ -64,7 +65,7 @@ def main(PID=True):
 
         
         if frame % frames_per_sec == 0:
-            my_screen_setting.draw(M_rod, magnetic_amplitude, magnetic_field_direction, normal_direction, width = 4, fps = fps)
+            my_screen_setting.draw((S_rod, M_rod), magnetic_amplitude, magnetic_field_direction, normal_direction, width = 4, fps = fps, constraint = 'Actuator')
             # print(M_list["position"][-1][:,-1])
         if time >= 4:
             running = False
