@@ -5,9 +5,9 @@ from M_rod_packages import *
 import Actuator_Rod
 from Plot_Method import *
 from utils import *
-def main(PID=True):
+def main(PID=True, video= True):
     global magnetic_field
-    magnetic_amplitude = 0
+    magnetic_amplitude = 10e3
     magnetic_field_direction = np.array([0.0,0.0,1.0])
     normal_direction = np.array([1.0,0.0]) # magnetic field normal direction in yz plane
     scale_E = 1e-3 # scale down Young's module and magnetic torque at the same time to prevent numerical problems
@@ -31,8 +31,8 @@ def main(PID=True):
     time = 0
     frames_per_sec = int(1/60 / dt)
     frame = 0
-    actuator_velocity_omega = np.array([5,0])
-    do_step, stages_and_updates, timestepper, S_rod, M_rod, M_list = Actuator_Rod.Sim_init(Uniform_M_Sim, magnetic_field, dt=dt, scale_E=scale_E, actuator_velocity_omega= actuator_velocity_omega)
+    actuator_velocity_omega = np.array([4,0])
+    do_step, stages_and_updates, timestepper, S_rod, M_rod, M_list, S_list = Actuator_Rod.Sim_init(Uniform_M_Sim, magnetic_field, dt=dt, scale_E=scale_E, actuator_velocity_omega= actuator_velocity_omega)
 
     #-------------------plot time-dependent end position versus ref end position--------------------------
     # ref_position = np.array([0.0, 3.9457, 4.0515])
@@ -61,15 +61,19 @@ def main(PID=True):
         if PID:
             magnetic_amplitude, magnetic_field_direction = PIDController.calculate_magnetic_field(Kp=0.6*0.007, Ki= 1.2*0.02/0.28, Kd = 3*0.0001*0.28/400000, target_pos=ref_position, current_pos=current_pos, magnetic_field=magnetic_field, scale_E=scale_E,time_step=dt, magnetic_amplitude_max=magnetic_amplitude_max)
             normal_direction = np.array([-magnetic_field_direction[2],magnetic_field_direction[1]])
+            plot_SISO_controller_performance([0,6], ref_position, M_list, figure_name=current_dir+"/M_rod_PID.jpg")
         
 
         
         if frame % frames_per_sec == 0:
-            my_screen_setting.draw((S_rod, M_rod), magnetic_amplitude, magnetic_field_direction, normal_direction, width = 4, fps = fps, constraint = 'Actuator')
+            my_screen_setting.draw((S_rod, M_rod), magnetic_amplitude, magnetic_field_direction, normal_direction, width = 4, fps = fps, constraint = 'Actuator', actuator_velocity_omega=actuator_velocity_omega)
             # print(M_list["position"][-1][:,-1])
-        if time >= 4:
+        if time >= 6:
             running = False
-    plot_SISO_controller_performance([0,6], ref_position, M_list, figure_name=current_dir+"/M_rod_PID.jpg")
+    if video:
+        plot_video_2D(np.array([1.0,0.0,0.0]), [-2,35],[-5,30], S_list, M_list, video_name=current_dir+'/M_rod_ConstantM_soft.mp4',fps=20)
+    
+    
 
 
         
@@ -77,5 +81,5 @@ def main(PID=True):
 # (if you import this as a module then nothing is executed)
 if __name__ == "__main__":
     
-    main(PID=True)
+    main(PID=False, video= True)
     

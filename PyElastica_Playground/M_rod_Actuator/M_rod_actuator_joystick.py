@@ -5,7 +5,7 @@ from M_rod_packages import *
 import Actuator_Rod
 from Plot_Method import *
 from utils import *
-def main(PID=True):
+def main(PID=True, video= True, joystick= True):
     global magnetic_field
     magnetic_amplitude = 0
     magnetic_field_direction = np.array([0.0,0.0,1.0])
@@ -32,7 +32,7 @@ def main(PID=True):
     frames_per_sec = int(1/60 / dt)
     frame = 0
     actuator_velocity_omega = np.array([0.,0])
-    do_step, stages_and_updates, timestepper, S_rod, M_rod, M_list = Actuator_Rod.Sim_init(Uniform_M_Sim, magnetic_field, dt=dt, scale_E=scale_E, actuator_velocity_omega= actuator_velocity_omega)
+    do_step, stages_and_updates, timestepper, S_rod, M_rod, M_list, S_list = Actuator_Rod.Sim_init(Uniform_M_Sim, magnetic_field, dt=dt, scale_E=scale_E, actuator_velocity_omega= actuator_velocity_omega)
 
     #-------------------plot time-dependent end position versus ref end position--------------------------
     # ref_position = np.array([0.0, 3.9457, 4.0515])
@@ -40,8 +40,9 @@ def main(PID=True):
     
 
    #---------initialize controller----------------
-    PS4_joystick = pygame.joystick.Joystick(0)
-    PS4_joystick.init()
+    if joystick:
+        PS4_joystick = pygame.joystick.Joystick(0)
+        PS4_joystick.init()
 
     with open(os.path.join(current_dir,"ps4_keys.json"), 'r+') as file:
         PS4_keys = json.load(file)
@@ -60,9 +61,23 @@ def main(PID=True):
                     running = False
                 elif event.button == PS4_keys['L1']:
                     actuator_velocity_omega[1] += 1
-                    print(actuator_velocity_omega[1])
                 elif event.button == PS4_keys['R1']:
                     actuator_velocity_omega[1] -= 1
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_UP:
+                    if magnetic_amplitude < magnetic_amplitude_max:
+                        magnetic_amplitude += 1e3
+                elif event.key == pygame.K_DOWN:
+                    if magnetic_amplitude >=1e3:
+                        magnetic_amplitude -= 1e3
+                
+                if event.key == pygame.K_LEFT:
+                    actuator_velocity_omega[0] -= 0.5
+                elif event.key == pygame.K_RIGHT:
+                    actuator_velocity_omega[0] += 0.5
+
+
+
 
             #-----------Analog Inputs----------
             if event.type == pygame.JOYAXISMOTION:
@@ -83,12 +98,12 @@ def main(PID=True):
                     if magnetic_amplitude < 0:
                         magnetic_amplitude = 0
                 if analog_keys[4] > 0:
-                    actuator_velocity_omega[0] += 0.5
+                    actuator_velocity_omega[0] += 0.1
                 if analog_keys[5] > 0:
-                    actuator_velocity_omega[0] -= 0.5
-                #update magnetic_field
-                magnetic_field[1] = magnetic_field_direction[1]*magnetic_amplitude*scale_E
-                magnetic_field[2] = magnetic_field_direction[2]*magnetic_amplitude*scale_E
+                    actuator_velocity_omega[0] -= 0.1
+            #update magnetic_field
+            magnetic_field[1] = magnetic_field_direction[1]*magnetic_amplitude*scale_E
+            magnetic_field[2] = magnetic_field_direction[2]*magnetic_amplitude*scale_E
 
         #---------update rod and screen---------
 
@@ -114,6 +129,9 @@ def main(PID=True):
             # print(M_list["position"][-1][:,-1])
         if time >= 80:
             running = False
+        
+    if video:
+        plot_video_2D(np.array([1.0,0.0,0.0]), [-2,35],[-5,30], S_list, M_list, video_name=current_dir+'/M_rod_Manual_soft.mp4',fps=20)
     
 
 
@@ -122,5 +140,5 @@ def main(PID=True):
 # (if you import this as a module then nothing is executed)
 if __name__ == "__main__":
     
-    main(PID=False)
+    main(PID=False, video= False, joystick= False)
     
