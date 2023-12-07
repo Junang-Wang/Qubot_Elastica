@@ -2,7 +2,7 @@ import numpy as np
 from elastica import *
 from magneto_pyelastica import *
 from Actuator_package.Actuator_Constraint import ActuatorConstraint
-def Sim_init(Actuator_M_Rod_Sim, magnetic_field, spatial_lim= ([],[0,1],[-1,1]),actuator_velocity_omega= np.array([0.4,0]), density = 2.273, base_length_s = 30, base_length_m = 6, base_radius = 0.3,scale_E=1e-3, E= 1.4e9, dt = 1.4e-4, nu =5, step_skip = 100):
+def Sim_init(Actuator_M_Rod_Sim, magnetic_field, spatial_lim= ([],[-1,1],[-0.5,0.5]),actuator_velocity_omega= np.array([0.4,0]), density = 2.273, base_length_s = 30, base_length_m = 6, base_radius = 0.3,scale_E=1e-3, E= 1.4e9, dt = 1.4e-4, nu =5, step_skip = 100):
     #--------mmGS unit----------
     '''
     density = 2.273  #mg/mm^3 
@@ -29,8 +29,8 @@ def Sim_init(Actuator_M_Rod_Sim, magnetic_field, spatial_lim= ([],[0,1],[-1,1]),
     start_m = start_s + direction * base_length_s
 
 
-    S_rod = CosseratRod.straight_rod(n_elem_s, start_s, direction, normal, base_length_s, base_radius, density, youngs_modulus=E, shear_modulus=shear_modulus)
-    M_rod = CosseratRod.straight_rod(n_elem_m, start_m, direction, normal, base_length_m, base_radius, density, youngs_modulus=E, shear_modulus=shear_modulus)
+    S_rod = CosseratRod.straight_rod(n_elem_s, start_s, direction, normal, base_length_s, base_radius, density, youngs_modulus=E, shear_modulus=shear_modulus) # silicone rod
+    M_rod = CosseratRod.straight_rod(n_elem_m, start_m, direction, normal, base_length_m, base_radius, density, youngs_modulus=E, shear_modulus=shear_modulus) # magnetization rod
 
     Actuator_M_Rod_Sim.append(M_rod)
     Actuator_M_Rod_Sim.append(S_rod)
@@ -93,9 +93,10 @@ def Sim_init(Actuator_M_Rod_Sim, magnetic_field, spatial_lim= ([],[0,1],[-1,1]),
                 # self.callback_params['B_field'].append(np.ones((n_elem,1))*magnetic_field[np.newaxis,1:])
                 return
     MR_list = defaultdict(list)
-    # Actuator_M_Rod_Sim.collect_diagnostics(S_rod).using(
-    #     MagneticRodCallBack, step_skip = step_skip, callback_params = MR_list
-    # )
+    SR_list = defaultdict(list)
+    Actuator_M_Rod_Sim.collect_diagnostics(S_rod).using(
+        MagneticRodCallBack, step_skip = step_skip, callback_params = SR_list
+    )
     Actuator_M_Rod_Sim.collect_diagnostics(M_rod).using(
         MagneticRodCallBack, step_skip = step_skip, callback_params = MR_list
     )
@@ -105,4 +106,4 @@ def Sim_init(Actuator_M_Rod_Sim, magnetic_field, spatial_lim= ([],[0,1],[-1,1]),
     timestepper = PositionVerlet()
     do_step, stages_and_updates = extend_stepper_interface(timestepper, Actuator_M_Rod_Sim)
     
-    return do_step, stages_and_updates, timestepper, S_rod, M_rod, MR_list 
+    return do_step, stages_and_updates, timestepper, S_rod, M_rod, MR_list, SR_list 

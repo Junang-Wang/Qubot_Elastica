@@ -178,9 +178,11 @@ class screen_setting:
             self.SpeedometerDraw(actuator_velocity_omega)
         # draw rod
         # rescale rod pos to large pixels rod and rotate the coordinate
-        for rod in rods:
+        colors = ['black','orange','red','blue', 'purple' ]
+        for i, rod in enumerate(rods):
+            color = colors[i%len(colors)]
             rescale_pos = 20*rotate_matrix@ rod.position_collection[1:] + (self.constraint_centra).reshape(-1,1) 
             rod_pos = [(rescale_pos[0,i], rescale_pos[1,i]) for i in range(rescale_pos.shape[-1])]
-            pygame.draw.lines(self.screen, 'black', closed=False, points = rod_pos, width= width)
+            pygame.draw.lines(self.screen, color=color, closed=False, points = rod_pos, width= width)
         self.clock.tick(fps)
         pygame.display.update()
