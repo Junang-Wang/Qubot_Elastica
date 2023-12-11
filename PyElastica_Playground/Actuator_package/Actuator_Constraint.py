@@ -108,9 +108,6 @@ class ActuatorConstraint(GeneralConstraint):
         system.position_collection[2,self._constrained_director_idx] = 0
         for i in range(self.fixed_directors.shape[2]):
             # forcing directors to the original direction
-            # self.fixed_directors[...,i] = np.array([[ 1.,0., 0.],[ 0., 0., -1.],[ 0.,  1.,  0.]])
-            # system.director_collection[...,self._constrained_director_idx[i]] = np.array([[ 1.,0., 0.],[ 0., 0., -1.],[ 0.,  1.,  0.]])
-            # self.fixed_directors[...,i] = np.array([[ 1.,0., 0.],[ 0., 0., -1.],[ 0.,  1.,  0.]])
             system.director_collection[...,self._constrained_director_idx[i]] = system.director_collection[...,0]
 
         if self._constrained_position_idx.size:
