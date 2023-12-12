@@ -17,7 +17,7 @@ def main(PID=True, video= True, joystick= True):
 #------------------icon and screen setting ----------
     pygame.init()
     current_dir = os.path.dirname(__file__)
-    Screen_W, Screen_H = 960, 1200
+    Screen_W, Screen_H = 960, 960
     wall_length = 100 # 100 pixes long wall
     bar_length = 100 # 100 pixes long magnetic amplitude bar
     magnetic_amplitude_max = 60e3
@@ -58,20 +58,11 @@ def main(PID=True, video= True, joystick= True):
             #--------define quit button----------
             if event.type == pygame.QUIT:
                 running = False
-            if event.type == pygame.JOYBUTTONDOWN:
-                if event.button == PS4_keys['x']:
-                    running = False
-                elif event.button == PS4_keys['L1']:
-                    actuator_velocity_omega[1] += 1
-                elif event.button == PS4_keys['R1']:
-                    actuator_velocity_omega[1] -= 1
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_UP:
-                    if magnetic_amplitude < magnetic_amplitude_max:
-                        magnetic_amplitude += 1e3
+                    actuator_velocity_omega[1] += 0.5
                 elif event.key == pygame.K_DOWN:
-                    if magnetic_amplitude >=1e3:
-                        magnetic_amplitude -= 1e3
+                    actuator_velocity_omega[1] -= 0.5
                 
                 if event.key == pygame.K_LEFT:
                     actuator_velocity_omega[0] -= 0.5
@@ -79,45 +70,45 @@ def main(PID=True, video= True, joystick= True):
                     actuator_velocity_omega[0] += 0.5
                 
                 if event.key == pygame.K_1:
-                    if current_vec[0] < 1:
+                    if current_vec[0] <= 0.9:
                         current_vec[0] += 0.1
-                elif event.key == pygame.K_a:
-                    if current_vec[0] > -1:
+                elif event.key == pygame.K_q:
+                    if current_vec[0] >= -0.9:
                         current_vec[0] -= 0.1 
                 
                 if event.key == pygame.K_2:
-                    if current_vec[1] < 1:
+                    if current_vec[1] <= 0.9:
                         current_vec[1] += 0.1
-                elif event.key == pygame.K_b:
-                    if current_vec[1] > -1:
+                elif event.key == pygame.K_w:
+                    if current_vec[1] >= -0.9:
                         current_vec[1] -= 0.1
 
                 if event.key == pygame.K_3:
-                    if current_vec[2] < 1:
+                    if current_vec[2] <= 0.9:
                         current_vec[2] += 0.1
                 elif event.key == pygame.K_e:
-                    if current_vec[2] > -1:
+                    if current_vec[2] >= -0.9:
                         current_vec[2] -= 0.1  
                 
                 if event.key == pygame.K_4:
-                    if current_vec[3] < 1:
+                    if current_vec[3] <= 0.9:
                         current_vec[3] += 0.1
                 elif event.key == pygame.K_r:
-                    if current_vec[3] > -1:
+                    if current_vec[3] >= -0.9:
                         current_vec[3] -= 0.1 
 
                 if event.key == pygame.K_5:
-                    if current_vec[4] < 1:
+                    if current_vec[4] <= 0.9:
                         current_vec[4] += 0.1
                 elif event.key == pygame.K_t:
-                    if current_vec[4] > -1:
+                    if current_vec[4] >= -0.9:
                         current_vec[4] -= 0.1 
 
                 if event.key == pygame.K_6:
-                    if current_vec[5] < 1:
+                    if current_vec[5] <= 0.9:
                         current_vec[5] += 0.1
                 elif event.key == pygame.K_y:
-                    if current_vec[5] > -1:
+                    if current_vec[5] >= -0.9:
                         current_vec[5] -= 0.1 
                 
                 if event.key == pygame.K_LEFTBRACKET:
@@ -134,6 +125,11 @@ def main(PID=True, video= True, joystick= True):
             
             magnetic_field[1] = temp_magnetic_field[0]*scale_E
             magnetic_field[2] = temp_magnetic_field[1]*scale_E
+
+            # compute amplitude
+            magnetic_amplitude = np.linalg.norm(magnetic_field) / scale_E
+            magnetic_field_direction = magnetic_field / magnetic_amplitude / scale_E
+            normal_direction = np.array([-magnetic_field_direction[2],magnetic_field_direction[1]])
 
         #---------update rod and screen---------
 
@@ -155,7 +151,7 @@ def main(PID=True, video= True, joystick= True):
 
         
         if frame % frames_per_sec == 0:
-            my_screen_setting.draw((S_rod, M_rod), magnetic_amplitude, magnetic_field_direction, normal_direction, width = 4, fps = fps, constraint = 'Actuator', actuator_velocity_omega=actuator_velocity_omega)
+            my_screen_setting.draw((S_rod, M_rod), magnetic_amplitude, magnetic_field_direction, normal_direction, width = 4, fps = fps, constraint = 'Actuator', actuator_velocity_omega=actuator_velocity_omega,current_vec = current_vec)
             # print(M_list["position"][-1][:,-1])
         if time >= 80:
             running = False
