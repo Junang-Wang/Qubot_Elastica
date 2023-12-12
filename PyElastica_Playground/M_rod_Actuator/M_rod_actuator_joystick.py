@@ -11,6 +11,7 @@ def main(PID=True, video= True, joystick= True):
     magnetic_field_direction = np.array([0.0,0.0,1.0])
     normal_direction = np.array([1.0,0.0]) # magnetic field normal direction in yz plane
     scale_E = 1e-3 # scale down Young's module and magnetic torque at the same time to prevent numerical problems
+    angular_change = np.radians(10.0) # Angular change in the direction of the magnetic field
     magnetic_field = magnetic_field_direction*magnetic_amplitude * scale_E
 #------------------icon and screen setting ----------
     pygame.init()
@@ -63,18 +64,42 @@ def main(PID=True, video= True, joystick= True):
                     actuator_velocity_omega[1] += 1
                 elif event.button == PS4_keys['R1']:
                     actuator_velocity_omega[1] -= 1
+
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_UP:
+
+                # change magntic amplitude
+                if event.key == pygame.K_s:
                     if magnetic_amplitude < magnetic_amplitude_max:
                         magnetic_amplitude += 1e3
-                elif event.key == pygame.K_DOWN:
+                elif event.key == pygame.K_x:
                     if magnetic_amplitude >=1e3:
                         magnetic_amplitude -= 1e3
                 
+                # change actuator velocity
                 if event.key == pygame.K_LEFT:
                     actuator_velocity_omega[0] -= 0.5
                 elif event.key == pygame.K_RIGHT:
                     actuator_velocity_omega[0] += 0.5
+
+                # change actuator omega
+                if event.key == pygame.K_UP:
+                    actuator_velocity_omega[1] += 0.5
+                if event.key == pygame.K_DOWN:
+                    actuator_velocity_omega[1] -= 0.5
+                
+                # change magnetic field direction [Rotate around x-axis] 
+                if event.key == pygame.K_z:
+                    rotation_matrix = np.array([[1, 0, 0],
+                                                [0, np.cos(angular_change), -np.sin(angular_change)],
+                                                [0, np.sin(angular_change), np.cos(angular_change)]])
+                    magnetic_field_direction = np.dot(rotation_matrix, magnetic_field_direction)
+                elif event.key == pygame.K_c:
+                    rotation_matrix = np.array([[1, 0, 0],
+                                                [0, np.cos(angular_change), np.sin(angular_change)],
+                                                [0, -np.sin(angular_change), np.cos(angular_change)]])
+                    magnetic_field_direction = np.dot(rotation_matrix, magnetic_field_direction)
+                magnetic_field_direction = magnetic_field_direction / np.linalg.norm(magnetic_field_direction)
+                normal_direction = np.array([-magnetic_field_direction[2], magnetic_field_direction[1]])
 
 
 
