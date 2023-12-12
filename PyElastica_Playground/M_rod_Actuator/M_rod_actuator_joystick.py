@@ -64,17 +64,35 @@ def main(PID=True, video= True, joystick= True):
                 elif event.button == PS4_keys['R1']:
                     actuator_velocity_omega[1] -= 1
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_UP:
+                
+                if event.key == pygame.K_s:
                     if magnetic_amplitude < magnetic_amplitude_max:
                         magnetic_amplitude += 1e3
-                elif event.key == pygame.K_DOWN:
+                elif event.key == pygame.K_x:
                     if magnetic_amplitude >=1e3:
                         magnetic_amplitude -= 1e3
                 
-                if event.key == pygame.K_LEFT:
+                if event.key == pygame.K_a:
                     actuator_velocity_omega[0] -= 0.5
-                elif event.key == pygame.K_RIGHT:
+                elif event.key == pygame.K_d:
                     actuator_velocity_omega[0] += 0.5
+
+                if event.key == pygame.K_RIGHT:
+                    magnetic_field_direction[1] += 0.05
+                    magnetic_field_direction = magnetic_field_direction / np.linalg.norm(magnetic_field_direction)
+                    normal_direction = np.array([-magnetic_field_direction[2],magnetic_field_direction[1]])
+                if event.key == pygame.K_LEFT:
+                    magnetic_field_direction[1] -= 0.05
+                    magnetic_field_direction = magnetic_field_direction / np.linalg.norm(magnetic_field_direction)
+                    normal_direction = np.array([-magnetic_field_direction[2],magnetic_field_direction[1]])
+                if event.key == pygame.K_UP:
+                    magnetic_field_direction[2] += 0.1
+                    magnetic_field_direction = magnetic_field_direction / np.linalg.norm(magnetic_field_direction)
+                    normal_direction = np.array([-magnetic_field_direction[2],magnetic_field_direction[1]])
+                if event.key == pygame.K_DOWN:
+                    magnetic_field_direction[2] -= 0.1
+                    magnetic_field_direction = magnetic_field_direction / np.linalg.norm(magnetic_field_direction)
+                    normal_direction = np.array([-magnetic_field_direction[2],magnetic_field_direction[1]])
 
 
 
