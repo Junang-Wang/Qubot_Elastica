@@ -106,12 +106,11 @@ class ActuatorConstraint(GeneralConstraint):
         
         self.fixed_positions[2] = 0 # forcing z coordinate =0  
         system.position_collection[2,self._constrained_director_idx] = 0
-        for i in range(self.fixed_directors.shape[2]):
-            # forcing directors to the original direction
-            # self.fixed_directors[...,i] = np.array([[ 1.,0., 0.],[ 0., 0., -1.],[ 0.,  1.,  0.]])
-            # system.director_collection[...,self._constrained_director_idx[i]] = np.array([[ 1.,0., 0.],[ 0., 0., -1.],[ 0.,  1.,  0.]])
-            # self.fixed_directors[...,i] = np.array([[ 1.,0., 0.],[ 0., 0., -1.],[ 0.,  1.,  0.]])
-            system.director_collection[...,self._constrained_director_idx[i]] = system.director_collection[...,0]
+        if self.actuator_velocity_omega[1] < 0:
+            for i in range(self.fixed_directors.shape[2]):
+                # forcing directors to the original direction
+                system.director_collection[...,self._constrained_director_idx[i]][self.rotational_constraint_selector] = system.director_collection[...,0][self.rotational_constraint_selector]
+            # pass
 
         if self._constrained_position_idx.size:
             self.nb_constrain_translational_values(

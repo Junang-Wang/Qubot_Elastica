@@ -5,6 +5,7 @@ from M_rod_packages import *
 import Actuator_Rod
 from Plot_Method import *
 from utils import *
+from Actuation_matrix_package.Actuation_function import Centra_actuation_function
 def main(PID=True, video= True, joystick= True):
     global magnetic_field
     magnetic_amplitude = 0
@@ -12,6 +13,7 @@ def main(PID=True, video= True, joystick= True):
     normal_direction = np.array([1.0,0.0]) # magnetic field normal direction in yz plane
     scale_E = 1e-3 # scale down Young's module and magnetic torque at the same time to prevent numerical problems
     magnetic_field = magnetic_field_direction*magnetic_amplitude * scale_E
+    current_vec = np.zeros(6)
 #------------------icon and screen setting ----------
     pygame.init()
     current_dir = os.path.dirname(__file__)
@@ -75,37 +77,66 @@ def main(PID=True, video= True, joystick= True):
                     actuator_velocity_omega[0] -= 0.5
                 elif event.key == pygame.K_RIGHT:
                     actuator_velocity_omega[0] += 0.5
+                
+                if event.key == pygame.K_1:
+                    if current_vec[0] < 1:
+                        current_vec[0] += 0.1
+                elif event.key == pygame.K_a:
+                    if current_vec[0] > -1:
+                        current_vec[0] -= 0.1 
+                
+                if event.key == pygame.K_2:
+                    if current_vec[1] < 1:
+                        current_vec[1] += 0.1
+                elif event.key == pygame.K_b:
+                    if current_vec[1] > -1:
+                        current_vec[1] -= 0.1
+
+                if event.key == pygame.K_3:
+                    if current_vec[2] < 1:
+                        current_vec[2] += 0.1
+                elif event.key == pygame.K_e:
+                    if current_vec[2] > -1:
+                        current_vec[2] -= 0.1  
+                
+                if event.key == pygame.K_4:
+                    if current_vec[3] < 1:
+                        current_vec[3] += 0.1
+                elif event.key == pygame.K_r:
+                    if current_vec[3] > -1:
+                        current_vec[3] -= 0.1 
+
+                if event.key == pygame.K_5:
+                    if current_vec[4] < 1:
+                        current_vec[4] += 0.1
+                elif event.key == pygame.K_t:
+                    if current_vec[4] > -1:
+                        current_vec[4] -= 0.1 
+
+                if event.key == pygame.K_6:
+                    if current_vec[5] < 1:
+                        current_vec[5] += 0.1
+                elif event.key == pygame.K_y:
+                    if current_vec[5] > -1:
+                        current_vec[5] -= 0.1 
+                
+                if event.key == pygame.K_LEFTBRACKET:
+                    actuator_velocity_omega[1] -= 0.5
+                elif event.key == pygame.K_RIGHTBRACKET:
+                    actuator_velocity_omega[1] += 0.5
 
 
 
 
-            #-----------Analog Inputs----------
-            if event.type == pygame.JOYAXISMOTION:
-                analog_keys[event.axis] = event.value
-            #---------right analog axis----------
-                if abs(analog_keys[2]) > .4 or abs(analog_keys[3]) >.4:
 
-                    magnetic_field_direction = np.array([0.0,analog_keys[2], -analog_keys[3]])
-                    magnetic_field_direction = magnetic_field_direction / np.linalg.norm(magnetic_field_direction)
-
-                    normal_direction = np.array([-magnetic_field_direction[2],magnetic_field_direction[1]])
-            #--------left analog axis------------
-                if abs(analog_keys[1]) >.3:
-                    if magnetic_amplitude <= magnetic_amplitude_max:
-                        magnetic_amplitude -= analog_keys[1]*3e3
-                    if magnetic_amplitude >= magnetic_amplitude_max:
-                        magnetic_amplitude = magnetic_amplitude_max
-                    if magnetic_amplitude < 0:
-                        magnetic_amplitude = 0
-                if analog_keys[4] > 0:
-                    actuator_velocity_omega[0] += 0.1
-                if analog_keys[5] > 0:
-                    actuator_velocity_omega[0] -= 0.1
             #update magnetic_field
-            magnetic_field[1] = magnetic_field_direction[1]*magnetic_amplitude*scale_E
-            magnetic_field[2] = magnetic_field_direction[2]*magnetic_amplitude*scale_E
+            temp_magnetic_field = Centra_actuation_function(current_vec)
+            
+            magnetic_field[1] = temp_magnetic_field[0]*scale_E
+            magnetic_field[2] = temp_magnetic_field[1]*scale_E
 
         #---------update rod and screen---------
+
         # update rod
         time = do_step(timestepper, stages_and_updates, Uniform_M_Sim, time, dt)
         frame += 1
