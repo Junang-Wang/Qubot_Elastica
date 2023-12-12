@@ -29,8 +29,8 @@ class OneEndFixed_screen_setting:
         self.clock = pygame.time.Clock()
 
         # create a surface on screen
-        self.screen = pygame.display.set_mode((self.Screen_W,self.Screen_H))
-        self.canvas = pygame.Surface((self.Screen_W,self.Screen_H))
+        self.screen = pygame.display.set_mode((self.Screen_W,self.Screen_H), pygame.RESIZABLE)
+        self.canvas = pygame.Surface((self.Screen_W,self.Screen_H),pygame.RESIZABLE)
         self.font = pygame.font.SysFont("Arial",30)
         
         #--------logo in screen and wall display--------
@@ -104,7 +104,7 @@ class screen_setting:
         self.clock = pygame.time.Clock()
 
         # create a surface on screen
-        self.screen = pygame.display.set_mode((self.Screen_W,self.Screen_H))
+        self.screen = pygame.display.set_mode((self.Screen_W,self.Screen_H), pygame.RESIZABLE)
         self.canvas = pygame.Surface((self.Screen_W,self.Screen_H))
         self.font = pygame.font.SysFont("Arial",30)
         
@@ -143,7 +143,22 @@ class screen_setting:
 
        draw_text(self.screen, f"\u03C9: {actuator_velocity_omega[1]:.1f} rad/s", "black", x=self.bar_pos[0], y= self.bar_pos[1]-150, font=self.font) 
     
-    def draw(self,rods,magnetic_amplitude, magnetic_field_direction, normal_direction, width, fps, tri_size =10, arrow_length = 100, constraint = 'OneEndFixed', actuator_velocity_omega = None):
+    def ElectromagnetDraw(self, current_vec):
+        centers = np.array([[960,480],[720,141],[240,141],[0,480],[240,819],[720,819]])
+        for i in range(current_vec.shape[0]):
+            if current_vec[i] >= 0: 
+                pygame.draw.circle(self.screen, color=(int(255*current_vec[i]),0,0), center=centers[i], radius= 20)
+                
+            else:
+                pygame.draw.circle(self.screen, color=(0,0,int(-255*current_vec[i])), center=centers[i], radius= 20)
+            if i == 0:
+                draw_text(self.screen, f"{i+1}", 'white', x = centers[i][0]-13, y = centers[i][1]-15, font = self.font)
+            elif i==3:
+                draw_text(self.screen, f"{i+1}", 'white', x = centers[i][0]-2, y = centers[i][1]-15, font = self.font)
+            else:
+                draw_text(self.screen, f"{i+1}", 'white', x = centers[i][0]-7, y = centers[i][1]-15, font = self.font)
+    
+    def draw(self,rods,magnetic_amplitude, magnetic_field_direction, normal_direction, width, fps, tri_size =10, arrow_length = 100, constraint = 'OneEndFixed', actuator_velocity_omega = None, current_vec = None):
         '''
         draw rod configuration and bar and magnetic_direction
         M_rod: pyelastica rod object
@@ -184,5 +199,7 @@ class screen_setting:
             rescale_pos = 20*rotate_matrix@ rod.position_collection[1:] + (self.constraint_centra).reshape(-1,1) 
             rod_pos = [(rescale_pos[0,i], rescale_pos[1,i]) for i in range(rescale_pos.shape[-1])]
             pygame.draw.lines(self.screen, color=color, closed=False, points = rod_pos, width= width)
+        if current_vec.size:
+            self.ElectromagnetDraw(current_vec)
         self.clock.tick(fps)
         pygame.display.update()

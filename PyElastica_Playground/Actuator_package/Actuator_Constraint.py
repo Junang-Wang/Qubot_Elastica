@@ -106,10 +106,10 @@ class ActuatorConstraint(GeneralConstraint):
         
         self.fixed_positions[2] = 0 # forcing z coordinate =0  
         system.position_collection[2,self._constrained_director_idx] = 0
-        if self.actuator_velocity_omega[1] < 0:
+        if self.actuator_velocity_omega[0] < 0:
             for i in range(self.fixed_directors.shape[2]):
                 # forcing directors to the original direction
-                system.director_collection[...,self._constrained_director_idx[i]][self.rotational_constraint_selector] = system.director_collection[...,0][self.rotational_constraint_selector]
+                system.director_collection[...,self._constrained_director_idx[i]] = system.director_collection[...,0]
             # pass
 
         if self._constrained_position_idx.size:
