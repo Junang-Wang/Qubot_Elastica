@@ -106,7 +106,6 @@ def main(PID=True, video= True, joystick= True):
             magnetic_field[2] = magnetic_field_direction[2]*magnetic_amplitude*scale_E
 
         #---------update rod and screen---------
-
         # update rod
         time = do_step(timestepper, stages_and_updates, Uniform_M_Sim, time, dt)
         frame += 1
