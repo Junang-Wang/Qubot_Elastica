@@ -200,7 +200,6 @@ class screen_setting:
             rod_pos = [(rescale_pos[0,i], rescale_pos[1,i]) for i in range(rescale_pos.shape[-1])]
             pygame.draw.lines(self.screen, color=color, closed=False, points = rod_pos, width= width)
         if not current_vec is None:
-            print(type(current_vec))
             self.ElectromagnetDraw(current_vec)
         self.clock.tick(fps)
         pygame.display.update()
