@@ -92,7 +92,7 @@ T_env_sim = [
     quat_env_sim[1],
     quat_env_sim[2],
     quat_env_sim[3]]
-
+ 
 
 def createScene(root_node):
     ''' Build SOFA scene '''
