@@ -3,8 +3,8 @@ from splib3.numerics import Quat, Vec3
 import math
 from scipy.spatial.transform import Rotation as R
 import os
-import rospy
-import rospkg
+# import rospy
+# import rospkg
 
 from mcr_sim import \
     mcr_environment, mcr_instrument, mcr_emns, mcr_simulator, \
@@ -92,7 +92,7 @@ T_env_sim = [
     quat_env_sim[1],
     quat_env_sim[2],
     quat_env_sim[3]]
-
+ 
 
 def createScene(root_node):
     ''' Build SOFA scene '''

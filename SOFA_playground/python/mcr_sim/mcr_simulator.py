@@ -79,9 +79,9 @@ class Simulator(Sofa.Core.Controller):
             'CollisionResponse',
             name='Response',
             response='FrictionContact')
-        self.root_node.addObject(
-            'CollisionGroup',
-            name='Group')
+        # self.root_node.addObject(
+        #     'CollisionGroup',
+        #     name='Group')
 
         # set backbround color
         self.root_node.addObject('BackgroundSetting', color='1 1 1')
