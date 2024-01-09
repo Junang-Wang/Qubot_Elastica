@@ -3,8 +3,8 @@ from splib3.numerics import Quat, Vec3
 import math
 from scipy.spatial.transform import Rotation as R
 import os
-import rospy
-import rospkg
+# import rospy
+# import rospkg
 
 from mcr_sim import \
     mcr_environment, mcr_instrument, mcr_emns, mcr_simulator, \

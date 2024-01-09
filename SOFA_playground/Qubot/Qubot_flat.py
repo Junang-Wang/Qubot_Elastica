@@ -23,7 +23,7 @@ def createScene(root_node):
     # mechanical model
     env = root_node.addChild('env')
     env.addObject('MechanicalObject', name='env', 
-                              template='Rigid3d', translation=[-5.0, 0.0, 0.0], rotation= [0.0, 0.0, 0.0])
+                              template='Rigid3d', translation=[-155.0, 80.0, 0.0], rotation= [0.0, 0.0, 0.0])
     
     env.addObject('MeshSTLLoader', name='env_Loader', filename=env_stl)
 
@@ -44,11 +44,16 @@ def createScene(root_node):
 
     env_collision = env.addChild('env_collision')
     env_collision.addObject('MeshTopology', src='@../env_Loader')
+
     env_collision.addObject('MechanicalObject')
+    # deformable
+#     env_collision.addObject('TetrahedronSetTopologyContainer',name='meshContainer',src='@../env_Loader')
+#     env_collision.addObject('TetrahedronSetGeometryAlgorithms', template= 'Vec3d',name = 'GeomAlgo')
+
 
     env_collision.addObject('TriangleCollisionModel')
-    env_collision.addObject('LineCollisionModel')
-    env_collision.addObject('PointCollisionModel')
+#     env_collision.addObject('LineCollisionModel')
+#     env_collision.addObject('PointCollisionModel')
 
     env_collision.addObject('RigidMapping')
 
