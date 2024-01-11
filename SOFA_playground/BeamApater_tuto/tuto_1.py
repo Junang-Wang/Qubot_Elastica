@@ -1,3 +1,6 @@
+# This files indicate that import mesh file to collision model
+# Author: JunAng Wang
+# Contact: wangjunang94@gmail.com
 from stlib3.scene import MainHeader
 from plugin_list import pluginList, display
 def createScene(rootNode):

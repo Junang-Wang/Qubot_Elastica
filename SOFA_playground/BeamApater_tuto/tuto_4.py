@@ -1,3 +1,6 @@
+# This file visualizes the actuator by lines mesh
+# Author: JunAng Wang
+# Contact: wangjunang94@gmail.com
 from stlib3.scene import MainHeader
 from plugin_list import pluginList, display
 def createScene(rootNode):
@@ -11,7 +14,7 @@ def createScene(rootNode):
     rootNode.addObject('OglSceneFrame',style='Arrows', alignment='TopRight')
     rootNode.gravity = [0.0, -9.81, 0.0]
     
-
+    #---------------------------------------------------------------------------
     # setting catheter topology mesh and wireRestShape
     GuideCatheter = rootNode.addChild('GuideCatheter')
     # create straight Section, 5 sections
@@ -25,7 +28,7 @@ def createScene(rootNode):
     GuideCatheter.addObject('EdgeSetGeometryAlgorithms', name='GeomAlgo', template='Rigid3d')
     GuideCatheter.addObject('MechanicalObject', name='dofTopo2', template='Rigid3d')
 
-
+    #-----------------------------------------------------------------------
     # mechanical model of Catheter
     BeamModel = rootNode.addChild('BeamModel')
     BeamModel.addObject('EulerImplicitSolver', rayleighStiffness=0.2, printLog=False, rayleighMass=0.1)
@@ -54,6 +57,7 @@ def createScene(rootNode):
     BeamModel.addObject('FixedConstraint', indices=0, name='FixedConstraint')
     BeamModel.addObject('RestShapeSpringsForceField', name="RestSPForceField", points='@DeployController.indexFirstNode', angularStiffness=1e8, stiffness=1e8)
 
+    #--------------------------------------------------------------------
     # Visual model: using WireRestShape mesh
     VisualCatheter = BeamModel.addChild('VisualCatheter')
     VisualCatheter.addObject('MechanicalObject', name= 'visu_DOFs',template='Vec3d')
@@ -69,7 +73,7 @@ def createScene(rootNode):
     
     # Visual beam by OglModel
     VisuOgl = VisualCatheter.addChild('VisuOgl')
-    VisuOgl.addObject("OglModel", name="visual", color=[0.7,0.7,0.7], triangles="@../cylinder_container.triangles")
+    VisuOgl.addObject("OglModel", name="visual", color=[0.7,0.7,0.7], quads="@../cylinder_container.quads")
     VisuOgl.addObject('IdentityMapping', input="@../visu_DOFs",output='@visual')
 
     return rootNode
