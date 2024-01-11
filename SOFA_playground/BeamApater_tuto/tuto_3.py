@@ -1,3 +1,6 @@
+# This file deploys the actuator 
+# Author: JunAng Wang
+# Contact: wangjunang94@gmail.com
 from stlib3.scene import MainHeader
 from plugin_list import pluginList, display
 def createScene(rootNode):
@@ -34,6 +37,8 @@ def createScene(rootNode):
                                     nx=60, ny=1, nz=1,
                                     xmax=0.0, xmin=0.0, ymin=0, ymax=0, zmax=0, zmin=0,
                                     p0=[0,0,0])
+    # Don't use meshLinesBeam as mesh topology for actuator since actuator mesh is dynamical.
+    # BeamModel.addObject('MeshTopology',src='@../GuideCatheter/meshLinesBeam') 
     BeamModel.addObject('MechanicalObject', showIndices=False, name='Instrument_DOFs', template='Rigid3d')
     # FEM method (BeamInterpolation)
     # plug the catheter RestShape into WireBeamInterpolation 

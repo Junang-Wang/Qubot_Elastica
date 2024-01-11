@@ -1,3 +1,6 @@
+# This file indicates how to build a Beam model by BeamAdaptive plugin
+# Author: JunAng Wang
+# Contact: wangjunang94@gmail.com
 from stlib3.scene import MainHeader
 from plugin_list import pluginList, display
 def createScene(rootNode):
@@ -14,6 +17,7 @@ def createScene(rootNode):
     BeamModel.addObject('EulerImplicitSolver', rayleighStiffness=0, 
                         rayleighMass=0, printLog=False)
     BeamModel.addObject('BTDLinearSolver', verbose =0)
+    # nodes positions
     positions = [[0,0,2,0,0,0,1],[1,0,2,0,0,0,1],[2,0,2,0,0,0,1],[3,0,2,0,0,0,1]]
     # wireRestShape
     BeamModel.addObject('MechanicalObject', template='Rigid3d',

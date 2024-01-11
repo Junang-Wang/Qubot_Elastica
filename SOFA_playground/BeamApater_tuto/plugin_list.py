@@ -14,6 +14,12 @@ pluginList = ['Sofa.Component.Collision.Geometry',
               'Sofa.Component.Mapping.Linear',
               'Sofa.Component.Topology.Container.Grid',
               'Sofa.Component.SolidMechanics.Spring',
+              'Sofa.Component.Collision.Detection.Intersection',
+              'Sofa.Component.Collision.Response.Contact',
+              'Sofa.Component.Constraint.Lagrangian.Solver',
+              'Sofa.Component.AnimationLoop',
+              'Sofa.Component.Collision.Detection.Algorithm',
+              'Sofa.Component.Constraint.Lagrangian.Correction',
               'BeamAdapter']
-display = ["showBehaviorModels","showCollisionModels","hideBoundingCollisionModels","showForceFields","showVisualModels"]
+display = ["showBehaviorModels","showCollisionModels","hideBoundingCollisionModels","showForceFields","showVisualModels","showInteractionForceFields"]
 # display = ["showBehaviorModels","showCollisionModels","hideBoundingCollisionModels","showForceFields"]

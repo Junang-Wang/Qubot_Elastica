@@ -98,6 +98,7 @@ def createScene(root_node):
     ''' Build SOFA scene '''
 
     # simulator
+    # Define Header
     simulator = mcr_simulator.Simulator(
         root_node=root_node)
 

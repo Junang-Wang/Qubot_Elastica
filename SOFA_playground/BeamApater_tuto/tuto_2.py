@@ -1,3 +1,6 @@
+# This file indicates the visualization by importing a mesh stl file.
+# Author: JunAng Wang
+# Contact: wangjunang94@gmail.com
 from stlib3.scene import MainHeader
 from plugin_list import pluginList, display
 def createScene(rootNode):
