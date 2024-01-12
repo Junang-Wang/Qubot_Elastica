@@ -20,6 +20,7 @@ pluginList = ['Sofa.Component.Collision.Geometry',
               'Sofa.Component.AnimationLoop',
               'Sofa.Component.Collision.Detection.Algorithm',
               'Sofa.Component.Constraint.Lagrangian.Correction',
+              'MultiThreading',
               'BeamAdapter']
 display = ["showBehaviorModels","showCollisionModels","hideBoundingCollisionModels","showForceFields","showVisualModels","showInteractionForceFields"]
 # display = ["showBehaviorModels","showCollisionModels","hideBoundingCollisionModels","showForceFields"]

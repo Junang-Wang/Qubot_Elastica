@@ -1,4 +1,4 @@
-# This file adds collision model into the actuator
+# This file adds collision model into the actuator and add a env. Meanwhile constrains catheter to 2D.
 # Author: JunAng Wang
 # Contact: wangjunang94@gmail.com
 from stlib3.scene import MainHeader

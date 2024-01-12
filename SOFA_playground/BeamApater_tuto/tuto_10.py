@@ -1,5 +1,7 @@
 # This file adds collision model into the actuator and add a env. Meanwhile constrains catheter to 2D.
-# now Catheter contains two sections, one for stiff and other is softer.
+# now Catheter contains two sections, one is stiff and the other is softer. The parameters of Catheter 
+# use ETHz's parameters which is not appropriate since they used meter as their unit. I will change to unit 
+# in version 11
 # Author: JunAng Wang
 # Contact: wangjunang94@gmail.com
 from stlib3.scene import MainHeader
@@ -10,11 +12,11 @@ def createScene(rootNode):
     # Header
     rootNode.addObject('FreeMotionAnimationLoop')
     rootNode.addObject('DefaultVisualManagerLoop')
-    rootNode.addObject('LCPConstraintSolver',mu=0.02,tolerance=1e-6,maxIt=10000,build_lcp=False)
+    rootNode.addObject('LCPConstraintSolver',mu=0.04,tolerance=1e-6,maxIt=10000,build_lcp=False)
     rootNode.addObject('CollisionPipeline',draw=0,depth=6,verbose='1')
     rootNode.addObject('ParallelBruteForceBroadPhase',name='N2')
     rootNode.addObject('ParallelBVHNarrowPhase')
-    rootNode.addObject('LocalMinDistance',contactDistance=2,alarmDistance=6,name='localmindistance',angleCone=0.2)
+    rootNode.addObject('LocalMinDistance',contactDistance=0.002,alarmDistance=0.003,name='localmindistance',angleCone=0.02)
     rootNode.addObject('CollisionResponse',name='Response',response='FrictionContactConstraint')
     # rootNode.addObject('DefaultAnimationLoop')
     # rootNode.addObject('DefaultVisualManagerLoop')
@@ -26,16 +28,17 @@ def createScene(rootNode):
     rootNode.addObject('InteractiveCamera', name='Camera', position= [50,200,0], lookAt=[50,0,0])
     # rootNode.Camera.position.value = [50,200,0]
 
-    rootNode.gravity = [0.0, -9.81, 0.0] # mm/s^2
-    radius = 1 #mm = 0.00133m
-    StraightLength_stiff = 80 #mm
-    StraightLength_soft = 20 #mm
-    massDensity = 0.00000155 #g/mm^3
-    youngModulus_stiff = 20000#N/mm^2 = 170e6Pa (stiff)
-    youngModulus_soft = 1000
+    rootNode.gravity = [0.0, 0.0, 0.0] # m/s^2
+    radius = 0.00133/2 #m
+    inner_radius = 0.0008 
+    StraightLength_stiff = 0.5 #m
+    StraightLength_soft = 0.034 #m
+    massDensity = 1550 #kg/m^3
+    youngModulus_stiff = 170e6#N/m^2 = 170e6Pa (stiff)
+    youngModulus_soft = 21e6
     poissonRatio = 0.3
-    nbsection_soft = 12
-    nbsection_stiff = 48
+    nbsection_soft = 3
+    nbsection_stiff = 30
 
     
     #---------------------------------------------------------------------------
@@ -43,9 +46,9 @@ def createScene(rootNode):
     GuideCatheter = rootNode.addChild('GuideCatheter')
     # create straight Section, 60 sections, if want to import from external files using RodMeshSection
     GuideCatheter.addObject('RodStraightSection', name ='StraightSection_stiff',
-                         youngModulus= youngModulus_stiff, poissonRatio= poissonRatio, radius = radius, massDensity=massDensity, nbEdgesCollis = nbsection_stiff, nbEdgesVisu = 160, length = StraightLength_stiff)
+                         youngModulus= youngModulus_stiff, poissonRatio= poissonRatio, radius = radius, innerRadius= inner_radius, massDensity=massDensity, nbEdgesCollis = nbsection_stiff, nbEdgesVisu = 160, length = StraightLength_stiff)
     GuideCatheter.addObject('RodSpireSection', name ='StraightSection_soft',
-                         youngModulus= youngModulus_soft, poissonRatio= poissonRatio, radius = radius, massDensity=massDensity, nbEdgesCollis = nbsection_soft, nbEdgesVisu = 40, length = StraightLength_soft, spireDiameter=250, spireHeight=0)
+                         youngModulus= youngModulus_soft, poissonRatio= poissonRatio, radius = radius, innerRadius =inner_radius, massDensity=massDensity, nbEdgesCollis = nbsection_soft, nbEdgesVisu = 40, length = StraightLength_soft, spireDiameter=250, spireHeight=0)
     
 
     GuideCatheter.addObject('WireRestShape', name='GC_RestShape',  
@@ -61,12 +64,12 @@ def createScene(rootNode):
     # mechanical model of Catheter
     BeamModel = rootNode.addChild('BeamModel')
     
-    BeamModel.addObject('EulerImplicitSolver', rayleighStiffness=0.2, printLog=False, rayleighMass=0.1)
+    BeamModel.addObject('EulerImplicitSolver', rayleighStiffness=0.2, printLog=False, rayleighMass=0)
     BeamModel.addObject('BTDLinearSolver', verbose=False)
     BeamModel.addObject('RegularGridTopology', name='MeshLines', drawEdges=False, 
-                                    nx=nbsection_soft+nbsection_stiff, ny=1, nz=1,
-                                    xmax=0.0, xmin=0.0, ymin=0, ymax=0, zmax=0, zmin=0,
-                                    p0=[0,2,0])
+                                    nx=nbsection_soft+nbsection_stiff+1, ny=1, nz=1,
+                                    xmax=0, xmin=0.0, ymin=0, ymax=0, zmax=0, zmin=0,
+                                    p0=[0,0,0])
     DOFs = BeamModel.addObject('MechanicalObject', showIndices=False, name='Instrument_DOFs', template='Rigid3d')
     # FEM method (BeamInterpolation)
     # plug the catheter RestShape into WireBeamInterpolation 
@@ -80,17 +83,17 @@ def createScene(rootNode):
 
     #Deployment Controller
     BeamModel.addObject('InterventionalRadiologyController', name='DeployController', template='Rigid3d', instruments='BeamInterpolation', 
-                                    startingPos=[0, 2, 0, 0, 0, 0, 1], xtip=[0, 0, 0], printLog=False, 
-                                    rotationInstrument=[0, 0, 0], step=5, speed=2, 
-                                    listening=True, controlledInstrument=0)
+                                    startingPos=[0, 0, 0, 0, 0, 0, 1], xtip=[0, 0, 0], printLog=False, 
+                                    rotationInstrument=[0, 0, 0], step=0.0007, speed=1e-12, 
+                                    listening=True, controlledInstrument=0, threshold = 5e-9)
     BeamModel.addObject('LinearSolverConstraintCorrection', wire_optimization=True)
 
     BeamModel.addObject('FixedConstraint', indices=0, name='FixedConstraint')
-    # Add constraint box, one can add bbox=box into RestShapeSpringsForceField to constraint quasi 2D.
+    # Add constraint box
     # box = [0,0,-50,120,6,70]
     # BeamModel.addObject('BoxROI',name='BoxROI',box = box, drawBoxes=True, doUpdate=False)
     BeamModel.addObject('RestShapeSpringsForceField', name="RestSPForceField", points='@DeployController.indexFirstNode', angularStiffness=1e8, stiffness=1e8)
-    BeamModel.addObject('PartialFixedConstraint', indices = np.arange(nbsection_stiff + nbsection_soft), fixedDirections = [0,1,0,0,0,0])
+    BeamModel.addObject('PartialFixedConstraint', indices = np.arange(nbsection_stiff + nbsection_soft), fixedDirections = [0,0,1,0,0,0])
     
     #--------------------------------------------------------------------
     # Visual model: using WireRestShape mesh
@@ -140,8 +143,8 @@ def createScene(rootNode):
 
     #---------------------------------------------------------------------
     Env = rootNode.addChild('Env')
-    # Env.addObject('MeshSTLLoader', name = 'env_mesh', filename= 'flat_model_circles_2.stl', translation=[0, 0, 0.0], rotation= [0.0, 0.0, 0.0],triangulate=True,)
-    Env.addObject('MeshSTLLoader', name = 'env_mesh', filename= 'Neurovascular_3D.stl', translation=[0, 0, -5.0], rotation= [0.0, 0.0, 0.0],triangulate=True,)
+    Env.addObject('MeshSTLLoader', name = 'env_mesh', filename= 'flat_model_circles.stl', translation=[0, 0, 0.0], rotation= [0.0, 0.0, 0.0],triangulate=True, scale = 0.001)
+    # Env.addObject('MeshSTLLoader', name = 'env_mesh', filename= 'Neurovascular_3D.stl', translation=[0, 0, -5.0], rotation= [0.0, 0.0, -90.0],triangulate=True,)
     Env.addObject('MeshTopology', position = '@env_mesh.position', triangles= '@env_mesh.triangles', drawTriangles=False)
     Env.addObject('MechanicalObject', name = 'env_DOFs')
     

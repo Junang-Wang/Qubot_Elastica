@@ -81,9 +81,6 @@ def createScene(rootNode):
     BeamModel.addObject('FixedConstraint', indices=0, name='FixedConstraint')
     BeamModel.addObject('RestShapeSpringsForceField', name="RestSPForceField", points='@DeployController.indexFirstNode', angularStiffness=1e8, stiffness=1e8)
 
-    # BoxConstraint = BeamModel.addChild('BoxConstraint')
-    # BoxConstraint.addObject('BoxROI',name='BoxROI',box = [-200,-200,-200,220,200,200], drawBoxes=True, doUpdate=False)
-    # BoxConstraint.addObject('RestShapeSpringsForceField',name = 'BoxRestForceField', points='@BoxROI.indices',stiffness=1e8)
     
     #--------------------------------------------------------------------
     # Visual model: using WireRestShape mesh
