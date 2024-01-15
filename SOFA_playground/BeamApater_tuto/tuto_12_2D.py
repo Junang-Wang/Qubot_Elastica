@@ -1,5 +1,6 @@
 # This file adds collision model into the actuator and add a env. Meanwhile constrains catheter to 2D.
-# now Catheter contains two sections, one is stiff and the other is softer.
+# now Catheter contains two sections, one is stiff and the other is softer. The parameters of Catheter 
+# use SOFA example parameters. In the unit of mm, kg
 # Author: JunAng Wang
 # Contact: wangjunang94@gmail.com
 from stlib3.scene import MainHeader
@@ -10,11 +11,11 @@ def createScene(rootNode):
     # Header
     rootNode.addObject('FreeMotionAnimationLoop')
     rootNode.addObject('DefaultVisualManagerLoop')
-    rootNode.addObject('LCPConstraintSolver',mu=0.02,tolerance=1e-4,maxIt=1000,build_lcp=False)
+    rootNode.addObject('LCPConstraintSolver',mu=0.1,tolerance=1e-4,maxIt=1000,build_lcp=False)
     rootNode.addObject('CollisionPipeline',draw=0,depth=6,verbose='1')
     rootNode.addObject('ParallelBruteForceBroadPhase',name='N2')
     rootNode.addObject('ParallelBVHNarrowPhase')
-    rootNode.addObject('LocalMinDistance',contactDistance=1,alarmDistance=2,name='localmindistance',angleCone=0.2)
+    rootNode.addObject('LocalMinDistance',contactDistance=1,alarmDistance=2,name='localmindistance',angleCone=0.5, coneFactor=0.5)
     rootNode.addObject('CollisionResponse',name='Response',response='FrictionContactConstraint')
     # rootNode.addObject('DefaultAnimationLoop')
     # rootNode.addObject('DefaultVisualManagerLoop')
@@ -23,19 +24,20 @@ def createScene(rootNode):
     rootNode.addObject('VisualStyle', displayFlags=display)
     rootNode.addObject('RequiredPlugin', pluginName=pluginList)
     rootNode.addObject('OglSceneFrame',style='Arrows', alignment='TopRight')
-    rootNode.addObject('InteractiveCamera', name='Camera', position= [50,200,0], lookAt=[50,0,0])
-    # rootNode.Camera.position.value = [50,200,0]
+    rootNode.addObject('InteractiveCamera', name='Camera', position= [0,0,50], lookAt=[0,0,0])
 
-    rootNode.gravity = [0.0, -9.81, 0.0] # mm/s^2
-    radius = 1 #mm = 0.00133m
-    StraightLength_stiff = 80 #mm
-    StraightLength_soft = 20 #mm
-    massDensity = 0.00000155 #g/mm^3
-    youngModulus_stiff = 20000#N/mm^2 = 170e6Pa (stiff)
-    youngModulus_soft = 1000
+    rootNode.gravity = [0.0, 0.0, 0.0] # mm/s^2
+    radius = 1 #mm
+    inner_radius = 0 
+    StraightLength_stiff = 600 #mm
+    StraightLength_soft = 400 #mm
+    spireDiameter = 4000
+    massDensity = 1550e-9 #kg/mm^3
+    youngModulus_stiff = 10000#N/mm^2 = 10000e6Pa (stiff)
+    youngModulus_soft = 10000
     poissonRatio = 0.3
-    nbsection_soft = 12
-    nbsection_stiff = 48
+    nbsection_soft = 10
+    nbsection_stiff = 40
 
     
     #---------------------------------------------------------------------------
@@ -43,9 +45,9 @@ def createScene(rootNode):
     GuideCatheter = rootNode.addChild('GuideCatheter')
     # create straight Section, 60 sections, if want to import from external files using RodMeshSection
     GuideCatheter.addObject('RodStraightSection', name ='StraightSection_stiff',
-                         youngModulus= youngModulus_stiff, poissonRatio= poissonRatio, radius = radius, massDensity=massDensity, nbEdgesCollis = nbsection_stiff, nbEdgesVisu = 160, length = StraightLength_stiff)
+                         youngModulus= youngModulus_stiff, poissonRatio= poissonRatio, radius = radius, nbEdgesCollis = nbsection_stiff, nbEdgesVisu = 160, length = StraightLength_stiff)
     GuideCatheter.addObject('RodSpireSection', name ='StraightSection_soft',
-                         youngModulus= youngModulus_soft, poissonRatio= poissonRatio, radius = radius, massDensity=massDensity, nbEdgesCollis = nbsection_soft, nbEdgesVisu = 40, length = StraightLength_soft, spireDiameter=250, spireHeight=0)
+                         youngModulus= youngModulus_soft, poissonRatio= poissonRatio, radius = radius, nbEdgesCollis = nbsection_soft, nbEdgesVisu = 40, length = StraightLength_soft, spireDiameter=spireDiameter, spireHeight=0)
     
 
     GuideCatheter.addObject('WireRestShape', name='GC_RestShape',  
@@ -53,7 +55,7 @@ def createScene(rootNode):
     GuideCatheter.addObject('EdgeSetTopologyContainer', name='meshLinesBeam')
     GuideCatheter.addObject('EdgeSetTopologyModifier', name='Modifier')
     GuideCatheter.addObject('EdgeSetGeometryAlgorithms', name='GeomAlgo', template='Rigid3d')
-    GuideCatheter.addObject('MechanicalObject', name='dofTopo2', template='Rigid3d')
+    GuideCatheter.addObject('MechanicalObject', name='dofTopo1', template='Rigid3d')
     
 
 
@@ -62,12 +64,12 @@ def createScene(rootNode):
     BeamModel = rootNode.addChild('BeamModel')
     
     BeamModel.addObject('EulerImplicitSolver', rayleighStiffness=0.2, printLog=False, rayleighMass=0.1)
-    BeamModel.addObject('BTDLinearSolver', verbose=False)
+    BeamModel.addObject('BTDLinearSolver', subpartSolve = False,verification = False, verbose=False)
     BeamModel.addObject('RegularGridTopology', name='MeshLines', drawEdges=False, 
-                                    nx=nbsection_soft+nbsection_stiff, ny=1, nz=1,
-                                    xmax=0.0, xmin=0.0, ymin=0, ymax=0, zmax=0, zmin=0,
-                                    p0=[0,2,-2])
-    DOFs = BeamModel.addObject('MechanicalObject', showIndices=False, name='Instrument_DOFs', template='Rigid3d')
+                                    nx=180, ny=1, nz=1,
+                                    xmax=1, xmin=0.0, ymin=0, ymax=0, zmax=1, zmin=1,
+                                    p0=[0,0,0])
+    BeamModel.addObject('MechanicalObject', showIndices=False, name='Instrument_DOFs', template='Rigid3d')
     # FEM method (BeamInterpolation)
     # plug the catheter RestShape into WireBeamInterpolation 
     BeamModel.addObject('WireBeamInterpolation', name='BeamInterpolation', WireRestShape='@../GuideCatheter/GC_RestShape', radius=radius, printLog=False)
@@ -76,12 +78,12 @@ def createScene(rootNode):
     # massDensity: Density of the mass
     # shearStressComputation: if false, suppress the shear stress in the computation
     # reinforceLength: a separation computation for the error in elongation is performed
-    BeamModel.addObject('AdaptiveBeamForceFieldAndMass', name='BeamForceField', massDensity=massDensity, interpolation='@BeamInterpolation', computeMass=True, reinforceLength= False, shearStressComputation= True)
+    BeamModel.addObject('AdaptiveBeamForceFieldAndMass', name='BeamForceField', massDensity=massDensity, interpolation='@BeamInterpolation', computeMass=True, reinforceLength= False, shearStressComputation= False)
 
     #Deployment Controller
     BeamModel.addObject('InterventionalRadiologyController', name='DeployController', template='Rigid3d', instruments='BeamInterpolation', 
-                                    startingPos=[0, 2, -2, 0, 0, 0, 1], xtip=[0, 0, 0], printLog=False, 
-                                    rotationInstrument=[0, 0, 0], step=5, speed=2, 
+                                    startingPos=[0,0,0,0,0,0,1], xtip=[1, 0, 0], printLog=False, 
+                                    rotationInstrument=[0, 0, 0], step=3, speed=2, 
                                     listening=True, controlledInstrument=0)
     BeamModel.addObject('LinearSolverConstraintCorrection', wire_optimization=True)
 
@@ -90,11 +92,38 @@ def createScene(rootNode):
     # box = [0,0,-50,120,6,70]
     # BeamModel.addObject('BoxROI',name='BoxROI',box = box, drawBoxes=True, doUpdate=False)
     BeamModel.addObject('RestShapeSpringsForceField', name="RestSPForceField", points='@DeployController.indexFirstNode', angularStiffness=1e8, stiffness=1e8)
-    BeamModel.addObject('PartialFixedConstraint', indices = np.arange(nbsection_stiff + nbsection_soft), fixedDirections = [0,1,0,0,0,0])
+    BeamModel.addObject('PartialFixedConstraint', fixedDirections = [0,0,1,0,0,0],indices=np.arange(180))
+    #-----------------------------------------------------------------------
+    # Collision model
+    Collis = BeamModel.addChild('CollisionCatheter')
+    Collis.activated = True
+    Collis.addObject('MechanicalObject', name='colli_DOFs',template='Vec3d')
+    # if use 1D line mesh, one can extend to 2D surf mesh
+    # if one needs 3D mesh, one has to import stl 3D files or deploys CylinderGridTopology
+
+    # CollisionCatheter.addObject('QuadSetTopologyContainer',name = 'colli_container')
+    # CollisionCatheter.addObject('QuadSetTopologyModifier')
+    # CollisionCatheter.addObject('QuadSetGeometryAlgorithms',showPointIndices=False, showEdgeIndices=False, drawEdges=False)
+    # CollisionCatheter.addObject('Edge2QuadTopologicalMapping',nbPointsOnEachCircle=10,
+    #                             radius=radius, input='@../../GuideCatheter/meshLinesBeam',
+    #                             output='@colli_container')
+
+    # CollisionCatheter.activated = True
+    Collis.addObject('EdgeSetTopologyContainer',name='collisEdgeSet')
+    Collis.addObject('EdgeSetTopologyModifier',name='colliseEdgeModifier')
+
+    # CylinderGridTopology, nz is the longitudinal direction discretization
+    # CollisionCatheter.addObject('CylinderGridTopology', name ='Cylinder_container', axis= [1,0,0], center = [0,0,0], length=length, radius=radius, nx=5, ny=5, nz=6)
+    Collis.addObject('MultiAdaptiveBeamMapping',controller='../DeployController',useCurvAbs=True, printLog=False,name='collisMap')
+    Collis.addObject('PointCollisionModel',proximity=0.0)
+    Collis.addObject('LineCollisionModel', proximity=0.0)
+    # CollisionCatheter.addObject('TriangleCollisionModel')
+    # CollisionCatheter.addObject('TetrahedronCollisionModel')
     
     #--------------------------------------------------------------------
     # Visual model: using WireRestShape mesh
     VisualCatheter = BeamModel.addChild('VisualCatheter')
+    
     VisualCatheter.addObject('MechanicalObject', name= 'visu_DOFs',template='Vec3d')
     
     VisualCatheter.addObject('QuadSetTopologyContainer', name = "visu_container")
@@ -111,44 +140,20 @@ def createScene(rootNode):
     VisuOgl.addObject("OglModel", name="visual", color=[0.5,1,0.5], quads="@../visu_container.quads")
     VisuOgl.addObject('IdentityMapping', input="@../visu_DOFs",output='@visual')
 
-    #-----------------------------------------------------------------------
-    # Collision model
-    CollisionCatheter = BeamModel.addChild('CollisionCatheter')
-    CollisionCatheter.addObject('MechanicalObject', name='colli_DOFs',template='Vec3d')
-    # if use 1D line mesh, one can extend to 2D surf mesh
-    # if one needs 3D mesh, one has to import stl 3D files or deploys CylinderGridTopology
-
-    # CollisionCatheter.addObject('QuadSetTopologyContainer',name = 'colli_container')
-    # CollisionCatheter.addObject('QuadSetTopologyModifier')
-    # CollisionCatheter.addObject('QuadSetGeometryAlgorithms',showPointIndices=False, showEdgeIndices=False, drawEdges=False)
-    # CollisionCatheter.addObject('Edge2QuadTopologicalMapping',nbPointsOnEachCircle=10,
-    #                             radius=radius, input='@../../GuideCatheter/meshLinesBeam',
-    #                             output='@colli_container')
-
-    # CollisionCatheter.activated = True
-    CollisionCatheter.addObject('EdgeSetTopologyContainer',name='collisEdgeSet')
-    CollisionCatheter.addObject('EdgeSetTopologyModifier',name='colliseEdgeModifier')
-
-    # CylinderGridTopology, nz is the longitudinal direction discretization
-    # CollisionCatheter.addObject('CylinderGridTopology', name ='Cylinder_container', axis= [1,0,0], center = [0,0,0], length=length, radius=radius, nx=5, ny=5, nz=6)
     
-    CollisionCatheter.addObject('PointCollisionModel')
-    CollisionCatheter.addObject('LineCollisionModel')
-    # CollisionCatheter.addObject('TriangleCollisionModel')
-    # CollisionCatheter.addObject('TetrahedronCollisionModel')
-    CollisionCatheter.addObject('MultiAdaptiveBeamMapping',controller='../DeployController',useCurvAbs=True, printLog=False,name='collisMap')
 
     #---------------------------------------------------------------------
-    Env = rootNode.addChild('Env')
-    # Env.addObject('MeshSTLLoader', name = 'env_mesh', filename= 'flat_model_circles_2.stl', translation=[0, 0, 0.0], rotation= [0.0, 0.0, 0.0],triangulate=True,)
-    Env.addObject('MeshSTLLoader', name = 'env_mesh', filename= 'Neurovascular_3D.stl', translation=[0, 0, -5.0], rotation= [0.0, 0.0, -90.0],triangulate=True, flipNormals='1')
+    # Noticed that, flipNormals has to be set to 1 here, in order to set Env Collision Model collide from inner wall.
+    Env= rootNode.addChild('Env')
+    Env.addObject('MeshSTLLoader', name = 'env_mesh', filename= 'Neurovascular_2D_2.stl', translation=[0, 0, -1.0], rotation= [0.0, 0.0, 0.0],triangulate=True, scale = 1)
+    # Env.addObject('MeshSTLLoader', name = 'env_mesh', filename= 'flat_model_circles.stl', translation=[0, 0, -1.0], rotation= [0.0, 0.0, 0.0],triangulate=True, scale = 1)
     Env.addObject('MeshTopology', position = '@env_mesh.position', triangles= '@env_mesh.triangles', drawTriangles=False)
-    Env.addObject('MechanicalObject', name = 'env_DOFs')
+    Env.addObject('MechanicalObject', name = 'env_DOFs', scale=3)
     
     Env.addObject('PointCollisionModel', moving=False, simulated = False)
     Env.addObject('TriangleCollisionModel', moving=False, simulated = False)
     Env.addObject('LineCollisionModel', moving= False, simulated = False)
-    Env.addObject('OglModel',name = 'visu_env', src ='@env_mesh',color=[1,0,0,0.3])
+    Env.addObject('OglModel', name='visu_env', src='@env_mesh', color=[1,0,0,0.3], scale=3)
 
     return rootNode
     
