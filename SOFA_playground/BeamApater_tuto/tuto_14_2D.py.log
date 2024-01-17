@@ -1,0 +1,29 @@
+
+--- NEW SESSION: 17/01/2024 15:46:11 ---
+OglLabel.color = 0.498039 0.498039 0.498039 1//OglLabel.x = 0
+//OglLabel.y = 0
+//OglLabel.fontsize = 1
+//OglLabel.color = 0.498039 0.498039 0.498039 1
+//OglLabel.x = 10
+//OglLabel.updateLabelEveryNbSteps = 0
+//OglLabel.color = 0.498039 0.498039 0.498039 1
+//OglLabel.fontsize = 100
+/BeamModel/VisualCatheter/VisuOgl/OglLabel.color = 0.498039 0.498039 0.498039 1
+
+--- NEW SESSION: 17/01/2024 16:30:02 ---
+/BeamModel/VisualCatheter/VisuOgl/OglLabel.color = 0.498039 0.498039 0.498039 1
+
+--- NEW SESSION: 17/01/2024 16:35:07 ---
+/BeamModel/VisualCatheter/VisuOgl/OglLabel.color = 0 0 0 1
+
+--- NEW SESSION: 17/01/2024 17:48:58 ---
+/BeamModel/CollectorMagneticForceField.forces = 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+/BeamModel/CollectorMagneticForceField.showColor = 0.2 0.898039 0.298039 1
+/BeamModel/CollectorMagneticForceField.forces = 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+/BeamModel/CollectorMagneticForceField.showColor = 0.2 0.898039 0.298039 1
+/BeamModel/CollectorMagneticForceField.forces = 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+/BeamModel/CollectorMagneticForceField.showColor = 0.2 0.898039 0.298039 1
+
+--- NEW SESSION: 17/01/2024 17:52:56 ---
+/BeamModel/CollectorMagneticForceField.forces = 0 10 0 0 0 0 0 10 0 0 0 0 0 10 0 0 0 0 0 10 0 0 0 0 0 10 0 0 0 0 0 10 0 0 0 0
+/BeamModel/CollectorMagneticForceField.showColor = 0.2 0.898039 0.298039 1

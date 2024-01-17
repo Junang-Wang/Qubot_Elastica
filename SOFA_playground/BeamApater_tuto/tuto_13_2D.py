@@ -1,6 +1,6 @@
 # This file adds collision model into the actuator and add a env. Meanwhile constrains catheter to 2D.
 # now Catheter contains two sections, one is stiff and the other is softer. The parameters of Catheter 
-# use SOFA example parameters. In the unit of mm, kg
+# use SOFA example parameters. In the unit of mm, g
 # Add Constant Force Controller to catheter
 # Author: JunAng Wang
 # Contact: wangjunang94@gmail.com
@@ -60,7 +60,7 @@ def createScene(rootNode):
     StraightLength_stiff = 600 #mm
     StraightLength_soft = 400 #mm
     spireDiameter = 4000
-    massDensity = 1550e-9 #kg/mm^3
+    massDensity = 1550e-6 #g/mm^3
     youngModulus_stiff = 10000#N/mm^2 = 10000e6Pa (stiff)
     youngModulus_soft = 10000
     poissonRatio = 0.3
