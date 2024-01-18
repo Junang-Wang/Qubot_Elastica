@@ -41,14 +41,11 @@ class catheterController(Sofa.Core.Controller):
         elif key == '9':
             self.magnetic_field_spherical[2] -= 2*np.pi/20
             print('decreasing magnetic azimuth angle')
-        elif key == '8':
+        elif key == '7':
             self.magnetic_field_spherical[0] += 1e1 #mT
             print('Adding magnetic amplitude')
-        elif key == '7':
-            if self.magnetic_field_spherical[0]<=0:
-                pass
-            else:
-                self.magnetic_field_spherical[0] -= 1e1
+        elif key == '8':
+            self.magnetic_field_spherical[0] -= 1e1
             print('Reducing magnetic amplitude')
         self.instrument.CollectorEndForceField.forces[0][:2] = [np.cos(theta)*amplitude, np.sin(theta)*amplitude]
 
@@ -71,10 +68,10 @@ class catheterController(Sofa.Core.Controller):
         # print(self.dipole_moment_amp*np.cross(diopole_moment_dir,magnetic_field))
         forces[:,3:] = self.dipole_moment_amp*np.cross(diopole_moment_dir,magnetic_field)
         # apply torque
-        self.instrument.CollectorMagneticForceField.forces = forces.tolist()
+        self.instrument.MagneticCatheter.CollectorMagneticForceField.forces = forces.tolist()
         magnetic_field_visu[:,:3] = magnetic_field
         # apply magnetic field visualization
-        self.instrument.MagneticFieldVisual.forces = magnetic_field_visu.tolist()
+        self.instrument.MagneticCatheter.MagneticFieldVisual.forces = magnetic_field_visu.tolist()
         # print(magnetic_field_visu.tolist())
         # print(self.instrument.CollectorMagneticForceField.forces[:])
         self.instrument.VisualCatheter.VisuOgl.OglLabel.label =f'{self.magnetic_field_spherical[0]:.0f} mT'
@@ -107,7 +104,7 @@ def createScene(rootNode):
     radius = 1 #mm/ 1000 = m
     inner_radius = 0 
     StraightLength_stiff = 600 #mm 
-    StraightLength_soft = 40 #mm 
+    StraightLength_soft = 400 #mm 
     spireDiameter = 4000
     massDensity = 1550 * 1e-6 #g/mm^3
     youngModulus_stiff = 10000e3#10000e6Pa (stiff)
@@ -163,11 +160,8 @@ def createScene(rootNode):
     BeamModel.addObject('AdaptiveBeamForceFieldAndMass', name='BeamForceField', massDensity=massDensity, interpolation='@BeamInterpolation', computeMass=True, reinforceLength= False, shearStressComputation= False)
     # Constant Force Field
     BeamModel.addObject('ConstantForceField', name='CollectorEndForceField', indices=0, forces=[0,0,0,0,0,0],indexFromEnd=True, showArrowSize=1e-2)
-    BeamModel.addObject('ConstantForceField', name='CollectorMagneticForceField', indices=np.arange(nbsection_soft), forces=np.tile(np.zeros(6), (nbsection_soft,1)),indexFromEnd=True, showArrowSize=1e-2,showColor=[1,0,0,1])
 
-    BeamModel.addObject('ConstantForceField', name='MagneticFieldVisual', indices=0, forces=[0,0,0,0,0,0], showArrowSize=1e-1)
-
-    BeamModel.addObject(catheterController(BeamModel,magnet, magnetic_field_spherical,name='catheterController'))
+    # BeamModel.addObject(catheterController(BeamModel,magnet, magnetic_field_spherical,name='catheterController'))
     #Deployment Controller
     BeamModel.addObject('InterventionalRadiologyController', name='DeployController', template='Rigid3d', instruments='BeamInterpolation', 
                                     startingPos=[0,0,0,0,0,0,1], xtip=1, printLog=False, 
@@ -181,6 +175,21 @@ def createScene(rootNode):
     # BeamModel.addObject('BoxROI',name='BoxROI',box = box, drawBoxes=True, doUpdate=False)
     BeamModel.addObject('RestShapeSpringsForceField', name="RestSPForceField", points='@DeployController.indexFirstNode', angularStiffness=1e8, stiffness=1e8)
     BeamModel.addObject('PartialFixedConstraint', fixedDirections = [0,0,1,0,0,0],indices=np.arange(180))
+    #-----------------------------------------------------------------------
+    # Magnetic Field
+    MagneticCatheter = BeamModel.addChild('MagneticCatheter')
+    MagneticCatheter.addObject('RegularGridTopology', name='MeshLines', drawEdges=False, 
+                                    nx=180, ny=1, nz=1,
+                                    xmax=0, xmin=0.0, ymin=0, ymax=0, zmax=0, zmin=0,
+                                    p0=[0,0,0])
+    MagneticCatheter.addObject('MechanicalObject', showIndices=False, name='MagneticCatheter_DOFs', template='Rigid3d')
+    # MagneticCatheter.addObject('ConstantForceField', name='CollectorMagneticForceField', indices=np.arange(nbsection_soft), forces=np.tile(np.zeros(6), (nbsection_soft,1)),indexFromEnd=True, showArrowSize=1e-2,showColor=[1,0,0,1])
+
+    MagneticCatheter.addObject('ConstantForceField', name='MagneticFieldVisual', indices=0, forces=[0,0,0,0,0,0], showArrowSize=1e-1, indexFromEnd=True)
+    # MagneticCatheter.addObject('EdgeSetTopologyContainer',name='MagneticEdgeSet')
+    # MagneticCatheter.addObject('EdgeSetTopologyModifier',name='MagneticEdgeModifier')
+    MagneticCatheter.addObject('AdaptiveBeamMapping', output="@../Instrument_DOFs", input="@MagneticCatheter_DOFs", interpolation='@../BeamInterpolation')
+    # MagneticCatheter.addObject('MultiAdaptiveBeamMapping',controller='../DeployController',useCurvAbs=True, printLog=False,name='MagneticMap')
     #-----------------------------------------------------------------------
     # Collision model
     Collis = BeamModel.addChild('CollisionCatheter')
@@ -227,7 +236,7 @@ def createScene(rootNode):
     VisuOgl = VisualCatheter.addChild('VisuOgl')
     VisuOgl.addObject("OglModel", name="visual", color=[0.5,1,0.5], quads="@../visu_container.quads")
     VisuOgl.addObject('IdentityMapping', input="@../visu_DOFs",output='@visual')
-    VisuOgl.addObject('OglLabel',label=f'{BeamModel.catheterController.magnetic_field_spherical[0]:.0f} mT',x=0, y=0, fontsize=50, updateLabelEveryNbSteps=1,selectContrastingColor=True)
+    # VisuOgl.addObject('OglLabel',label=f'{BeamModel.catheterController.magnetic_field_spherical[0]:.0f} mT',x=0, y=0, fontsize=50, updateLabelEveryNbSteps=1,selectContrastingColor=True)
 
     
 
