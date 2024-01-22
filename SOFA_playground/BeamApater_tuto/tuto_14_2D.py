@@ -103,7 +103,7 @@ def createScene(rootNode):
     rootNode.addObject('OglSceneFrame',style='Arrows', alignment='TopRight')
     rootNode.addObject('InteractiveCamera', name='Camera', position= [0,0,50], lookAt=[0,0,0])
 
-    rootNode.gravity = [0.0, 0.0, 0.0] # m/s^2
+    rootNode.gravity = [0.0, 0.0, 0.0] # mm/s^2
     radius = 1 #mm/ 1000 = m
     inner_radius = 0 
     StraightLength_stiff = 600 #mm 
@@ -237,12 +237,12 @@ def createScene(rootNode):
     # Env.addObject('MeshSTLLoader', name = 'env_mesh', filename= 'Neurovascular_2D_2.stl', translation=[0, 0, -1.0], rotation= [0.0, 0.0, 0.0],triangulate=True, scale = 1)
     Env.addObject('MeshSTLLoader', name = 'env_mesh', filename= 'flat_model_circles.stl', translation=[0, 0, -1.0], rotation= [0.0, 0.0, 0.0],triangulate=True, scale = 1)
     Env.addObject('MeshTopology', position = '@env_mesh.position', triangles= '@env_mesh.triangles', drawTriangles=False)
-    Env.addObject('MechanicalObject', name = 'env_DOFs', scale=3)
+    Env.addObject('MechanicalObject', name = 'env_DOFs', scale=1)
     
     Env.addObject('PointCollisionModel', moving=False, simulated = False)
     Env.addObject('TriangleCollisionModel', moving=False, simulated = False)
     Env.addObject('LineCollisionModel', moving= False, simulated = False)
-    Env.addObject('OglModel', name='visu_env', src='@env_mesh', color=[1,0,0,0.3], scale=3)
+    Env.addObject('OglModel', name='visu_env', src='@env_mesh', color=[1,0,0,0.3], scale=1)
 
     return rootNode
     
