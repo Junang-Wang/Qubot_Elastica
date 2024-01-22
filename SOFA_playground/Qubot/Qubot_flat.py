@@ -43,7 +43,7 @@ def createScene(rootNode):
     )
 
     # instrumentDOFs initializes physics model, collision model, visual model and controller
-    mcr_instrumentDOFs.Instrument_DOFs(
+    mcr_radiologyInstrumentDOFs.Instrument_DOFs(
         rootNode = rootNode,
         magnet   = magnet,
         magnetic_field_spherical = magnetic_field_spherical,

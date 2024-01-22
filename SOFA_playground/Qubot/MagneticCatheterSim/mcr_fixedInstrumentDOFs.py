@@ -4,8 +4,9 @@ def Instrument_DOFs(
         rootNode,
         magnet,
         magnetic_field_spherical,
+        end_forces,
         topo_instruments,
-        grid_nx,
+        translations,
         fixed_directions = [0,0,1,0,0,0]
 ):
     '''
@@ -16,39 +17,37 @@ def Instrument_DOFs(
     grid_nx                  : number of grid edges
     fixed_directions         : the constrained direction, 1 for constrained, the first three refer to the translation along x,y,z. The last three represent the rotation(torque) around x,y,z 
     '''
-    # mechanical model of Catheter
-    PhysicsModel = rootNode.addChild('PhysicsModel')
-    
-    PhysicsModel.addObject(
-        'EulerImplicitSolver', 
-        rayleighStiffness=0.2, 
-        printLog=False, 
-        rayleighMass=0.1)
-    PhysicsModel.addObject(
-        'BTDLinearSolver', 
-        subpartSolve = False,
-        verification = False, 
-        verbose=False)
-    PhysicsModel.addObject(
-        'RegularGridTopology',
-        name='MeshLines', 
-        drawEdges=False, 
-        nx=grid_nx, ny=1, nz=1,
-        xmax=0, xmin=0.0, ymin=0, ymax=0, zmax=0, zmin=0,
-        p0=[0,0,0])
-    PhysicsModel.addObject(
-        'MechanicalObject', 
-        showIndices=False, 
-        name='Instrument_DOFs', 
-        template='Rigid3d')
-    # FEM method (BeamInterpolation)
-    # plug the catheter RestShape into WireBeamInterpolation 
     BeamInterpolationName = []
     for i in range(len(topo_instruments)):
+        # mechanical model of Catheter
+        PhysicsModel = rootNode.addChild(topo_instruments[i].name+'PhysicsModel')
+        
         PhysicsModel.addObject(
-            'WireBeamInterpolation', 
+            'EulerImplicitSolver', 
+            rayleighStiffness=0.2, 
+            printLog=False, 
+            rayleighMass=0.1)
+        PhysicsModel.addObject(
+            'BTDLinearSolver', 
+            subpartSolve = False,
+            verification = False, 
+            verbose=False)
+        PhysicsModel.addObject(
+            "MeshTopology", 
+            src = "@../"+ topo_instruments[i].name+"/meshLinesBeam")
+        PhysicsModel.addObject(
+            'MechanicalObject', 
+            showIndices=False, 
+            name='Instrument_DOFs', 
+            template='Rigid3d',
+            translation =translations[i])
+        # FEM method (BeamInterpolation)
+        # plug the catheter RestShape into WireBeamInterpolation 
+    
+
+        PhysicsModel.addObject(
+            'BeamInterpolation', 
             name='Interpol'+topo_instruments[i].name, 
-            WireRestShape='@../'+topo_instruments[i].name + '/' + topo_instruments[i].WireRestShapeName, 
             radius=topo_instruments[i].radius, printLog=False)
         BeamInterpolationName.append('Interpol'+topo_instruments[i].name)  
     # compute internal forces
@@ -62,69 +61,52 @@ def Instrument_DOFs(
             computeMass=True, 
             reinforceLength= False, 
             shearStressComputation= False)
-    # Constant Force Field
-    PhysicsModel.addObject(
-        'ConstantForceField', 
-        name='CollectorEndForceField', 
-        indices=0, 
-        forces=[0,0,0,0,0,0],
-        indexFromEnd=True, 
-        showArrowSize=1e-2)
-    PhysicsModel.addObject(
-        'ConstantForceField', 
-        name='CollectorMagneticForceField', 
-        indices=np.arange(topo_instruments[0].nbsections[1]), 
-        forces=np.tile(np.zeros(6), (topo_instruments[0].nbsections[1],1)),
-        indexFromEnd=True, 
-        showArrowSize=1e-2,
-        showColor=[1,0,0,1])
+        # Constant Force Field
+        PhysicsModel.addObject(
+            'ConstantForceField', 
+            name='CollectorEndForceField', 
+            indices=0, 
+            forces=end_forces[i],
+            indexFromEnd=True, 
+            showArrowSize=1e-2)
+        PhysicsModel.addObject(
+            'ConstantForceField', 
+            name='CollectorMagneticForceField', 
+            indices=np.arange(topo_instruments[i].nbsections[-1]), 
+            forces=np.tile(np.zeros(6), (topo_instruments[i].nbsections[-1],1)),
+            indexFromEnd=True, 
+            showArrowSize=1e-2,
+            showColor=[1,0,0,1])
 
-    PhysicsModel.addObject(
-        'ConstantForceField', 
-        name='MagneticFieldVisual', 
-        indices=0, 
-        forces=[0,0,0,0,0,0], 
-        showArrowSize=1e-1)
+        PhysicsModel.addObject(
+            'ConstantForceField', 
+            name='MagneticFieldVisual', 
+            indices=0, 
+            forces=[0,0,0,0,0,0], 
+            showArrowSize=1e-1)
 
-    PhysicsModel.addObject(
-        catheterController(
-            PhysicsModel,magnet, 
-            magnetic_field_spherical,
-            name='catheterController'))
-    #Deployment Controller
-    PhysicsModel.addObject(
-        'InterventionalRadiologyController', 
-        name='DeployController', 
-        template='Rigid3d', 
-        instruments=' '.join(BeamInterpolationName), 
-        startingPos=[0,0,0,0,0,0,1], 
-        xtip=1, 
-        printLog=False, 
-        rotationInstrument=[0, 0, 0], 
-        step=3, 
-        speed=4, 
-        listening=True, 
-        controlledInstrument=0)
-    PhysicsModel.addObject(
-        'LinearSolverConstraintCorrection', wire_optimization=True)
+        PhysicsModel.addObject(
+            catheterController(
+                PhysicsModel,
+                magnet, 
+                magnetic_field_spherical,
+                name='catheterController'))
 
-    PhysicsModel.addObject(
-        'FixedConstraint', 
-        indices=0, 
-        name='FixedConstraint')
-    # Add constraint box
-    # box = [0,0,-50,120,6,70]
-    # PhysicsModel.addObject('BoxROI',name='BoxROI',box = box, drawBoxes=True, doUpdate=False)
-    PhysicsModel.addObject(
-        'RestShapeSpringsForceField', 
-        name="RestSPForceField", 
-        points='@DeployController.indexFirstNode', 
-        angularStiffness=1e8, 
-        stiffness=1e8)
-    PhysicsModel.addObject(
-        'PartialFixedConstraint', 
-        fixedDirections = fixed_directions,
-        indices=np.arange(grid_nx))
+        PhysicsModel.addObject(
+            'LinearSolverConstraintCorrection', wire_optimization=True)
+
+        PhysicsModel.addObject(
+            'FixedConstraint', 
+            indices=0, 
+            name='FixedConstraint')
+        # Add constraint box
+        # box = [0,0,-50,120,6,70]
+        # PhysicsModel.addObject('BoxROI',name='BoxROI',box = box, drawBoxes=True, doUpdate=False)
+
+        PhysicsModel.addObject(
+            'PartialFixedConstraint', 
+            fixedDirections = fixed_directions,
+            indices=np.arange(topo_instruments[0].nbsections[-1]))
         #-----------------------------------------------------------------------
     # Collision model
     Collis = PhysicsModel.addChild('CollisionCatheter')
@@ -149,12 +131,17 @@ def Instrument_DOFs(
 
     # CylinderGridTopology, nz is the longitudinal direction discretization
     # CollisionCatheter.addObject('CylinderGridTopology', name ='Cylinder_container', axis= [1,0,0], center = [0,0,0], length=length, radius=radius, nx=5, ny=5, nz=6)
+    # Collis.addObject(
+    #     'MultiAdaptiveBeamMapping',
+    #     controller='../DeployController',
+    #     useCurvAbs=True, 
+    #     printLog=False,
+    #     name='collisMap')
     Collis.addObject(
-        'MultiAdaptiveBeamMapping',
-        controller='../DeployController',
-        useCurvAbs=True, 
-        printLog=False,
-        name='collisMap')
+            'AdaptiveBeamMapping', 
+            input="@../Instrument_DOFs", 
+            output="@colli_DOFs", 
+            interpolation=f'@../Interpol{topo_instruments[i].name}')
     Collis.addObject('PointCollisionModel',proximity=0.0)
     Collis.addObject('LineCollisionModel', proximity=0.0)
     # CollisionCatheter.addObject('TriangleCollisionModel')
