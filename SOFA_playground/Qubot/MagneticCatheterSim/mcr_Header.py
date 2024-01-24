@@ -20,6 +20,7 @@ def Header(
     angleCone      : Filtering cone extension angle
     coneFactor     : Factor for filtering cone angle computation
     '''
+    rootNode.addObject('RequiredPlugin', pluginName=pluginList)
     rootNode.addObject('FreeMotionAnimationLoop')
     rootNode.addObject('DefaultVisualManagerLoop')
     # Constraint Solver
@@ -35,7 +36,6 @@ def Header(
     # setting VisualStyle, pluginList, and 3D frame coordinate
     rootNode.addObject('VisualStyle', displayFlags=display)
     rootNode.addObject('BackgroundSetting', color=[0,0,0,1])
-    rootNode.addObject('RequiredPlugin', pluginName=pluginList)
     rootNode.addObject('OglSceneFrame',style='Arrows', alignment='TopRight')
     rootNode.addObject('InteractiveCamera', name='Camera', position= [0,0,50], lookAt=[0,0,0])
     rootNode.gravity = gravity # mm/s^2

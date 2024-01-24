@@ -67,7 +67,10 @@ class catheterController(Sofa.Core.Controller):
         x = np.array([1,0,0])
         # compute dipole moment direction
         dipole_moment_dir = r.apply(np.tile(x,(self.magnets_num_nodes,1)))
-        print(np.arctan(dipole_moment_dir[-1][1]/dipole_moment_dir[-1][0])/np.pi * 180)
+        # store bending angle
+        self.bendingAngle = np.arctan(mag_pos[-1,1]/mag_pos[-1,0])/np.pi * 180
+        # store end point tangent line Angle
+        self.tangentAngle = np.arctan(dipole_moment_dir[-1][1]/dipole_moment_dir[-1][0])/np.pi * 180
         forces = np.tile(np.zeros(6), (self.magnets_num_nodes,1))
         magnetic_field_visu = np.tile(np.zeros(6), (1,1))
         # compute magnetic torque

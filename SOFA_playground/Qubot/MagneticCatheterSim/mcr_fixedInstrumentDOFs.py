@@ -48,7 +48,9 @@ def Instrument_DOFs(
         PhysicsModel.addObject(
             'BeamInterpolation', 
             name='Interpol'+topo_instruments[i].name, 
-            radius=topo_instruments[i].radius, printLog=False)
+            radius=topo_instruments[i].radius,
+            defaultYoungModulus=topo_instruments[i].youngModulus,
+            printLog=False)
         BeamInterpolationName.append('Interpol'+topo_instruments[i].name)  
     # compute internal forces
     # computeMass if false, only compute the stiff elastic model
