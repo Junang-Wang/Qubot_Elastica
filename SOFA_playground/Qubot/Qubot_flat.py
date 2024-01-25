@@ -35,7 +35,7 @@ def createScene(rootNode):
     )
 
     topo_instruments = [Catheter]
-    magnet = mcr_magnet.UniformMagnet(
+    magnet = mcr_magnetRemanence.UniformMagnet(
         length    = magnet_length,
         num_nodes = magnet_nbNode,
         remanence = magnet_remanence,

@@ -3,7 +3,8 @@ __all__ = [
     'mcr_environment',
     'mcr_Header',
     'mcr_radiologyInstrumentDOFs',
-    'mcr_magnet',
+    'mcr_magnetRemanence',
+    'mcr_magnetMagnetization',
     'mcr_topoInstrument',
     'mcr_fixedInstrumentDOFs',
     'plugin_list'

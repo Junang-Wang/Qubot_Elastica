@@ -4,38 +4,46 @@ import Sofa
 import SofaRuntime
 import Sofa.Gui
 from tqdm import tqdm
-from utils import plotFigure
+from utils import plotMagneticFigure
 USE_GUI = False
 
-def rootNodeInit(magnetic_field_amplitude, dt, youngModulus, length, radius):
+def rootNodeInit(magnetic_field_amplitudes, dt, youngModulus, length, radius):
     # Create the root node
     rootNode = Sofa.Core.Node("rootNode")
     rootNode.addObject('Camera',name='c')
     rootNode.c.position.value = [0,0,500]
-    magnetic_field_spherical = [magnetic_field_amplitude,np.pi/2, np.pi/2]
+    magnetic_field_spherical = [magnetic_field_amplitudes,np.pi/2, np.pi/2]
     createScene(rootNode, magnetic_field_spherical=magnetic_field_spherical, dt= dt, youngModulus = youngModulus, length = length, radius=radius)
     Sofa.Simulation.init(rootNode)
     return rootNode
 
 def main():
-    youngModulus = [1.4e6,14e6]
-    forces = np.concatenate((np.linspace(1e-5,2e-3,6),np.linspace(2e-3,0.02,10)))*1e6 
+    youngModulus = 1.4e6
+    # number of samples of magnetic field amplitude
+    m_size = 30
+    # number of samples length diameter ratio 
+    r_size = 3
+    microscope_size = 10
+    small_scope_size =10
+    magnetic_field_amplitudes =np.concatenate(
+         (np.linspace(0,1,small_scope_size,endpoint=False),np.linspace(1,10,small_scope_size,endpoint=False),np.linspace(10,100,m_size-small_scope_size-microscope_size)),axis=0) #mT
+    magnet_magnetization = 128e3*1e-3
+    length_diameter_ratio = np.linspace(10,20,r_size)
+    delta_div_L = np.zeros((r_size,m_size))
+    tangentAngle = np.zeros_like(delta_div_L)
+    bendingAngle = np.zeros_like(delta_div_L)
     dt = 0.001
     time = 2
-    loops = forces.size
-    length = 6 # constant
     radius = 0.3
-    analyticalBendingAngle = np.zeros((len(youngModulus),loops))
-    bendingAngle = np.zeros((len(youngModulus),loops))
-    tangentAngle = np.zeros((len(youngModulus),loops))
+    length = length_diameter_ratio*radius*2 
+
 
     iterations = int(time/dt)
     if not USE_GUI:
-        for i in range(len(youngModulus)):
-            for j in range(loops):
+        for i in range(r_size):
+            for j in range(m_size):
                 # Create the root node
-                rootNode = rootNodeInit(forces[j],dt, youngModulus[i],length, radius)
-                analyticalBendingAngle[i] = np.arctan(4*forces*length**2/(3*youngModulus[i]*radius**4*np.pi))/np.pi*180
+                rootNode = rootNodeInit(magnetic_field_amplitudes[j],dt, youngModulus, length[i], radius)
 
                 # iterate simulation step by step
                 
@@ -51,11 +59,12 @@ def main():
                     )
                 bendingAngle[i,j] = rootNode.CatheterPhysicsModel.catheterController.bendingAngle
                 tangentAngle[i,j] = rootNode.CatheterPhysicsModel.catheterController.tangentAngle
+                delta_div_L[i,j] = rootNode.CatheterPhysicsModel.catheterController.endPosition[1]/length[i]
             print('not using GUI')
-        plotFigure(forces,analyticalBendingAngle,bendingAngle)
+        plotMagneticFigure(magnetic_field_amplitudes, magnet_magnetization, youngModulus, r_size, tangentAngle, length_diameter_ratio, small_scope_size, delta_div_L)
     else:
         # Create the root node
-        rootNode = rootNodeInit(forces[1],dt,youngModulus[0], length, radius)
+        rootNode = rootNodeInit(magnetic_field_amplitudes[28],dt,youngModulus, length[0], radius)
         # Launch the GUI 
         Sofa.Gui.GUIManager.Init('myscene','qglviewer')
         Sofa.Gui.GUIManager.createGUI(rootNode,__file__)
@@ -67,14 +76,20 @@ def main():
 
         print('GUI was closed')
     print("young's Modulus", youngModulus)
-    print('magnetic field amplitude', magnetic_field_spherical)
-    print('analytical bending angles: ', analyticalBendingAngle)
+    print('magnetic field amplitude', magnetic_field_amplitudes)
     print('bending angles:            ', bendingAngle)
     print('tangent angles:            ', tangentAngle)
     print("Simulation is done")
 
         
-def createScene(rootNode, dt=0.01, end_forces=[[0,0,0,0,0,0]],magnetic_field_spherical =[0,np.pi/2,np.pi/2], magnet_remanence = 1, youngModulus = 1.4e6, length = 6, radius =0.3):
+def createScene(
+        rootNode, 
+        dt=0.01, 
+        end_forces=[[0,0,0,0,0,0]],magnetic_field_spherical =[0,np.pi/2,np.pi/2], 
+        magnet_magnetization = 128e3*1e-3, 
+        youngModulus = 1.4e6, 
+        length = 6, 
+        radius =0.3):
 
     # Header function sets up the Animation Loop, Constraint Solver and so on.
     mcr_Header.Header(
@@ -88,7 +103,7 @@ def createScene(rootNode, dt=0.01, end_forces=[[0,0,0,0,0,0]],magnetic_field_sph
     # using mm, g, s unit
     magnet_length = length
     magnet_nbNode = 40
-    magnet_remanence = magnet_remanence #mT
+    magnet_magnetization = magnet_magnetization #A/mm
     radius = radius
     # magnetic field in spherical coordinate: [amplitude, polar angle, azimuth angle]
     magnetic_field_spherical = magnetic_field_spherical
@@ -109,11 +124,11 @@ def createScene(rootNode, dt=0.01, end_forces=[[0,0,0,0,0,0]],magnetic_field_sph
     )
 
     topo_instruments = [Catheter]
-    magnet = mcr_magnet.UniformMagnet(
-        length    = magnet_length,
-        num_nodes = magnet_nbNode,
-        remanence = magnet_remanence,
-        radius    = radius
+    magnet = mcr_magnetMagnetization.UniformMagnet(
+        length        = magnet_length,
+        num_nodes     = magnet_nbNode,
+        magnetization = magnet_magnetization,
+        radius        = radius
     )
 
     # instrumentDOFs initializes physics model, collision model, visual model and controller

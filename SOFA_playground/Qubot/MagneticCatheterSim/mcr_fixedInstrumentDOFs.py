@@ -40,7 +40,8 @@ def Instrument_DOFs(
             showIndices=False, 
             name='Instrument_DOFs', 
             template='Rigid3d',
-            translation =translations[i])
+            translation =translations[i],
+            rotation = [0,0,0])
         # FEM method (BeamInterpolation)
         # plug the catheter RestShape into WireBeamInterpolation 
     
@@ -76,7 +77,7 @@ def Instrument_DOFs(
             name='CollectorMagneticForceField', 
             indices=np.arange(topo_instruments[i].nbsections[-1]), 
             forces=np.tile(np.zeros(6), (topo_instruments[i].nbsections[-1],1)),
-            indexFromEnd=True, 
+            indexFromEnd=False, 
             showArrowSize=1e-2,
             showColor=[1,0,0,1])
 
