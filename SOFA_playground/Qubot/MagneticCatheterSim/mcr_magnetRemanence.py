@@ -7,6 +7,7 @@ class UniformMagnet():
             remanence, 
             radius,
             inner_radius = 0,
+            magnetPercent = 1,
             color = [0.2,0.2,0.2,1]):
         '''
         Magnet class indicate magnetic material uniformly distributed
@@ -27,7 +28,8 @@ class UniformMagnet():
 
         # mu_0 permeability of vacuum: 4*pi*10^-7 * 10^6 mT*mT*mm*s^2/g
         self.mu_0 = (4.*np.pi)*1e-1
-        self.volume = self.length * np.pi * (self.radius**2 - self.inner_radius**2) 
+        self.volume = magnetPercent*self.length * np.pi * (self.radius**2 - self.inner_radius**2) 
 
         # dipole moment: 1/mu_0* remanence * Volume nJ/mT = muN*mm/mT
         self.dipole_moment_amp = (1./self.mu_0)*self.remanence*self.volume
+        self.magnetization = (1./self.mu_0)*self.remanence

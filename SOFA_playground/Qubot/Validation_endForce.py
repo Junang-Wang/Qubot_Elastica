@@ -109,7 +109,7 @@ def createScene(rootNode, dt=0.01, end_forces=[[0,10,0,0,0,0]], youngModulus = 1
     )
 
     topo_instruments = [Catheter]
-    magnet = mcr_magnet.UniformMagnet(
+    magnet = mcr_magnetRemanence.UniformMagnet(
         length    = magnet_length,
         num_nodes = magnet_nbNode,
         remanence = magnet_remanence,

@@ -80,7 +80,7 @@ class Topo_Instrument():
         self.instrument.addObject('EdgeSetTopologyContainer', name='meshLinesBeam')
         self.instrument.addObject('EdgeSetTopologyModifier', name='Modifier')
         self.instrument.addObject('EdgeSetGeometryAlgorithms', name='GeomAlgo', template='Rigid3d')
-        self.instrument.addObject('MechanicalObject', name='dofTopo1', template='Rigid3d')
+        self.instrument.addObject('MechanicalObject', name='dofTopo1', template='Rigid3d',rotation=[0,0,0])
         
 
         
