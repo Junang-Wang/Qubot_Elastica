@@ -1,8 +1,54 @@
 import numpy as np
 from MagneticCatheterSim import *
-env_stl = '../mesh/flat_models/flat_model_circles.stl'
-# env_stl = '../mesh/flat_models/Neurovascular_2D.stl'
-# env_stl = '../mesh/3D_models/Neurovascular_3D.stl'
+import Sofa
+import SofaRuntime
+import Sofa.Gui
+from tqdm import tqdm
+env_stl = './SOFA_playground/mesh/qubot_flat_models/neurovascular_2D_s.stl'
+USE_GUI = True
+iterations = 100
+
+def rootNodeInit():
+    # Create the root node
+    rootNode = Sofa.Core.Node("rootNode")
+    rootNode.addObject('InteractiveCamera',name='c')
+    rootNode.c.position.value = [0,0,800]
+    createScene(rootNode)
+    Sofa.Simulation.init(rootNode)
+    return rootNode
+def main():
+    if not USE_GUI:
+        # Create the root node
+        rootNode = rootNodeInit()
+
+
+        # iterate simulation step by step
+        
+        # Sofa.Simulation.animateNSteps(
+        #     rootNode,
+        #     n_steps= 100, 
+        #     dt=rootNode.dt.value)
+
+        for iteration in tqdm(range(iterations)):
+            Sofa.Simulation.animate(
+                rootNode,
+                rootNode.dt.value
+            )
+        print('not using GUI')
+
+    else:
+        # Create the root node
+        rootNode = rootNodeInit()
+        # Launch the GUI 
+        Sofa.Gui.GUIManager.Init('myscene','qt')
+        Sofa.Gui.GUIManager.createGUI(rootNode,__file__)
+        Sofa.Gui.GUIManager.SetDimension(1000,700)
+        Sofa.Gui.GUIManager.MainLoop(rootNode)
+        Sofa.Gui.GUIManager.closeGUI()
+
+        print('GUI was closed')
+    print("Simulation is done")
+
 def createScene(rootNode):
 
     # Header function sets up the Animation Loop, Constraint Solver and so on.
@@ -65,3 +111,6 @@ def createScene(rootNode):
 
 
     return rootNode
+
+if __name__ == '__main__':
+    main()
