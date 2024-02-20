@@ -1,0 +1,35 @@
+running egg_info
+creating ../../build/lifecycle_py/lifecycle_py.egg-info
+writing ../../build/lifecycle_py/lifecycle_py.egg-info/PKG-INFO
+writing dependency_links to ../../build/lifecycle_py/lifecycle_py.egg-info/dependency_links.txt
+writing entry points to ../../build/lifecycle_py/lifecycle_py.egg-info/entry_points.txt
+writing requirements to ../../build/lifecycle_py/lifecycle_py.egg-info/requires.txt
+writing top-level names to ../../build/lifecycle_py/lifecycle_py.egg-info/top_level.txt
+writing manifest file '../../build/lifecycle_py/lifecycle_py.egg-info/SOURCES.txt'
+reading manifest file '../../build/lifecycle_py/lifecycle_py.egg-info/SOURCES.txt'
+writing manifest file '../../build/lifecycle_py/lifecycle_py.egg-info/SOURCES.txt'
+running build
+running build_py
+creating /home/qubot/ros2_ws/build/lifecycle_py/build
+creating /home/qubot/ros2_ws/build/lifecycle_py/build/lib
+creating /home/qubot/ros2_ws/build/lifecycle_py/build/lib/lifecycle_py
+copying lifecycle_py/number_publisher.py -> /home/qubot/ros2_ws/build/lifecycle_py/build/lib/lifecycle_py
+copying lifecycle_py/__init__.py -> /home/qubot/ros2_ws/build/lifecycle_py/build/lib/lifecycle_py
+running install
+running install_lib
+creating /home/qubot/ros2_ws/install/lifecycle_py/lib/python3.10/site-packages/lifecycle_py
+copying /home/qubot/ros2_ws/build/lifecycle_py/build/lib/lifecycle_py/number_publisher.py -> /home/qubot/ros2_ws/install/lifecycle_py/lib/python3.10/site-packages/lifecycle_py
+copying /home/qubot/ros2_ws/build/lifecycle_py/build/lib/lifecycle_py/__init__.py -> /home/qubot/ros2_ws/install/lifecycle_py/lib/python3.10/site-packages/lifecycle_py
+byte-compiling /home/qubot/ros2_ws/install/lifecycle_py/lib/python3.10/site-packages/lifecycle_py/number_publisher.py to number_publisher.cpython-310.pyc
+byte-compiling /home/qubot/ros2_ws/install/lifecycle_py/lib/python3.10/site-packages/lifecycle_py/__init__.py to __init__.cpython-310.pyc
+running install_data
+creating /home/qubot/ros2_ws/install/lifecycle_py/share/ament_index
+creating /home/qubot/ros2_ws/install/lifecycle_py/share/ament_index/resource_index
+creating /home/qubot/ros2_ws/install/lifecycle_py/share/ament_index/resource_index/packages
+copying resource/lifecycle_py -> /home/qubot/ros2_ws/install/lifecycle_py/share/ament_index/resource_index/packages
+copying package.xml -> /home/qubot/ros2_ws/install/lifecycle_py/share/lifecycle_py
+running install_egg_info
+Copying ../../build/lifecycle_py/lifecycle_py.egg-info to /home/qubot/ros2_ws/install/lifecycle_py/lib/python3.10/site-packages/lifecycle_py-0.0.0-py3.10.egg-info
+running install_scripts
+Installing number_publisher script to /home/qubot/ros2_ws/install/lifecycle_py/lib/lifecycle_py
+writing list of installed files to '/home/qubot/ros2_ws/build/lifecycle_py/install.log'

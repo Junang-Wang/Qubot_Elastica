@@ -1,0 +1,25 @@
+[0.494s] Invoking command in '/home/qubot/ros2_ws/build/actions_py': PYTHONPATH=/home/qubot/ros2_ws/build/actions_py/prefix_override:/home/qubot/ros2_ws/install/actions_py/lib/python3.10/site-packages:/home/qubot/ros2_ws/install/action_interfaces/lib/python3.10/site-packages:/home/qubot/ros2_ws/build/qubot:/home/qubot/ros2_ws/install/qubot/lib/python3.10/site-packages:/opt/ros/humble/lib/python3.10/site-packages:/opt/ros/humble/local/lib/python3.10/dist-packages:/home/qubot/App/Sofa_v23/bulid/lib/python3/site-packages /home/qubot/.pyenv/versions/3.10.13/bin/python3.10 setup.py develop --editable --build-directory /home/qubot/ros2_ws/build/actions_py/build --no-deps install_data
+[0.661s] running develop
+[0.735s] running egg_info
+[0.735s] creating actions_py.egg-info
+[0.735s] writing actions_py.egg-info/PKG-INFO
+[0.735s] writing dependency_links to actions_py.egg-info/dependency_links.txt
+[0.735s] writing entry points to actions_py.egg-info/entry_points.txt
+[0.736s] writing requirements to actions_py.egg-info/requires.txt
+[0.736s] writing top-level names to actions_py.egg-info/top_level.txt
+[0.736s] writing manifest file 'actions_py.egg-info/SOURCES.txt'
+[0.737s] reading manifest file 'actions_py.egg-info/SOURCES.txt'
+[0.737s] writing manifest file 'actions_py.egg-info/SOURCES.txt'
+[0.738s] running build_ext
+[0.738s] Creating /home/qubot/ros2_ws/install/actions_py/lib/python3.10/site-packages/actions-py.egg-link (link to .)
+[0.738s] Installing count_until_client script to /home/qubot/ros2_ws/install/actions_py/lib/actions_py
+[0.738s] Installing count_until_server script to /home/qubot/ros2_ws/install/actions_py/lib/actions_py
+[0.738s] 
+[0.739s] Installed /home/qubot/ros2_ws/build/actions_py
+[0.739s] running install_data
+[0.739s] creating /home/qubot/ros2_ws/install/actions_py/share/ament_index
+[0.739s] creating /home/qubot/ros2_ws/install/actions_py/share/ament_index/resource_index
+[0.739s] creating /home/qubot/ros2_ws/install/actions_py/share/ament_index/resource_index/packages
+[0.739s] copying resource/actions_py -> /home/qubot/ros2_ws/install/actions_py/share/ament_index/resource_index/packages
+[0.739s] copying package.xml -> /home/qubot/ros2_ws/install/actions_py/share/actions_py
+[0.756s] Invoked command in '/home/qubot/ros2_ws/build/actions_py' returned '0': PYTHONPATH=/home/qubot/ros2_ws/build/actions_py/prefix_override:/home/qubot/ros2_ws/install/actions_py/lib/python3.10/site-packages:/home/qubot/ros2_ws/install/action_interfaces/lib/python3.10/site-packages:/home/qubot/ros2_ws/build/qubot:/home/qubot/ros2_ws/install/qubot/lib/python3.10/site-packages:/opt/ros/humble/lib/python3.10/site-packages:/opt/ros/humble/local/lib/python3.10/dist-packages:/home/qubot/App/Sofa_v23/bulid/lib/python3/site-packages /home/qubot/.pyenv/versions/3.10.13/bin/python3.10 setup.py develop --editable --build-directory /home/qubot/ros2_ws/build/actions_py/build --no-deps install_data

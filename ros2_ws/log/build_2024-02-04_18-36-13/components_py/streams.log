@@ -1,0 +1,43 @@
+[0.459s] Invoking command in '/home/qubot/ros2_ws/src/components_py': PYTHONPATH=/home/qubot/ros2_ws/build/components_py/prefix_override:/home/qubot/ros2_ws/install/components_py/lib/python3.10/site-packages:${PYTHONPATH} /home/qubot/.pyenv/versions/3.10.13/bin/python3.10 setup.py egg_info --egg-base ../../build/components_py build --build-base /home/qubot/ros2_ws/build/components_py/build install --record /home/qubot/ros2_ws/build/components_py/install.log --single-version-externally-managed
+[0.617s] running egg_info
+[0.617s] creating ../../build/components_py/components_py.egg-info
+[0.617s] writing ../../build/components_py/components_py.egg-info/PKG-INFO
+[0.618s] writing dependency_links to ../../build/components_py/components_py.egg-info/dependency_links.txt
+[0.618s] writing entry points to ../../build/components_py/components_py.egg-info/entry_points.txt
+[0.618s] writing requirements to ../../build/components_py/components_py.egg-info/requires.txt
+[0.618s] writing top-level names to ../../build/components_py/components_py.egg-info/top_level.txt
+[0.618s] writing manifest file '../../build/components_py/components_py.egg-info/SOURCES.txt'
+[0.619s] reading manifest file '../../build/components_py/components_py.egg-info/SOURCES.txt'
+[0.620s] writing manifest file '../../build/components_py/components_py.egg-info/SOURCES.txt'
+[0.620s] running build
+[0.620s] running build_py
+[0.620s] creating /home/qubot/ros2_ws/build/components_py/build
+[0.620s] creating /home/qubot/ros2_ws/build/components_py/build/lib
+[0.620s] creating /home/qubot/ros2_ws/build/components_py/build/lib/components_py
+[0.620s] copying components_py/node2.py -> /home/qubot/ros2_ws/build/components_py/build/lib/components_py
+[0.620s] copying components_py/manual_composition.py -> /home/qubot/ros2_ws/build/components_py/build/lib/components_py
+[0.620s] copying components_py/__init__.py -> /home/qubot/ros2_ws/build/components_py/build/lib/components_py
+[0.620s] copying components_py/node1.py -> /home/qubot/ros2_ws/build/components_py/build/lib/components_py
+[0.620s] running install
+[0.620s] running install_lib
+[0.620s] creating /home/qubot/ros2_ws/install/components_py/lib/python3.10/site-packages/components_py
+[0.620s] copying /home/qubot/ros2_ws/build/components_py/build/lib/components_py/node2.py -> /home/qubot/ros2_ws/install/components_py/lib/python3.10/site-packages/components_py
+[0.620s] copying /home/qubot/ros2_ws/build/components_py/build/lib/components_py/manual_composition.py -> /home/qubot/ros2_ws/install/components_py/lib/python3.10/site-packages/components_py
+[0.620s] copying /home/qubot/ros2_ws/build/components_py/build/lib/components_py/__init__.py -> /home/qubot/ros2_ws/install/components_py/lib/python3.10/site-packages/components_py
+[0.621s] copying /home/qubot/ros2_ws/build/components_py/build/lib/components_py/node1.py -> /home/qubot/ros2_ws/install/components_py/lib/python3.10/site-packages/components_py
+[0.621s] byte-compiling /home/qubot/ros2_ws/install/components_py/lib/python3.10/site-packages/components_py/node2.py to node2.cpython-310.pyc
+[0.621s] byte-compiling /home/qubot/ros2_ws/install/components_py/lib/python3.10/site-packages/components_py/manual_composition.py to manual_composition.cpython-310.pyc
+[0.621s] byte-compiling /home/qubot/ros2_ws/install/components_py/lib/python3.10/site-packages/components_py/__init__.py to __init__.cpython-310.pyc
+[0.621s] byte-compiling /home/qubot/ros2_ws/install/components_py/lib/python3.10/site-packages/components_py/node1.py to node1.cpython-310.pyc
+[0.621s] running install_data
+[0.621s] creating /home/qubot/ros2_ws/install/components_py/share/ament_index
+[0.622s] creating /home/qubot/ros2_ws/install/components_py/share/ament_index/resource_index
+[0.622s] creating /home/qubot/ros2_ws/install/components_py/share/ament_index/resource_index/packages
+[0.622s] copying resource/components_py -> /home/qubot/ros2_ws/install/components_py/share/ament_index/resource_index/packages
+[0.622s] copying package.xml -> /home/qubot/ros2_ws/install/components_py/share/components_py
+[0.622s] running install_egg_info
+[0.623s] Copying ../../build/components_py/components_py.egg-info to /home/qubot/ros2_ws/install/components_py/lib/python3.10/site-packages/components_py-0.0.0-py3.10.egg-info
+[0.623s] running install_scripts
+[0.638s] Installing manual_composition script to /home/qubot/ros2_ws/install/components_py/lib/components_py
+[0.639s] writing list of installed files to '/home/qubot/ros2_ws/build/components_py/install.log'
+[0.654s] Invoked command in '/home/qubot/ros2_ws/src/components_py' returned '0': PYTHONPATH=/home/qubot/ros2_ws/build/components_py/prefix_override:/home/qubot/ros2_ws/install/components_py/lib/python3.10/site-packages:${PYTHONPATH} /home/qubot/.pyenv/versions/3.10.13/bin/python3.10 setup.py egg_info --egg-base ../../build/components_py build --build-base /home/qubot/ros2_ws/build/components_py/build install --record /home/qubot/ros2_ws/build/components_py/install.log --single-version-externally-managed

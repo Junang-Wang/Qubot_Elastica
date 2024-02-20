@@ -1,0 +1,24 @@
+[0.461s] Invoking command in '/home/qubot/ros2_ws/src/lifecycle_py': PYTHONPATH=/home/qubot/ros2_ws/build/lifecycle_py/prefix_override:/home/qubot/ros2_ws/install/lifecycle_py/lib/python3.10/site-packages:${PYTHONPATH} /home/qubot/.pyenv/versions/3.10.13/bin/python3.10 setup.py egg_info --egg-base ../../build/lifecycle_py build --build-base /home/qubot/ros2_ws/build/lifecycle_py/build install --record /home/qubot/ros2_ws/build/lifecycle_py/install.log --single-version-externally-managed
+[0.617s] running egg_info
+[0.617s] writing ../../build/lifecycle_py/lifecycle_py.egg-info/PKG-INFO
+[0.618s] writing dependency_links to ../../build/lifecycle_py/lifecycle_py.egg-info/dependency_links.txt
+[0.618s] writing entry points to ../../build/lifecycle_py/lifecycle_py.egg-info/entry_points.txt
+[0.618s] writing requirements to ../../build/lifecycle_py/lifecycle_py.egg-info/requires.txt
+[0.618s] writing top-level names to ../../build/lifecycle_py/lifecycle_py.egg-info/top_level.txt
+[0.619s] reading manifest file '../../build/lifecycle_py/lifecycle_py.egg-info/SOURCES.txt'
+[0.620s] writing manifest file '../../build/lifecycle_py/lifecycle_py.egg-info/SOURCES.txt'
+[0.620s] running build
+[0.620s] running build_py
+[0.620s] copying lifecycle_py/number_publisher.py -> /home/qubot/ros2_ws/build/lifecycle_py/build/lib/lifecycle_py
+[0.620s] running install
+[0.620s] running install_lib
+[0.620s] copying /home/qubot/ros2_ws/build/lifecycle_py/build/lib/lifecycle_py/number_publisher.py -> /home/qubot/ros2_ws/install/lifecycle_py/lib/python3.10/site-packages/lifecycle_py
+[0.621s] byte-compiling /home/qubot/ros2_ws/install/lifecycle_py/lib/python3.10/site-packages/lifecycle_py/number_publisher.py to number_publisher.cpython-310.pyc
+[0.621s] running install_data
+[0.621s] running install_egg_info
+[0.623s] removing '/home/qubot/ros2_ws/install/lifecycle_py/lib/python3.10/site-packages/lifecycle_py-0.0.0-py3.10.egg-info' (and everything under it)
+[0.623s] Copying ../../build/lifecycle_py/lifecycle_py.egg-info to /home/qubot/ros2_ws/install/lifecycle_py/lib/python3.10/site-packages/lifecycle_py-0.0.0-py3.10.egg-info
+[0.623s] running install_scripts
+[0.638s] Installing number_publisher script to /home/qubot/ros2_ws/install/lifecycle_py/lib/lifecycle_py
+[0.639s] writing list of installed files to '/home/qubot/ros2_ws/build/lifecycle_py/install.log'
+[0.654s] Invoked command in '/home/qubot/ros2_ws/src/lifecycle_py' returned '0': PYTHONPATH=/home/qubot/ros2_ws/build/lifecycle_py/prefix_override:/home/qubot/ros2_ws/install/lifecycle_py/lib/python3.10/site-packages:${PYTHONPATH} /home/qubot/.pyenv/versions/3.10.13/bin/python3.10 setup.py egg_info --egg-base ../../build/lifecycle_py build --build-base /home/qubot/ros2_ws/build/lifecycle_py/build install --record /home/qubot/ros2_ws/build/lifecycle_py/install.log --single-version-externally-managed

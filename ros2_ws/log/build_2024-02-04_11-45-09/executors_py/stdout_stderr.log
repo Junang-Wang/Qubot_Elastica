@@ -1,0 +1,23 @@
+running develop
+running egg_info
+creating executors_py.egg-info
+writing executors_py.egg-info/PKG-INFO
+writing dependency_links to executors_py.egg-info/dependency_links.txt
+writing entry points to executors_py.egg-info/entry_points.txt
+writing requirements to executors_py.egg-info/requires.txt
+writing top-level names to executors_py.egg-info/top_level.txt
+writing manifest file 'executors_py.egg-info/SOURCES.txt'
+reading manifest file 'executors_py.egg-info/SOURCES.txt'
+writing manifest file 'executors_py.egg-info/SOURCES.txt'
+running build_ext
+Creating /home/qubot/ros2_ws/install/executors_py/lib/python3.10/site-packages/executors-py.egg-link (link to .)
+Installing multi_threaded_executor script to /home/qubot/ros2_ws/install/executors_py/lib/executors_py
+Installing single_threaded_executor script to /home/qubot/ros2_ws/install/executors_py/lib/executors_py
+
+Installed /home/qubot/ros2_ws/build/executors_py
+running install_data
+creating /home/qubot/ros2_ws/install/executors_py/share/ament_index
+creating /home/qubot/ros2_ws/install/executors_py/share/ament_index/resource_index
+creating /home/qubot/ros2_ws/install/executors_py/share/ament_index/resource_index/packages
+copying resource/executors_py -> /home/qubot/ros2_ws/install/executors_py/share/ament_index/resource_index/packages
+copying package.xml -> /home/qubot/ros2_ws/install/executors_py/share/executors_py

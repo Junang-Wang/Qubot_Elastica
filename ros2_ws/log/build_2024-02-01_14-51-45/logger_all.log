@@ -1,0 +1,156 @@
+[0.481s] DEBUG:colcon:Command line arguments: ['/home/qubot/.pyenv/versions/3.10.13/bin/colcon', 'build', '--packages-select', 'qubot']
+[0.481s] DEBUG:colcon:Parsed command line arguments: Namespace(log_base=None, log_level=None, verb_name='build', build_base='build', install_base='install', merge_install=False, symlink_install=False, test_result_base=None, continue_on_error=False, executor='parallel', parallel_workers=16, event_handlers=None, ignore_user_meta=False, metas=['./colcon.meta'], base_paths=['.'], packages_ignore=None, packages_ignore_regex=None, paths=None, packages_up_to=None, packages_up_to_regex=None, packages_above=None, packages_above_and_dependencies=None, packages_above_depth=None, packages_select_by_dep=None, packages_skip_by_dep=None, packages_skip_up_to=None, packages_select_build_failed=False, packages_skip_build_finished=False, packages_select_test_failures=False, packages_skip_test_passed=False, packages_select=['qubot'], packages_skip=None, packages_select_regex=None, packages_skip_regex=None, packages_start=None, packages_end=None, cmake_args=None, cmake_target=None, cmake_target_skip_unavailable=False, cmake_clean_cache=False, cmake_clean_first=False, cmake_force_configure=False, ament_cmake_args=None, catkin_cmake_args=None, catkin_skip_building_tests=False, verb_parser=<colcon_defaults.argument_parser.defaults.DefaultArgumentsDecorator object at 0x7fc3a8f31360>, verb_extension=<colcon_core.verb.build.BuildVerb object at 0x7fc3a8f31660>, main=<bound method BuildVerb.main of <colcon_core.verb.build.BuildVerb object at 0x7fc3a8f31660>>)
+[0.506s] Level 1:colcon.colcon_core.package_discovery:discover_packages(colcon_meta) check parameters
+[0.507s] Level 1:colcon.colcon_core.package_discovery:discover_packages(recursive) check parameters
+[0.507s] Level 1:colcon.colcon_core.package_discovery:discover_packages(ignore) check parameters
+[0.507s] Level 1:colcon.colcon_core.package_discovery:discover_packages(path) check parameters
+[0.507s] Level 1:colcon.colcon_core.package_discovery:discover_packages(colcon_meta) discover
+[0.507s] Level 1:colcon.colcon_core.package_discovery:discover_packages(recursive) discover
+[0.507s] INFO:colcon.colcon_core.package_discovery:Crawling recursively for packages in '/home/qubot/ros2_ws'
+[0.507s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['ignore', 'ignore_ament_install']
+[0.507s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'ignore'
+[0.507s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'ignore_ament_install'
+[0.507s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['colcon_pkg']
+[0.507s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'colcon_pkg'
+[0.507s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['colcon_meta']
+[0.507s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'colcon_meta'
+[0.507s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['ros']
+[0.507s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'ros'
+[0.525s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['cmake', 'python']
+[0.525s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'cmake'
+[0.525s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'python'
+[0.525s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['python_setup_py']
+[0.525s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'python_setup_py'
+[0.525s] Level 1:colcon.colcon_core.package_identification:_identify(build) by extensions ['ignore', 'ignore_ament_install']
+[0.525s] Level 1:colcon.colcon_core.package_identification:_identify(build) by extension 'ignore'
+[0.525s] Level 1:colcon.colcon_core.package_identification:_identify(build) ignored
+[0.526s] Level 1:colcon.colcon_core.package_identification:_identify(install) by extensions ['ignore', 'ignore_ament_install']
+[0.526s] Level 1:colcon.colcon_core.package_identification:_identify(install) by extension 'ignore'
+[0.526s] Level 1:colcon.colcon_core.package_identification:_identify(install) ignored
+[0.526s] Level 1:colcon.colcon_core.package_identification:_identify(log) by extensions ['ignore', 'ignore_ament_install']
+[0.526s] Level 1:colcon.colcon_core.package_identification:_identify(log) by extension 'ignore'
+[0.526s] Level 1:colcon.colcon_core.package_identification:_identify(log) ignored
+[0.526s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extensions ['ignore', 'ignore_ament_install']
+[0.526s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extension 'ignore'
+[0.526s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extension 'ignore_ament_install'
+[0.526s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extensions ['colcon_pkg']
+[0.526s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extension 'colcon_pkg'
+[0.526s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extensions ['colcon_meta']
+[0.526s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extension 'colcon_meta'
+[0.526s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extensions ['ros']
+[0.526s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extension 'ros'
+[0.526s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extensions ['cmake', 'python']
+[0.526s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extension 'cmake'
+[0.526s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extension 'python'
+[0.526s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extensions ['python_setup_py']
+[0.526s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extension 'python_setup_py'
+[0.526s] Level 1:colcon.colcon_core.package_identification:_identify(src/action_interfaces) by extensions ['ignore', 'ignore_ament_install']
+[0.526s] Level 1:colcon.colcon_core.package_identification:_identify(src/action_interfaces) by extension 'ignore'
+[0.526s] Level 1:colcon.colcon_core.package_identification:_identify(src/action_interfaces) by extension 'ignore_ament_install'
+[0.526s] Level 1:colcon.colcon_core.package_identification:_identify(src/action_interfaces) by extensions ['colcon_pkg']
+[0.526s] Level 1:colcon.colcon_core.package_identification:_identify(src/action_interfaces) by extension 'colcon_pkg'
+[0.526s] Level 1:colcon.colcon_core.package_identification:_identify(src/action_interfaces) by extensions ['colcon_meta']
+[0.526s] Level 1:colcon.colcon_core.package_identification:_identify(src/action_interfaces) by extension 'colcon_meta'
+[0.527s] Level 1:colcon.colcon_core.package_identification:_identify(src/action_interfaces) by extensions ['ros']
+[0.527s] Level 1:colcon.colcon_core.package_identification:_identify(src/action_interfaces) by extension 'ros'
+[0.528s] DEBUG:colcon.colcon_core.package_identification:Package 'src/action_interfaces' with type 'ros.ament_cmake' and name 'action_interfaces'
+[0.528s] Level 1:colcon.colcon_core.package_identification:_identify(src/actions_py) by extensions ['ignore', 'ignore_ament_install']
+[0.528s] Level 1:colcon.colcon_core.package_identification:_identify(src/actions_py) by extension 'ignore'
+[0.528s] Level 1:colcon.colcon_core.package_identification:_identify(src/actions_py) by extension 'ignore_ament_install'
+[0.529s] Level 1:colcon.colcon_core.package_identification:_identify(src/actions_py) by extensions ['colcon_pkg']
+[0.529s] Level 1:colcon.colcon_core.package_identification:_identify(src/actions_py) by extension 'colcon_pkg'
+[0.529s] Level 1:colcon.colcon_core.package_identification:_identify(src/actions_py) by extensions ['colcon_meta']
+[0.529s] Level 1:colcon.colcon_core.package_identification:_identify(src/actions_py) by extension 'colcon_meta'
+[0.529s] Level 1:colcon.colcon_core.package_identification:_identify(src/actions_py) by extensions ['ros']
+[0.529s] Level 1:colcon.colcon_core.package_identification:_identify(src/actions_py) by extension 'ros'
+[0.529s] DEBUG:colcon.colcon_core.package_identification:Package 'src/actions_py' with type 'ros.ament_python' and name 'actions_py'
+[0.529s] Level 1:colcon.colcon_core.package_identification:_identify(src/my_robot_controller) by extensions ['ignore', 'ignore_ament_install']
+[0.529s] Level 1:colcon.colcon_core.package_identification:_identify(src/my_robot_controller) by extension 'ignore'
+[0.529s] Level 1:colcon.colcon_core.package_identification:_identify(src/my_robot_controller) by extension 'ignore_ament_install'
+[0.529s] Level 1:colcon.colcon_core.package_identification:_identify(src/my_robot_controller) by extensions ['colcon_pkg']
+[0.529s] Level 1:colcon.colcon_core.package_identification:_identify(src/my_robot_controller) by extension 'colcon_pkg'
+[0.529s] Level 1:colcon.colcon_core.package_identification:_identify(src/my_robot_controller) by extensions ['colcon_meta']
+[0.529s] Level 1:colcon.colcon_core.package_identification:_identify(src/my_robot_controller) by extension 'colcon_meta'
+[0.529s] Level 1:colcon.colcon_core.package_identification:_identify(src/my_robot_controller) by extensions ['ros']
+[0.530s] Level 1:colcon.colcon_core.package_identification:_identify(src/my_robot_controller) by extension 'ros'
+[0.530s] DEBUG:colcon.colcon_core.package_identification:Package 'src/my_robot_controller' with type 'ros.ament_python' and name 'my_robot_controller'
+[0.530s] Level 1:colcon.colcon_core.package_identification:_identify(src/qubot) by extensions ['ignore', 'ignore_ament_install']
+[0.530s] Level 1:colcon.colcon_core.package_identification:_identify(src/qubot) by extension 'ignore'
+[0.530s] Level 1:colcon.colcon_core.package_identification:_identify(src/qubot) by extension 'ignore_ament_install'
+[0.530s] Level 1:colcon.colcon_core.package_identification:_identify(src/qubot) by extensions ['colcon_pkg']
+[0.530s] Level 1:colcon.colcon_core.package_identification:_identify(src/qubot) by extension 'colcon_pkg'
+[0.530s] Level 1:colcon.colcon_core.package_identification:_identify(src/qubot) by extensions ['colcon_meta']
+[0.530s] Level 1:colcon.colcon_core.package_identification:_identify(src/qubot) by extension 'colcon_meta'
+[0.530s] Level 1:colcon.colcon_core.package_identification:_identify(src/qubot) by extensions ['ros']
+[0.530s] Level 1:colcon.colcon_core.package_identification:_identify(src/qubot) by extension 'ros'
+[0.531s] DEBUG:colcon.colcon_core.package_identification:Package 'src/qubot' with type 'ros.ament_python' and name 'qubot'
+[0.531s] Level 1:colcon.colcon_core.package_discovery:discover_packages(recursive) using defaults
+[0.531s] Level 1:colcon.colcon_core.package_discovery:discover_packages(ignore) discover
+[0.531s] Level 1:colcon.colcon_core.package_discovery:discover_packages(ignore) using defaults
+[0.531s] Level 1:colcon.colcon_core.package_discovery:discover_packages(path) discover
+[0.531s] Level 1:colcon.colcon_core.package_discovery:discover_packages(path) using defaults
+[0.564s] INFO:colcon.colcon_core.package_selection:Skipping not selected package 'action_interfaces' in 'src/action_interfaces'
+[0.564s] INFO:colcon.colcon_core.package_selection:Skipping not selected package 'actions_py' in 'src/actions_py'
+[0.564s] INFO:colcon.colcon_core.package_selection:Skipping not selected package 'my_robot_controller' in 'src/my_robot_controller'
+[0.571s] Level 5:colcon.colcon_core.verb:set package 'qubot' build argument 'cmake_args' from command line to 'None'
+[0.571s] Level 5:colcon.colcon_core.verb:set package 'qubot' build argument 'cmake_target' from command line to 'None'
+[0.571s] Level 5:colcon.colcon_core.verb:set package 'qubot' build argument 'cmake_target_skip_unavailable' from command line to 'False'
+[0.571s] Level 5:colcon.colcon_core.verb:set package 'qubot' build argument 'cmake_clean_cache' from command line to 'False'
+[0.571s] Level 5:colcon.colcon_core.verb:set package 'qubot' build argument 'cmake_clean_first' from command line to 'False'
+[0.571s] Level 5:colcon.colcon_core.verb:set package 'qubot' build argument 'cmake_force_configure' from command line to 'False'
+[0.571s] Level 5:colcon.colcon_core.verb:set package 'qubot' build argument 'ament_cmake_args' from command line to 'None'
+[0.571s] Level 5:colcon.colcon_core.verb:set package 'qubot' build argument 'catkin_cmake_args' from command line to 'None'
+[0.571s] Level 5:colcon.colcon_core.verb:set package 'qubot' build argument 'catkin_skip_building_tests' from command line to 'False'
+[0.571s] DEBUG:colcon.colcon_core.verb:Building package 'qubot' with the following arguments: {'ament_cmake_args': None, 'build_base': '/home/qubot/ros2_ws/build/qubot', 'catkin_cmake_args': None, 'catkin_skip_building_tests': False, 'cmake_args': None, 'cmake_clean_cache': False, 'cmake_clean_first': False, 'cmake_force_configure': False, 'cmake_target': None, 'cmake_target_skip_unavailable': False, 'install_base': '/home/qubot/ros2_ws/install/qubot', 'merge_install': False, 'path': '/home/qubot/ros2_ws/src/qubot', 'symlink_install': False, 'test_result_base': None}
+[0.577s] INFO:colcon.colcon_core.executor:Executing jobs using 'parallel' executor
+[0.584s] DEBUG:colcon.colcon_parallel_executor.executor.parallel:run_until_complete
+[0.584s] INFO:colcon.colcon_ros.task.ament_python.build:Building ROS package in '/home/qubot/ros2_ws/src/qubot' with build type 'ament_python'
+[0.584s] Level 1:colcon.colcon_core.shell:create_environment_hook('qubot', 'ament_prefix_path')
+[0.592s] INFO:colcon.colcon_core.plugin_system:Skipping extension 'colcon_core.shell.bat': Not used on non-Windows systems
+[0.592s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/qubot/ros2_ws/install/qubot/share/qubot/hook/ament_prefix_path.ps1'
+[0.592s] INFO:colcon.colcon_core.shell:Creating environment descriptor '/home/qubot/ros2_ws/install/qubot/share/qubot/hook/ament_prefix_path.dsv'
+[0.593s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/qubot/ros2_ws/install/qubot/share/qubot/hook/ament_prefix_path.sh'
+[0.600s] INFO:colcon.colcon_core.shell:Skip shell extension 'powershell' for command environment: Not usable outside of PowerShell
+[0.600s] DEBUG:colcon.colcon_core.shell:Skip shell extension 'dsv' for command environment
+[0.788s] INFO:colcon.colcon_core.task.python.build:Building Python package in '/home/qubot/ros2_ws/src/qubot'
+[0.795s] INFO:colcon.colcon_core.shell:Skip shell extension 'powershell' for command environment: Not usable outside of PowerShell
+[0.795s] DEBUG:colcon.colcon_core.shell:Skip shell extension 'dsv' for command environment
+[1.027s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoking command in '/home/qubot/ros2_ws/src/qubot': PYTHONPATH=/home/qubot/ros2_ws/build/qubot/prefix_override:/home/qubot/ros2_ws/install/qubot/lib/python3.10/site-packages:/home/qubot/ros2_ws/install/action_interfaces/lib/python3.10/site-packages:/home/qubot/App/Sofa_v23/bulid/lib/python3/site-packages:/home/qubot/ros2_ws/install/qubot/lib/python3.10/site-packages:/opt/ros/humble/lib/python3.10/site-packages:/opt/ros/humble/local/lib/python3.10/dist-packages:/home/qubot/App/Sofa_v23/bulid/lib/python3/site-packages /home/qubot/.pyenv/versions/3.10.13/bin/python3.10 setup.py egg_info --egg-base ../../build/qubot build --build-base /home/qubot/ros2_ws/build/qubot/build install --record /home/qubot/ros2_ws/build/qubot/install.log --single-version-externally-managed
+[1.212s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoked command in '/home/qubot/ros2_ws/src/qubot' returned '0': PYTHONPATH=/home/qubot/ros2_ws/build/qubot/prefix_override:/home/qubot/ros2_ws/install/qubot/lib/python3.10/site-packages:/home/qubot/ros2_ws/install/action_interfaces/lib/python3.10/site-packages:/home/qubot/App/Sofa_v23/bulid/lib/python3/site-packages:/home/qubot/ros2_ws/install/qubot/lib/python3.10/site-packages:/opt/ros/humble/lib/python3.10/site-packages:/opt/ros/humble/local/lib/python3.10/dist-packages:/home/qubot/App/Sofa_v23/bulid/lib/python3/site-packages /home/qubot/.pyenv/versions/3.10.13/bin/python3.10 setup.py egg_info --egg-base ../../build/qubot build --build-base /home/qubot/ros2_ws/build/qubot/build install --record /home/qubot/ros2_ws/build/qubot/install.log --single-version-externally-managed
+[1.221s] Level 1:colcon.colcon_core.environment:checking '/home/qubot/ros2_ws/install/qubot' for CMake module files
+[1.221s] Level 1:colcon.colcon_core.environment:checking '/home/qubot/ros2_ws/install/qubot' for CMake config files
+[1.221s] Level 1:colcon.colcon_core.environment:checking '/home/qubot/ros2_ws/install/qubot/lib'
+[1.222s] Level 1:colcon.colcon_core.environment:checking '/home/qubot/ros2_ws/install/qubot/bin'
+[1.222s] Level 1:colcon.colcon_core.environment:checking '/home/qubot/ros2_ws/install/qubot/lib/pkgconfig/qubot.pc'
+[1.222s] Level 1:colcon.colcon_core.environment:checking '/home/qubot/ros2_ws/install/qubot/lib/python3.10/site-packages'
+[1.222s] Level 1:colcon.colcon_core.shell:create_environment_hook('qubot', 'pythonpath')
+[1.228s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/qubot/ros2_ws/install/qubot/share/qubot/hook/pythonpath.ps1'
+[1.229s] INFO:colcon.colcon_core.shell:Creating environment descriptor '/home/qubot/ros2_ws/install/qubot/share/qubot/hook/pythonpath.dsv'
+[1.229s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/qubot/ros2_ws/install/qubot/share/qubot/hook/pythonpath.sh'
+[1.229s] Level 1:colcon.colcon_core.environment:checking '/home/qubot/ros2_ws/install/qubot/bin'
+[1.229s] Level 1:colcon.colcon_core.environment:create_environment_scripts_only(qubot)
+[1.236s] INFO:colcon.colcon_core.shell:Creating package script '/home/qubot/ros2_ws/install/qubot/share/qubot/package.ps1'
+[1.236s] INFO:colcon.colcon_core.shell:Creating package descriptor '/home/qubot/ros2_ws/install/qubot/share/qubot/package.dsv'
+[1.236s] INFO:colcon.colcon_core.shell:Creating package script '/home/qubot/ros2_ws/install/qubot/share/qubot/package.sh'
+[1.237s] INFO:colcon.colcon_core.shell:Creating package script '/home/qubot/ros2_ws/install/qubot/share/qubot/package.bash'
+[1.237s] INFO:colcon.colcon_core.shell:Creating package script '/home/qubot/ros2_ws/install/qubot/share/qubot/package.zsh'
+[1.238s] Level 1:colcon.colcon_core.environment:create_file_with_runtime_dependencies(/home/qubot/ros2_ws/install/qubot/share/colcon-core/packages/qubot)
+[1.238s] DEBUG:colcon.colcon_parallel_executor.executor.parallel:closing loop
+[1.238s] DEBUG:colcon.colcon_parallel_executor.executor.parallel:loop closed
+[1.238s] DEBUG:colcon.colcon_parallel_executor.executor.parallel:run_until_complete finished with '0'
+[1.238s] DEBUG:colcon.colcon_core.event_reactor:joining thread
+[1.247s] INFO:colcon.colcon_core.plugin_system:Skipping extension 'colcon_notification.desktop_notification.notify2': 'notify2' not found
+[1.247s] INFO:colcon.colcon_core.plugin_system:Skipping extension 'colcon_notification.desktop_notification.terminal_notifier': Not used on non-Darwin systems
+[1.247s] INFO:colcon.colcon_core.plugin_system:Skipping extension 'colcon_notification.desktop_notification.win32': Not used on non-Windows systems
+[1.247s] INFO:colcon.colcon_notification.desktop_notification:Sending desktop notification using 'notify_send'
+[1.269s] DEBUG:colcon.colcon_core.event_reactor:joined thread
+[1.280s] INFO:colcon.colcon_core.shell:Creating prefix script '/home/qubot/ros2_ws/install/local_setup.ps1'
+[1.281s] INFO:colcon.colcon_core.shell:Creating prefix util module '/home/qubot/ros2_ws/install/_local_setup_util_ps1.py'
+[1.283s] INFO:colcon.colcon_core.shell:Creating prefix chain script '/home/qubot/ros2_ws/install/setup.ps1'
+[1.290s] INFO:colcon.colcon_core.shell:Creating prefix script '/home/qubot/ros2_ws/install/local_setup.sh'
+[1.290s] INFO:colcon.colcon_core.shell:Creating prefix util module '/home/qubot/ros2_ws/install/_local_setup_util_sh.py'
+[1.290s] INFO:colcon.colcon_core.shell:Creating prefix chain script '/home/qubot/ros2_ws/install/setup.sh'
+[1.297s] INFO:colcon.colcon_core.shell:Creating prefix script '/home/qubot/ros2_ws/install/local_setup.bash'
+[1.298s] INFO:colcon.colcon_core.shell:Creating prefix chain script '/home/qubot/ros2_ws/install/setup.bash'
+[1.305s] INFO:colcon.colcon_core.shell:Creating prefix script '/home/qubot/ros2_ws/install/local_setup.zsh'
+[1.305s] INFO:colcon.colcon_core.shell:Creating prefix chain script '/home/qubot/ros2_ws/install/setup.zsh'

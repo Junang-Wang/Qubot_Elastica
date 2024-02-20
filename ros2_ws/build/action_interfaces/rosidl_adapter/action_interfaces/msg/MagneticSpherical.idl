@@ -1,0 +1,13 @@
+// generated from rosidl_adapter/resource/msg.idl.em
+// with input from action_interfaces/msg/MagneticSpherical.msg
+// generated code does not contain a copyright notice
+
+
+module action_interfaces {
+  module msg {
+    typedef double double__3[3];
+    struct MagneticSpherical {
+      double__3 magnetic_field_spherical;
+    };
+  };
+};

@@ -1,0 +1,37 @@
+[0.454s] Invoking command in '/home/qubot/ros2_ws/src/lifecycle_py': PYTHONPATH=/home/qubot/ros2_ws/build/lifecycle_py/prefix_override:/home/qubot/ros2_ws/install/lifecycle_py/lib/python3.10/site-packages:${PYTHONPATH} /home/qubot/.pyenv/versions/3.10.13/bin/python3.10 setup.py egg_info --egg-base ../../build/lifecycle_py build --build-base /home/qubot/ros2_ws/build/lifecycle_py/build install --record /home/qubot/ros2_ws/build/lifecycle_py/install.log --single-version-externally-managed
+[0.607s] running egg_info
+[0.607s] creating ../../build/lifecycle_py/lifecycle_py.egg-info
+[0.607s] writing ../../build/lifecycle_py/lifecycle_py.egg-info/PKG-INFO
+[0.608s] writing dependency_links to ../../build/lifecycle_py/lifecycle_py.egg-info/dependency_links.txt
+[0.608s] writing entry points to ../../build/lifecycle_py/lifecycle_py.egg-info/entry_points.txt
+[0.608s] writing requirements to ../../build/lifecycle_py/lifecycle_py.egg-info/requires.txt
+[0.608s] writing top-level names to ../../build/lifecycle_py/lifecycle_py.egg-info/top_level.txt
+[0.608s] writing manifest file '../../build/lifecycle_py/lifecycle_py.egg-info/SOURCES.txt'
+[0.609s] reading manifest file '../../build/lifecycle_py/lifecycle_py.egg-info/SOURCES.txt'
+[0.609s] writing manifest file '../../build/lifecycle_py/lifecycle_py.egg-info/SOURCES.txt'
+[0.609s] running build
+[0.610s] running build_py
+[0.610s] creating /home/qubot/ros2_ws/build/lifecycle_py/build
+[0.610s] creating /home/qubot/ros2_ws/build/lifecycle_py/build/lib
+[0.610s] creating /home/qubot/ros2_ws/build/lifecycle_py/build/lib/lifecycle_py
+[0.610s] copying lifecycle_py/number_publisher.py -> /home/qubot/ros2_ws/build/lifecycle_py/build/lib/lifecycle_py
+[0.610s] copying lifecycle_py/__init__.py -> /home/qubot/ros2_ws/build/lifecycle_py/build/lib/lifecycle_py
+[0.610s] running install
+[0.610s] running install_lib
+[0.611s] creating /home/qubot/ros2_ws/install/lifecycle_py/lib/python3.10/site-packages/lifecycle_py
+[0.611s] copying /home/qubot/ros2_ws/build/lifecycle_py/build/lib/lifecycle_py/number_publisher.py -> /home/qubot/ros2_ws/install/lifecycle_py/lib/python3.10/site-packages/lifecycle_py
+[0.611s] copying /home/qubot/ros2_ws/build/lifecycle_py/build/lib/lifecycle_py/__init__.py -> /home/qubot/ros2_ws/install/lifecycle_py/lib/python3.10/site-packages/lifecycle_py
+[0.611s] byte-compiling /home/qubot/ros2_ws/install/lifecycle_py/lib/python3.10/site-packages/lifecycle_py/number_publisher.py to number_publisher.cpython-310.pyc
+[0.611s] byte-compiling /home/qubot/ros2_ws/install/lifecycle_py/lib/python3.10/site-packages/lifecycle_py/__init__.py to __init__.cpython-310.pyc
+[0.611s] running install_data
+[0.611s] creating /home/qubot/ros2_ws/install/lifecycle_py/share/ament_index
+[0.611s] creating /home/qubot/ros2_ws/install/lifecycle_py/share/ament_index/resource_index
+[0.611s] creating /home/qubot/ros2_ws/install/lifecycle_py/share/ament_index/resource_index/packages
+[0.612s] copying resource/lifecycle_py -> /home/qubot/ros2_ws/install/lifecycle_py/share/ament_index/resource_index/packages
+[0.612s] copying package.xml -> /home/qubot/ros2_ws/install/lifecycle_py/share/lifecycle_py
+[0.612s] running install_egg_info
+[0.613s] Copying ../../build/lifecycle_py/lifecycle_py.egg-info to /home/qubot/ros2_ws/install/lifecycle_py/lib/python3.10/site-packages/lifecycle_py-0.0.0-py3.10.egg-info
+[0.613s] running install_scripts
+[0.628s] Installing number_publisher script to /home/qubot/ros2_ws/install/lifecycle_py/lib/lifecycle_py
+[0.628s] writing list of installed files to '/home/qubot/ros2_ws/build/lifecycle_py/install.log'
+[0.645s] Invoked command in '/home/qubot/ros2_ws/src/lifecycle_py' returned '0': PYTHONPATH=/home/qubot/ros2_ws/build/lifecycle_py/prefix_override:/home/qubot/ros2_ws/install/lifecycle_py/lib/python3.10/site-packages:${PYTHONPATH} /home/qubot/.pyenv/versions/3.10.13/bin/python3.10 setup.py egg_info --egg-base ../../build/lifecycle_py build --build-base /home/qubot/ros2_ws/build/lifecycle_py/build install --record /home/qubot/ros2_ws/build/lifecycle_py/install.log --single-version-externally-managed
