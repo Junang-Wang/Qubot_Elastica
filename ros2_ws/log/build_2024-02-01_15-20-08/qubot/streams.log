@@ -1,0 +1,25 @@
+[0.446s] Invoking command in '/home/qubot/ros2_ws/src/qubot': PYTHONPATH=/home/qubot/ros2_ws/build/qubot/prefix_override:/home/qubot/ros2_ws/install/qubot/lib/python3.10/site-packages:/home/qubot/ros2_ws/install/action_interfaces/lib/python3.10/site-packages:/home/qubot/App/Sofa_v23/bulid/lib/python3/site-packages:/home/qubot/App/Sofa_v23/bulid/lib/python3/site-packages:/home/qubot/ros2_ws/install/qubot/lib/python3.10/site-packages:/opt/ros/humble/lib/python3.10/site-packages:/opt/ros/humble/local/lib/python3.10/dist-packages:/home/qubot/App/Sofa_v23/bulid/lib/python3/site-packages /home/qubot/.pyenv/versions/3.10.13/bin/python3.10 setup.py egg_info --egg-base ../../build/qubot build --build-base /home/qubot/ros2_ws/build/qubot/build install --record /home/qubot/ros2_ws/build/qubot/install.log --single-version-externally-managed
+[0.596s] running egg_info
+[0.596s] writing ../../build/qubot/qubot.egg-info/PKG-INFO
+[0.596s] writing dependency_links to ../../build/qubot/qubot.egg-info/dependency_links.txt
+[0.596s] writing entry points to ../../build/qubot/qubot.egg-info/entry_points.txt
+[0.596s] writing requirements to ../../build/qubot/qubot.egg-info/requires.txt
+[0.596s] writing top-level names to ../../build/qubot/qubot.egg-info/top_level.txt
+[0.597s] reading manifest file '../../build/qubot/qubot.egg-info/SOURCES.txt'
+[0.598s] writing manifest file '../../build/qubot/qubot.egg-info/SOURCES.txt'
+[0.598s] running build
+[0.598s] running build_py
+[0.598s] copying qubot/cmd_mag_publisher.py -> /home/qubot/ros2_ws/build/qubot/build/lib/qubot
+[0.598s] running install
+[0.598s] running install_lib
+[0.599s] copying /home/qubot/ros2_ws/build/qubot/build/lib/qubot/cmd_mag_publisher.py -> /home/qubot/ros2_ws/install/qubot/lib/python3.10/site-packages/qubot
+[0.599s] byte-compiling /home/qubot/ros2_ws/install/qubot/lib/python3.10/site-packages/qubot/cmd_mag_publisher.py to cmd_mag_publisher.cpython-310.pyc
+[0.599s] running install_data
+[0.600s] running install_egg_info
+[0.601s] removing '/home/qubot/ros2_ws/install/qubot/lib/python3.10/site-packages/qubot-0.0.0-py3.10.egg-info' (and everything under it)
+[0.601s] Copying ../../build/qubot/qubot.egg-info to /home/qubot/ros2_ws/install/qubot/lib/python3.10/site-packages/qubot-0.0.0-py3.10.egg-info
+[0.601s] running install_scripts
+[0.616s] Installing cmd_mag_publisher script to /home/qubot/ros2_ws/install/qubot/lib/qubot
+[0.616s] Installing cmd_mag_subscriber script to /home/qubot/ros2_ws/install/qubot/lib/qubot
+[0.616s] writing list of installed files to '/home/qubot/ros2_ws/build/qubot/install.log'
+[0.631s] Invoked command in '/home/qubot/ros2_ws/src/qubot' returned '0': PYTHONPATH=/home/qubot/ros2_ws/build/qubot/prefix_override:/home/qubot/ros2_ws/install/qubot/lib/python3.10/site-packages:/home/qubot/ros2_ws/install/action_interfaces/lib/python3.10/site-packages:/home/qubot/App/Sofa_v23/bulid/lib/python3/site-packages:/home/qubot/App/Sofa_v23/bulid/lib/python3/site-packages:/home/qubot/ros2_ws/install/qubot/lib/python3.10/site-packages:/opt/ros/humble/lib/python3.10/site-packages:/opt/ros/humble/local/lib/python3.10/dist-packages:/home/qubot/App/Sofa_v23/bulid/lib/python3/site-packages /home/qubot/.pyenv/versions/3.10.13/bin/python3.10 setup.py egg_info --egg-base ../../build/qubot build --build-base /home/qubot/ros2_ws/build/qubot/build install --record /home/qubot/ros2_ws/build/qubot/install.log --single-version-externally-managed

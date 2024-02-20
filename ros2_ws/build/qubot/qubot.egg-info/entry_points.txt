@@ -1,0 +1,5 @@
+[console_scripts]
+cmd_mag_publisher = qubot.cmd_mag_publisher:main
+cmd_mag_subscriber = qubot.cmd_mag_subscriber:main
+sofa_sim = qubot.sofa_sim:main
+

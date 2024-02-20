@@ -1,0 +1,313 @@
+[0.033s] Invoking command in '/home/qubot/ros2_ws/build/action_interfaces': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake /home/qubot/ros2_ws/src/action_interfaces -DAMENT_CMAKE_SYMLINK_INSTALL=1 -DCMAKE_INSTALL_PREFIX=/home/qubot/ros2_ws/install/action_interfaces
+[0.078s] -- The C compiler identification is GNU 11.4.0
+[0.129s] -- The CXX compiler identification is GNU 11.4.0
+[0.133s] -- Detecting C compiler ABI info
+[0.194s] -- Detecting C compiler ABI info - done
+[0.199s] -- Check for working C compiler: /usr/bin/cc - skipped
+[0.199s] -- Detecting C compile features
+[0.199s] -- Detecting C compile features - done
+[0.201s] -- Detecting CXX compiler ABI info
+[0.258s] -- Detecting CXX compiler ABI info - done
+[0.263s] -- Check for working CXX compiler: /usr/bin/c++ - skipped
+[0.263s] -- Detecting CXX compile features
+[0.263s] -- Detecting CXX compile features - done
+[0.265s] -- Found ament_cmake: 1.3.7 (/opt/ros/humble/share/ament_cmake/cmake)
+[0.373s] -- Found Python3: /home/qubot/.pyenv/versions/3.10.13/bin/python3.10 (found version "3.10.13") found components: Interpreter 
+[0.419s] -- Override CMake install command with custom implementation using symlinks instead of copying resources
+[0.431s] -- Found rosidl_default_generators: 1.2.0 (/opt/ros/humble/share/rosidl_default_generators/cmake)
+[0.433s] -- Using all available rosidl_typesupport_c: rosidl_typesupport_fastrtps_c;rosidl_typesupport_introspection_c
+[0.436s] -- Found rosidl_adapter: 3.1.5 (/opt/ros/humble/share/rosidl_adapter/cmake)
+[0.460s] -- Using all available rosidl_typesupport_cpp: rosidl_typesupport_fastrtps_cpp;rosidl_typesupport_introspection_cpp
+[0.738s] -- Found ament_cmake_ros: 0.10.0 (/opt/ros/humble/share/ament_cmake_ros/cmake)
+[0.877s] -- Using all available rosidl_typesupport_c: rosidl_typesupport_fastrtps_c;rosidl_typesupport_introspection_c
+[1.048s] -- Using all available rosidl_typesupport_cpp: rosidl_typesupport_fastrtps_cpp;rosidl_typesupport_introspection_cpp
+[1.064s] -- Found PythonInterp: /home/qubot/.pyenv/versions/3.10.13/bin/python3 (found suitable version "3.10.13", minimum required is "3.6") 
+[1.064s] -- Found python_cmake_module: 0.10.0 (/opt/ros/humble/share/python_cmake_module/cmake)
+[1.080s] -- Found PythonLibs: /home/qubot/.pyenv/versions/3.10.13/lib/libpython3.10.so (found suitable version "3.10.13", minimum required is "3.5") 
+[1.080s] -- Using PYTHON_EXECUTABLE: /home/qubot/.pyenv/versions/3.10.13/bin/python3
+[1.080s] -- Using PYTHON_INCLUDE_DIRS: /home/qubot/.pyenv/versions/3.10.13/include/python3.10
+[1.080s] -- Using PYTHON_LIBRARIES: /home/qubot/.pyenv/versions/3.10.13/lib/libpython3.10.so
+[1.092s] -- Found PythonExtra: .so  
+[1.206s] -- Using numpy include directory: /home/qubot/.pyenv/versions/3.10.13/lib/python3.10/site-packages/numpy/core/include
+[1.214s] -- Found ament_lint_auto: 0.12.10 (/opt/ros/humble/share/ament_lint_auto/cmake)
+[1.224s] -- Added test 'lint_cmake' to check CMake code style
+[1.224s] -- Added test 'xmllint' to check XML markup files
+[1.226s] -- Configuring done
+[1.240s] [33mCMake Warning at /opt/ros/humble/share/rosidl_generator_py/cmake/rosidl_generator_py_generate_interfaces.cmake:166 (add_library):
+[1.240s]   Cannot generate a safe runtime search path for target
+[1.240s]   action_interfaces__rosidl_generator_py because files in some directories
+[1.240s]   may conflict with libraries in implicit directories:
+[1.240s] 
+[1.240s]     runtime library [libpython3.10.so.1.0] in /usr/lib/x86_64-linux-gnu may be hidden by files in:
+[1.240s]       /home/qubot/.pyenv/versions/3.10.13/lib
+[1.240s] 
+[1.240s]   Some of these libraries may not be found correctly.
+[1.240s] Call Stack (most recent call first):
+[1.240s]   /opt/ros/humble/share/ament_cmake_core/cmake/core/ament_execute_extensions.cmake:48 (include)
+[1.240s]   /opt/ros/humble/share/rosidl_cmake/cmake/rosidl_generate_interfaces.cmake:286 (ament_execute_extensions)
+[1.240s]   CMakeLists.txt:15 (rosidl_generate_interfaces)
+[1.240s] 
+[1.240s] [0m
+[1.241s] [33mCMake Warning at /opt/ros/humble/share/rosidl_generator_py/cmake/rosidl_generator_py_generate_interfaces.cmake:226 (add_library):
+[1.241s]   Cannot generate a safe runtime search path for target
+[1.241s]   action_interfaces__rosidl_typesupport_fastrtps_c__pyext because files in
+[1.241s]   some directories may conflict with libraries in implicit directories:
+[1.241s] 
+[1.241s]     runtime library [libpython3.10.so.1.0] in /usr/lib/x86_64-linux-gnu may be hidden by files in:
+[1.241s]       /home/qubot/.pyenv/versions/3.10.13/lib
+[1.241s] 
+[1.241s]   Some of these libraries may not be found correctly.
+[1.241s] Call Stack (most recent call first):
+[1.241s]   /opt/ros/humble/share/ament_cmake_core/cmake/core/ament_execute_extensions.cmake:48 (include)
+[1.241s]   /opt/ros/humble/share/rosidl_cmake/cmake/rosidl_generate_interfaces.cmake:286 (ament_execute_extensions)
+[1.241s]   CMakeLists.txt:15 (rosidl_generate_interfaces)
+[1.241s] 
+[1.241s] [0m
+[1.242s] [33mCMake Warning at /opt/ros/humble/share/rosidl_generator_py/cmake/rosidl_generator_py_generate_interfaces.cmake:226 (add_library):
+[1.242s]   Cannot generate a safe runtime search path for target
+[1.242s]   action_interfaces__rosidl_typesupport_introspection_c__pyext because files
+[1.242s]   in some directories may conflict with libraries in implicit directories:
+[1.242s] 
+[1.242s]     runtime library [libpython3.10.so.1.0] in /usr/lib/x86_64-linux-gnu may be hidden by files in:
+[1.243s]       /home/qubot/.pyenv/versions/3.10.13/lib
+[1.243s] 
+[1.243s]   Some of these libraries may not be found correctly.
+[1.243s] Call Stack (most recent call first):
+[1.243s]   /opt/ros/humble/share/ament_cmake_core/cmake/core/ament_execute_extensions.cmake:48 (include)
+[1.243s]   /opt/ros/humble/share/rosidl_cmake/cmake/rosidl_generate_interfaces.cmake:286 (ament_execute_extensions)
+[1.243s]   CMakeLists.txt:15 (rosidl_generate_interfaces)
+[1.243s] 
+[1.243s] [0m
+[1.244s] [33mCMake Warning at /opt/ros/humble/share/rosidl_generator_py/cmake/rosidl_generator_py_generate_interfaces.cmake:226 (add_library):
+[1.244s]   Cannot generate a safe runtime search path for target
+[1.244s]   action_interfaces__rosidl_typesupport_c__pyext because files in some
+[1.244s]   directories may conflict with libraries in implicit directories:
+[1.244s] 
+[1.244s]     runtime library [libpython3.10.so.1.0] in /usr/lib/x86_64-linux-gnu may be hidden by files in:
+[1.244s]       /home/qubot/.pyenv/versions/3.10.13/lib
+[1.244s] 
+[1.244s]   Some of these libraries may not be found correctly.
+[1.244s] Call Stack (most recent call first):
+[1.244s]   /opt/ros/humble/share/ament_cmake_core/cmake/core/ament_execute_extensions.cmake:48 (include)
+[1.244s]   /opt/ros/humble/share/rosidl_cmake/cmake/rosidl_generate_interfaces.cmake:286 (ament_execute_extensions)
+[1.244s]   CMakeLists.txt:15 (rosidl_generate_interfaces)
+[1.244s] 
+[1.244s] [0m
+[1.246s] -- Generating done
+[1.248s] -- Build files have been written to: /home/qubot/ros2_ws/build/action_interfaces
+[1.252s] Invoked command in '/home/qubot/ros2_ws/build/action_interfaces' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake /home/qubot/ros2_ws/src/action_interfaces -DAMENT_CMAKE_SYMLINK_INSTALL=1 -DCMAKE_INSTALL_PREFIX=/home/qubot/ros2_ws/install/action_interfaces
+[1.253s] Invoking command in '/home/qubot/ros2_ws/build/action_interfaces': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake --build /home/qubot/ros2_ws/build/action_interfaces -- -j16 -l16
+[1.277s] [  2%] [34m[1mGenerating C code for ROS interfaces[0m
+[1.282s] [  4%] [34m[1mGenerating C++ code for ROS interfaces[0m
+[1.287s] [  4%] Built target ament_cmake_python_symlink_action_interfaces
+[1.439s] running egg_info
+[1.439s] creating action_interfaces.egg-info
+[1.439s] writing action_interfaces.egg-info/PKG-INFO
+[1.440s] writing dependency_links to action_interfaces.egg-info/dependency_links.txt
+[1.440s] writing top-level names to action_interfaces.egg-info/top_level.txt
+[1.440s] writing manifest file 'action_interfaces.egg-info/SOURCES.txt'
+[1.441s] reading manifest file 'action_interfaces.egg-info/SOURCES.txt'
+[1.441s] writing manifest file 'action_interfaces.egg-info/SOURCES.txt'
+[1.458s] [  4%] Built target ament_cmake_python_build_action_interfaces_egg
+[1.836s] [  4%] Built target action_interfaces__cpp
+[1.843s] [  8%] [34m[1mGenerating C++ type support dispatch for ROS interfaces[0m
+[1.843s] [  8%] [34m[1mGenerating C++ introspection for ROS interfaces[0m
+[1.843s] [ 10%] [34m[1mGenerating C++ type support for eProsima Fast-RTPS[0m
+[1.854s] [ 12%] [32mBuilding C object CMakeFiles/action_interfaces__rosidl_generator_c.dir/rosidl_generator_c/action_interfaces/action/detail/fibonacci__functions.c.o[0m
+[1.857s] [ 17%] [32mBuilding C object CMakeFiles/action_interfaces__rosidl_generator_c.dir/rosidl_generator_c/action_interfaces/msg/detail/magnetic_spherical__functions.c.o[0m
+[1.858s] [ 17%] [32mBuilding C object CMakeFiles/action_interfaces__rosidl_generator_c.dir/rosidl_generator_c/action_interfaces/action/detail/count_until__functions.c.o[0m
+[1.972s] [ 19%] [32m[1mLinking C shared library libaction_interfaces__rosidl_generator_c.so[0m
+[1.995s] [ 19%] Built target action_interfaces__rosidl_generator_c
+[2.001s] [ 21%] [34m[1mGenerating C type support for eProsima Fast-RTPS[0m
+[2.005s] [ 25%] [34m[1mGenerating C type support dispatch for ROS interfaces[0m
+[2.005s] [ 25%] [34m[1mGenerating C introspection for ROS interfaces[0m
+[2.169s] [ 27%] [32mBuilding CXX object CMakeFiles/action_interfaces__rosidl_typesupport_cpp.dir/rosidl_typesupport_cpp/action_interfaces/action/fibonacci__type_support.cpp.o[0m
+[2.173s] [ 31%] [32mBuilding CXX object CMakeFiles/action_interfaces__rosidl_typesupport_cpp.dir/rosidl_typesupport_cpp/action_interfaces/msg/magnetic_spherical__type_support.cpp.o[0m
+[2.173s] [ 31%] [32mBuilding CXX object CMakeFiles/action_interfaces__rosidl_typesupport_cpp.dir/rosidl_typesupport_cpp/action_interfaces/action/count_until__type_support.cpp.o[0m
+[2.280s] [ 38%] [32mBuilding CXX object CMakeFiles/action_interfaces__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/action_interfaces/action/detail/fibonacci__type_support.cpp.o[0m
+[2.280s] [ 38%] [32mBuilding CXX object CMakeFiles/action_interfaces__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/action_interfaces/action/detail/count_until__type_support.cpp.o[0m
+[2.280s] [ 38%] [32mBuilding CXX object CMakeFiles/action_interfaces__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/action_interfaces/msg/detail/magnetic_spherical__type_support.cpp.o[0m
+[2.359s] [ 40%] [32mBuilding CXX object CMakeFiles/action_interfaces__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/action_interfaces/action/detail/dds_fastrtps/fibonacci__type_support.cpp.o[0m
+[2.360s] [ 42%] [32mBuilding CXX object CMakeFiles/action_interfaces__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/action_interfaces/msg/detail/dds_fastrtps/magnetic_spherical__type_support.cpp.o[0m
+[2.361s] [ 44%] [32mBuilding CXX object CMakeFiles/action_interfaces__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/action_interfaces/action/detail/dds_fastrtps/count_until__type_support.cpp.o[0m
+[2.494s] [ 46%] [32mBuilding CXX object CMakeFiles/action_interfaces__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/action_interfaces/action/detail/fibonacci__type_support_c.cpp.o[0m
+[2.497s] [ 51%] [32mBuilding CXX object CMakeFiles/action_interfaces__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/action_interfaces/action/detail/count_until__type_support_c.cpp.o[0m
+[2.497s] [ 51%] [32mBuilding CXX object CMakeFiles/action_interfaces__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/action_interfaces/msg/detail/magnetic_spherical__type_support_c.cpp.o[0m
+[2.664s] [ 53%] [32mBuilding CXX object CMakeFiles/action_interfaces__rosidl_typesupport_c.dir/rosidl_typesupport_c/action_interfaces/action/fibonacci__type_support.cpp.o[0m
+[2.664s] [ 55%] [32mBuilding CXX object CMakeFiles/action_interfaces__rosidl_typesupport_c.dir/rosidl_typesupport_c/action_interfaces/msg/magnetic_spherical__type_support.cpp.o[0m
+[2.664s] [ 57%] [32mBuilding CXX object CMakeFiles/action_interfaces__rosidl_typesupport_c.dir/rosidl_typesupport_c/action_interfaces/action/count_until__type_support.cpp.o[0m
+[2.711s] [ 59%] [32m[1mLinking CXX shared library libaction_interfaces__rosidl_typesupport_c.so[0m
+[2.717s] [ 61%] [32m[1mLinking CXX shared library libaction_interfaces__rosidl_typesupport_cpp.so[0m
+[2.737s] [ 61%] Built target action_interfaces__rosidl_typesupport_c
+[2.752s] [ 61%] Built target action_interfaces__rosidl_typesupport_cpp
+[2.780s] [ 63%] [32m[1mLinking CXX shared library libaction_interfaces__rosidl_typesupport_fastrtps_cpp.so[0m
+[2.828s] [ 63%] Built target action_interfaces__rosidl_typesupport_fastrtps_cpp
+[2.842s] [ 65%] [32m[1mLinking CXX shared library libaction_interfaces__rosidl_typesupport_fastrtps_c.so[0m
+[2.886s] [ 68%] [32m[1mLinking CXX shared library libaction_interfaces__rosidl_typesupport_introspection_cpp.so[0m
+[2.890s] [ 68%] Built target action_interfaces__rosidl_typesupport_fastrtps_c
+[2.920s] [ 72%] [32mBuilding C object CMakeFiles/action_interfaces__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/action_interfaces/action/detail/fibonacci__type_support.c.o[0m
+[2.920s] [ 72%] [32mBuilding C object CMakeFiles/action_interfaces__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/action_interfaces/action/detail/count_until__type_support.c.o[0m
+[2.920s] [ 74%] [32mBuilding C object CMakeFiles/action_interfaces__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/action_interfaces/msg/detail/magnetic_spherical__type_support.c.o[0m
+[2.934s] [ 74%] Built target action_interfaces__rosidl_typesupport_introspection_cpp
+[2.950s] [ 76%] [32m[1mLinking C shared library libaction_interfaces__rosidl_typesupport_introspection_c.so[0m
+[2.969s] [ 76%] Built target action_interfaces__rosidl_typesupport_introspection_c
+[2.981s] [ 76%] Built target action_interfaces
+[3.000s] [ 78%] [34m[1mGenerating Python code for ROS interfaces[0m
+[4.068s] [ 78%] Built target action_interfaces__py
+[4.080s] [ 80%] [32mBuilding C object CMakeFiles/action_interfaces__rosidl_generator_py.dir/rosidl_generator_py/action_interfaces/action/_fibonacci_s.c.o[0m
+[4.080s] [ 85%] [32mBuilding C object CMakeFiles/action_interfaces__rosidl_generator_py.dir/rosidl_generator_py/action_interfaces/msg/_magnetic_spherical_s.c.o[0m
+[4.080s] [ 85%] [32mBuilding C object CMakeFiles/action_interfaces__rosidl_generator_py.dir/rosidl_generator_py/action_interfaces/action/_count_until_s.c.o[0m
+[4.171s] [ 87%] [32m[1mLinking C shared library rosidl_generator_py/action_interfaces/libaction_interfaces__rosidl_generator_py.so[0m
+[4.198s] [ 87%] Built target action_interfaces__rosidl_generator_py
+[4.210s] [ 91%] [32mBuilding C object CMakeFiles/action_interfaces__rosidl_typesupport_fastrtps_c__pyext.dir/rosidl_generator_py/action_interfaces/_action_interfaces_s.ep.rosidl_typesupport_fastrtps_c.c.o[0m
+[4.210s] [ 91%] [32mBuilding C object CMakeFiles/action_interfaces__rosidl_typesupport_introspection_c__pyext.dir/rosidl_generator_py/action_interfaces/_action_interfaces_s.ep.rosidl_typesupport_introspection_c.c.o[0m
+[4.211s] [ 93%] [32mBuilding C object CMakeFiles/action_interfaces__rosidl_typesupport_c__pyext.dir/rosidl_generator_py/action_interfaces/_action_interfaces_s.ep.rosidl_typesupport_c.c.o[0m
+[4.300s] [ 95%] [32m[1mLinking C shared library rosidl_generator_py/action_interfaces/action_interfaces_s__rosidl_typesupport_c.cpython-310-x86_64-linux-gnu.so[0m
+[4.301s] [ 97%] [32m[1mLinking C shared library rosidl_generator_py/action_interfaces/action_interfaces_s__rosidl_typesupport_fastrtps_c.cpython-310-x86_64-linux-gnu.so[0m
+[4.301s] [100%] [32m[1mLinking C shared library rosidl_generator_py/action_interfaces/action_interfaces_s__rosidl_typesupport_introspection_c.cpython-310-x86_64-linux-gnu.so[0m
+[4.324s] [100%] Built target action_interfaces__rosidl_typesupport_c__pyext
+[4.325s] [100%] Built target action_interfaces__rosidl_typesupport_introspection_c__pyext
+[4.325s] [100%] Built target action_interfaces__rosidl_typesupport_fastrtps_c__pyext
+[4.332s] Invoked command in '/home/qubot/ros2_ws/build/action_interfaces' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake --build /home/qubot/ros2_ws/build/action_interfaces -- -j16 -l16
+[4.389s] Invoking command in '/home/qubot/ros2_ws/build/action_interfaces': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake --install /home/qubot/ros2_ws/build/action_interfaces
+[4.395s] -- Install configuration: ""
+[4.396s] -- Execute custom install script
+[4.396s] -- Symlinking: /home/qubot/ros2_ws/install/action_interfaces/share/ament_index/resource_index/rosidl_interfaces/action_interfaces
+[4.406s] -- Symlinking: /home/qubot/ros2_ws/install/action_interfaces/include/action_interfaces/action_interfaces/action/count_until.h
+[4.415s] -- Symlinking: /home/qubot/ros2_ws/install/action_interfaces/include/action_interfaces/action_interfaces/action/detail/count_until__functions.h
+[4.424s] -- Symlinking: /home/qubot/ros2_ws/install/action_interfaces/include/action_interfaces/action_interfaces/action/detail/count_until__struct.h
+[4.431s] -- Symlinking: /home/qubot/ros2_ws/install/action_interfaces/include/action_interfaces/action_interfaces/action/detail/count_until__type_support.h
+[4.438s] -- Symlinking: /home/qubot/ros2_ws/install/action_interfaces/include/action_interfaces/action_interfaces/action/detail/fibonacci__functions.h
+[4.446s] -- Symlinking: /home/qubot/ros2_ws/install/action_interfaces/include/action_interfaces/action_interfaces/action/detail/fibonacci__struct.h
+[4.450s] -- Symlinking: /home/qubot/ros2_ws/install/action_interfaces/include/action_interfaces/action_interfaces/action/detail/fibonacci__type_support.h
+[4.455s] -- Symlinking: /home/qubot/ros2_ws/install/action_interfaces/include/action_interfaces/action_interfaces/action/fibonacci.h
+[4.460s] -- Symlinking: /home/qubot/ros2_ws/install/action_interfaces/include/action_interfaces/action_interfaces/msg/detail/magnetic_spherical__functions.h
+[4.466s] -- Symlinking: /home/qubot/ros2_ws/install/action_interfaces/include/action_interfaces/action_interfaces/msg/detail/magnetic_spherical__struct.h
+[4.473s] -- Symlinking: /home/qubot/ros2_ws/install/action_interfaces/include/action_interfaces/action_interfaces/msg/detail/magnetic_spherical__type_support.h
+[4.480s] -- Symlinking: /home/qubot/ros2_ws/install/action_interfaces/include/action_interfaces/action_interfaces/msg/magnetic_spherical.h
+[4.487s] -- Symlinking: /home/qubot/ros2_ws/install/action_interfaces/include/action_interfaces/action_interfaces/msg/rosidl_generator_c__visibility_control.h
+[4.494s] -- Symlinking: /home/qubot/ros2_ws/install/action_interfaces/share/action_interfaces/environment/library_path.sh
+[4.502s] -- Symlinking: /home/qubot/ros2_ws/install/action_interfaces/share/action_interfaces/environment/library_path.dsv
+[4.507s] -- Symlinking: /home/qubot/ros2_ws/install/action_interfaces/include/action_interfaces/action_interfaces/action/detail/count_until__rosidl_typesupport_fastrtps_c.h
+[4.512s] -- Symlinking: /home/qubot/ros2_ws/install/action_interfaces/include/action_interfaces/action_interfaces/action/detail/fibonacci__rosidl_typesupport_fastrtps_c.h
+[4.516s] -- Symlinking: /home/qubot/ros2_ws/install/action_interfaces/include/action_interfaces/action_interfaces/msg/detail/magnetic_spherical__rosidl_typesupport_fastrtps_c.h
+[4.521s] -- Symlinking: /home/qubot/ros2_ws/install/action_interfaces/include/action_interfaces/action_interfaces/msg/rosidl_typesupport_fastrtps_c__visibility_control.h
+[4.526s] -- Symlinking: /home/qubot/ros2_ws/install/action_interfaces/include/action_interfaces/action_interfaces/action/detail/count_until__rosidl_typesupport_introspection_c.h
+[4.531s] -- Symlinking: /home/qubot/ros2_ws/install/action_interfaces/include/action_interfaces/action_interfaces/action/detail/fibonacci__rosidl_typesupport_introspection_c.h
+[4.535s] -- Symlinking: /home/qubot/ros2_ws/install/action_interfaces/include/action_interfaces/action_interfaces/msg/detail/magnetic_spherical__rosidl_typesupport_introspection_c.h
+[4.540s] -- Symlinking: /home/qubot/ros2_ws/install/action_interfaces/include/action_interfaces/action_interfaces/msg/rosidl_typesupport_introspection_c__visibility_control.h
+[4.545s] -- Symlinking: /home/qubot/ros2_ws/install/action_interfaces/include/action_interfaces/action_interfaces/action/count_until.hpp
+[4.550s] -- Symlinking: /home/qubot/ros2_ws/install/action_interfaces/include/action_interfaces/action_interfaces/action/detail/count_until__builder.hpp
+[4.555s] -- Symlinking: /home/qubot/ros2_ws/install/action_interfaces/include/action_interfaces/action_interfaces/action/detail/count_until__struct.hpp
+[4.560s] -- Symlinking: /home/qubot/ros2_ws/install/action_interfaces/include/action_interfaces/action_interfaces/action/detail/count_until__traits.hpp
+[4.565s] -- Symlinking: /home/qubot/ros2_ws/install/action_interfaces/include/action_interfaces/action_interfaces/action/detail/fibonacci__builder.hpp
+[4.573s] -- Symlinking: /home/qubot/ros2_ws/install/action_interfaces/include/action_interfaces/action_interfaces/action/detail/fibonacci__struct.hpp
+[4.580s] -- Symlinking: /home/qubot/ros2_ws/install/action_interfaces/include/action_interfaces/action_interfaces/action/detail/fibonacci__traits.hpp
+[4.587s] -- Symlinking: /home/qubot/ros2_ws/install/action_interfaces/include/action_interfaces/action_interfaces/action/fibonacci.hpp
+[4.594s] -- Symlinking: /home/qubot/ros2_ws/install/action_interfaces/include/action_interfaces/action_interfaces/msg/detail/magnetic_spherical__builder.hpp
+[4.601s] -- Symlinking: /home/qubot/ros2_ws/install/action_interfaces/include/action_interfaces/action_interfaces/msg/detail/magnetic_spherical__struct.hpp
+[4.606s] -- Symlinking: /home/qubot/ros2_ws/install/action_interfaces/include/action_interfaces/action_interfaces/msg/detail/magnetic_spherical__traits.hpp
+[4.610s] -- Symlinking: /home/qubot/ros2_ws/install/action_interfaces/include/action_interfaces/action_interfaces/msg/magnetic_spherical.hpp
+[4.617s] -- Symlinking: /home/qubot/ros2_ws/install/action_interfaces/include/action_interfaces/action_interfaces/action/detail/count_until__rosidl_typesupport_fastrtps_cpp.hpp
+[4.622s] -- Symlinking: /home/qubot/ros2_ws/install/action_interfaces/include/action_interfaces/action_interfaces/action/detail/fibonacci__rosidl_typesupport_fastrtps_cpp.hpp
+[4.627s] -- Symlinking: /home/qubot/ros2_ws/install/action_interfaces/include/action_interfaces/action_interfaces/msg/detail/magnetic_spherical__rosidl_typesupport_fastrtps_cpp.hpp
+[4.633s] -- Symlinking: /home/qubot/ros2_ws/install/action_interfaces/include/action_interfaces/action_interfaces/msg/rosidl_typesupport_fastrtps_cpp__visibility_control.h
+[4.642s] -- Symlinking: /home/qubot/ros2_ws/install/action_interfaces/include/action_interfaces/action_interfaces/action/detail/count_until__rosidl_typesupport_introspection_cpp.hpp
+[4.650s] -- Symlinking: /home/qubot/ros2_ws/install/action_interfaces/include/action_interfaces/action_interfaces/action/detail/fibonacci__rosidl_typesupport_introspection_cpp.hpp
+[4.656s] -- Symlinking: /home/qubot/ros2_ws/install/action_interfaces/include/action_interfaces/action_interfaces/msg/detail/magnetic_spherical__rosidl_typesupport_introspection_cpp.hpp
+[4.662s] -- Symlinking: /home/qubot/ros2_ws/install/action_interfaces/share/action_interfaces/environment/pythonpath.sh
+[4.669s] -- Symlinking: /home/qubot/ros2_ws/install/action_interfaces/share/action_interfaces/environment/pythonpath.dsv
+[4.675s] -- Symlinking: /home/qubot/ros2_ws/install/action_interfaces/lib/python3.10/site-packages/action_interfaces-0.0.0-py3.10.egg-info/PKG-INFO
+[4.682s] -- Symlinking: /home/qubot/ros2_ws/install/action_interfaces/lib/python3.10/site-packages/action_interfaces-0.0.0-py3.10.egg-info/SOURCES.txt
+[4.687s] -- Symlinking: /home/qubot/ros2_ws/install/action_interfaces/lib/python3.10/site-packages/action_interfaces-0.0.0-py3.10.egg-info/dependency_links.txt
+[4.692s] -- Symlinking: /home/qubot/ros2_ws/install/action_interfaces/lib/python3.10/site-packages/action_interfaces-0.0.0-py3.10.egg-info/top_level.txt
+[4.698s] -- Symlinking: /home/qubot/ros2_ws/install/action_interfaces/lib/python3.10/site-packages/action_interfaces/__init__.py
+[4.703s] -- Symlinking: /home/qubot/ros2_ws/install/action_interfaces/lib/python3.10/site-packages/action_interfaces/_action_interfaces_s.ep.rosidl_typesupport_c.c
+[4.709s] -- Symlinking: /home/qubot/ros2_ws/install/action_interfaces/lib/python3.10/site-packages/action_interfaces/_action_interfaces_s.ep.rosidl_typesupport_fastrtps_c.c
+[4.714s] -- Symlinking: /home/qubot/ros2_ws/install/action_interfaces/lib/python3.10/site-packages/action_interfaces/_action_interfaces_s.ep.rosidl_typesupport_introspection_c.c
+[4.720s] -- Symlinking: /home/qubot/ros2_ws/install/action_interfaces/lib/python3.10/site-packages/action_interfaces/action/__init__.py
+[4.726s] -- Symlinking: /home/qubot/ros2_ws/install/action_interfaces/lib/python3.10/site-packages/action_interfaces/action/_count_until.py
+[4.732s] -- Symlinking: /home/qubot/ros2_ws/install/action_interfaces/lib/python3.10/site-packages/action_interfaces/action/_count_until_s.c
+[4.738s] -- Symlinking: /home/qubot/ros2_ws/install/action_interfaces/lib/python3.10/site-packages/action_interfaces/action/_fibonacci.py
+[4.744s] -- Symlinking: /home/qubot/ros2_ws/install/action_interfaces/lib/python3.10/site-packages/action_interfaces/action/_fibonacci_s.c
+[4.750s] -- Symlinking: /home/qubot/ros2_ws/install/action_interfaces/lib/python3.10/site-packages/action_interfaces/action_interfaces_s__rosidl_typesupport_c.cpython-310-x86_64-linux-gnu.so
+[4.756s] -- Symlinking: /home/qubot/ros2_ws/install/action_interfaces/lib/python3.10/site-packages/action_interfaces/action_interfaces_s__rosidl_typesupport_fastrtps_c.cpython-310-x86_64-linux-gnu.so
+[4.762s] -- Symlinking: /home/qubot/ros2_ws/install/action_interfaces/lib/python3.10/site-packages/action_interfaces/action_interfaces_s__rosidl_typesupport_introspection_c.cpython-310-x86_64-linux-gnu.so
+[4.768s] -- Symlinking: /home/qubot/ros2_ws/install/action_interfaces/lib/python3.10/site-packages/action_interfaces/libaction_interfaces__rosidl_generator_py.so
+[4.774s] -- Symlinking: /home/qubot/ros2_ws/install/action_interfaces/lib/python3.10/site-packages/action_interfaces/msg/__init__.py
+[4.779s] -- Symlinking: /home/qubot/ros2_ws/install/action_interfaces/lib/python3.10/site-packages/action_interfaces/msg/_magnetic_spherical.py
+[4.786s] -- Symlinking: /home/qubot/ros2_ws/install/action_interfaces/lib/python3.10/site-packages/action_interfaces/msg/_magnetic_spherical_s.c
+[4.794s] -- Up-to-date symlink: /home/qubot/ros2_ws/install/action_interfaces/lib/python3.10/site-packages/action_interfaces/action_interfaces_s__rosidl_typesupport_fastrtps_c.cpython-310-x86_64-linux-gnu.so
+[4.794s] -- Up-to-date symlink: /home/qubot/ros2_ws/install/action_interfaces/lib/python3.10/site-packages/action_interfaces/action_interfaces_s__rosidl_typesupport_introspection_c.cpython-310-x86_64-linux-gnu.so
+[4.795s] -- Up-to-date symlink: /home/qubot/ros2_ws/install/action_interfaces/lib/python3.10/site-packages/action_interfaces/action_interfaces_s__rosidl_typesupport_c.cpython-310-x86_64-linux-gnu.so
+[4.795s] -- Symlinking: /home/qubot/ros2_ws/install/action_interfaces/share/action_interfaces/action/Fibonacci.idl
+[4.802s] -- Symlinking: /home/qubot/ros2_ws/install/action_interfaces/share/action_interfaces/action/CountUntil.idl
+[4.809s] -- Symlinking: /home/qubot/ros2_ws/install/action_interfaces/share/action_interfaces/msg/MagneticSpherical.idl
+[4.815s] -- Symlinking: /home/qubot/ros2_ws/install/action_interfaces/share/action_interfaces/action/Fibonacci.action
+[4.822s] -- Symlinking: /home/qubot/ros2_ws/install/action_interfaces/share/action_interfaces/action/CountUntil.action
+[4.828s] -- Symlinking: /home/qubot/ros2_ws/install/action_interfaces/share/action_interfaces/msg/MagneticSpherical.msg
+[4.835s] -- Symlinking: /home/qubot/ros2_ws/install/action_interfaces/share/ament_index/resource_index/package_run_dependencies/action_interfaces
+[4.842s] -- Symlinking: /home/qubot/ros2_ws/install/action_interfaces/share/ament_index/resource_index/parent_prefix_path/action_interfaces
+[4.850s] -- Symlinking: /home/qubot/ros2_ws/install/action_interfaces/share/action_interfaces/environment/ament_prefix_path.sh
+[4.856s] -- Symlinking: /home/qubot/ros2_ws/install/action_interfaces/share/action_interfaces/environment/ament_prefix_path.dsv
+[4.864s] -- Symlinking: /home/qubot/ros2_ws/install/action_interfaces/share/action_interfaces/environment/path.sh
+[4.870s] -- Symlinking: /home/qubot/ros2_ws/install/action_interfaces/share/action_interfaces/environment/path.dsv
+[4.878s] -- Symlinking: /home/qubot/ros2_ws/install/action_interfaces/share/action_interfaces/local_setup.bash
+[4.885s] -- Symlinking: /home/qubot/ros2_ws/install/action_interfaces/share/action_interfaces/local_setup.sh
+[4.892s] -- Symlinking: /home/qubot/ros2_ws/install/action_interfaces/share/action_interfaces/local_setup.zsh
+[4.899s] -- Symlinking: /home/qubot/ros2_ws/install/action_interfaces/share/action_interfaces/local_setup.dsv
+[4.906s] -- Symlinking: /home/qubot/ros2_ws/install/action_interfaces/share/action_interfaces/package.dsv
+[4.913s] -- Symlinking: /home/qubot/ros2_ws/install/action_interfaces/share/ament_index/resource_index/packages/action_interfaces
+[4.921s] -- Symlinking: /home/qubot/ros2_ws/install/action_interfaces/share/action_interfaces/cmake/rosidl_cmake-extras.cmake
+[4.930s] -- Symlinking: /home/qubot/ros2_ws/install/action_interfaces/share/action_interfaces/cmake/ament_cmake_export_dependencies-extras.cmake
+[4.939s] -- Symlinking: /home/qubot/ros2_ws/install/action_interfaces/share/action_interfaces/cmake/ament_cmake_export_include_directories-extras.cmake
+[4.950s] -- Symlinking: /home/qubot/ros2_ws/install/action_interfaces/share/action_interfaces/cmake/ament_cmake_export_libraries-extras.cmake
+[4.959s] -- Symlinking: /home/qubot/ros2_ws/install/action_interfaces/share/action_interfaces/cmake/ament_cmake_export_targets-extras.cmake
+[4.968s] -- Symlinking: /home/qubot/ros2_ws/install/action_interfaces/share/action_interfaces/cmake/rosidl_cmake_export_typesupport_targets-extras.cmake
+[4.977s] -- Symlinking: /home/qubot/ros2_ws/install/action_interfaces/share/action_interfaces/cmake/rosidl_cmake_export_typesupport_libraries-extras.cmake
+[4.984s] -- Symlinking: /home/qubot/ros2_ws/install/action_interfaces/share/action_interfaces/cmake/action_interfacesConfig.cmake
+[4.992s] -- Symlinking: /home/qubot/ros2_ws/install/action_interfaces/share/action_interfaces/cmake/action_interfacesConfig-version.cmake
+[5.000s] -- Symlinking: /home/qubot/ros2_ws/install/action_interfaces/share/action_interfaces/package.xml
+[5.008s] -- Installing: /home/qubot/ros2_ws/install/action_interfaces/lib/libaction_interfaces__rosidl_generator_c.so
+[5.008s] -- Set runtime path of "/home/qubot/ros2_ws/install/action_interfaces/lib/libaction_interfaces__rosidl_generator_c.so" to ""
+[5.008s] -- Installing: /home/qubot/ros2_ws/install/action_interfaces/lib/libaction_interfaces__rosidl_typesupport_fastrtps_c.so
+[5.008s] -- Set runtime path of "/home/qubot/ros2_ws/install/action_interfaces/lib/libaction_interfaces__rosidl_typesupport_fastrtps_c.so" to ""
+[5.009s] -- Installing: /home/qubot/ros2_ws/install/action_interfaces/lib/libaction_interfaces__rosidl_typesupport_introspection_c.so
+[5.009s] -- Set runtime path of "/home/qubot/ros2_ws/install/action_interfaces/lib/libaction_interfaces__rosidl_typesupport_introspection_c.so" to ""
+[5.009s] -- Installing: /home/qubot/ros2_ws/install/action_interfaces/lib/libaction_interfaces__rosidl_typesupport_c.so
+[5.009s] -- Set runtime path of "/home/qubot/ros2_ws/install/action_interfaces/lib/libaction_interfaces__rosidl_typesupport_c.so" to ""
+[5.009s] -- Installing: /home/qubot/ros2_ws/install/action_interfaces/lib/libaction_interfaces__rosidl_typesupport_fastrtps_cpp.so
+[5.009s] -- Set runtime path of "/home/qubot/ros2_ws/install/action_interfaces/lib/libaction_interfaces__rosidl_typesupport_fastrtps_cpp.so" to ""
+[5.010s] -- Installing: /home/qubot/ros2_ws/install/action_interfaces/lib/libaction_interfaces__rosidl_typesupport_introspection_cpp.so
+[5.010s] -- Set runtime path of "/home/qubot/ros2_ws/install/action_interfaces/lib/libaction_interfaces__rosidl_typesupport_introspection_cpp.so" to ""
+[5.010s] -- Installing: /home/qubot/ros2_ws/install/action_interfaces/lib/libaction_interfaces__rosidl_typesupport_cpp.so
+[5.010s] -- Set runtime path of "/home/qubot/ros2_ws/install/action_interfaces/lib/libaction_interfaces__rosidl_typesupport_cpp.so" to ""
+[5.049s] Listing '/home/qubot/ros2_ws/install/action_interfaces/lib/python3.10/site-packages/action_interfaces'...
+[5.049s] Compiling '/home/qubot/ros2_ws/install/action_interfaces/lib/python3.10/site-packages/action_interfaces/__init__.py'...
+[5.049s] Listing '/home/qubot/ros2_ws/install/action_interfaces/lib/python3.10/site-packages/action_interfaces/action'...
+[5.049s] Compiling '/home/qubot/ros2_ws/install/action_interfaces/lib/python3.10/site-packages/action_interfaces/action/__init__.py'...
+[5.049s] Compiling '/home/qubot/ros2_ws/install/action_interfaces/lib/python3.10/site-packages/action_interfaces/action/_count_until.py'...
+[5.049s] Compiling '/home/qubot/ros2_ws/install/action_interfaces/lib/python3.10/site-packages/action_interfaces/action/_fibonacci.py'...
+[5.049s] Listing '/home/qubot/ros2_ws/install/action_interfaces/lib/python3.10/site-packages/action_interfaces/msg'...
+[5.049s] Compiling '/home/qubot/ros2_ws/install/action_interfaces/lib/python3.10/site-packages/action_interfaces/msg/__init__.py'...
+[5.049s] Compiling '/home/qubot/ros2_ws/install/action_interfaces/lib/python3.10/site-packages/action_interfaces/msg/_magnetic_spherical.py'...
+[5.052s] -- Installing: /home/qubot/ros2_ws/install/action_interfaces/lib/libaction_interfaces__rosidl_generator_py.so
+[5.052s] -- Set runtime path of "/home/qubot/ros2_ws/install/action_interfaces/lib/libaction_interfaces__rosidl_generator_py.so" to ""
+[5.052s] -- Installing: /home/qubot/ros2_ws/install/action_interfaces/share/action_interfaces/cmake/export_action_interfaces__rosidl_generator_cExport.cmake
+[5.052s] -- Installing: /home/qubot/ros2_ws/install/action_interfaces/share/action_interfaces/cmake/export_action_interfaces__rosidl_generator_cExport-noconfig.cmake
+[5.052s] -- Installing: /home/qubot/ros2_ws/install/action_interfaces/share/action_interfaces/cmake/export_action_interfaces__rosidl_typesupport_fastrtps_cExport.cmake
+[5.052s] -- Installing: /home/qubot/ros2_ws/install/action_interfaces/share/action_interfaces/cmake/export_action_interfaces__rosidl_typesupport_fastrtps_cExport-noconfig.cmake
+[5.053s] -- Installing: /home/qubot/ros2_ws/install/action_interfaces/share/action_interfaces/cmake/action_interfaces__rosidl_typesupport_introspection_cExport.cmake
+[5.053s] -- Installing: /home/qubot/ros2_ws/install/action_interfaces/share/action_interfaces/cmake/action_interfaces__rosidl_typesupport_introspection_cExport-noconfig.cmake
+[5.053s] -- Installing: /home/qubot/ros2_ws/install/action_interfaces/share/action_interfaces/cmake/action_interfaces__rosidl_typesupport_cExport.cmake
+[5.053s] -- Installing: /home/qubot/ros2_ws/install/action_interfaces/share/action_interfaces/cmake/action_interfaces__rosidl_typesupport_cExport-noconfig.cmake
+[5.053s] -- Installing: /home/qubot/ros2_ws/install/action_interfaces/share/action_interfaces/cmake/export_action_interfaces__rosidl_generator_cppExport.cmake
+[5.053s] -- Installing: /home/qubot/ros2_ws/install/action_interfaces/share/action_interfaces/cmake/export_action_interfaces__rosidl_typesupport_fastrtps_cppExport.cmake
+[5.053s] -- Installing: /home/qubot/ros2_ws/install/action_interfaces/share/action_interfaces/cmake/export_action_interfaces__rosidl_typesupport_fastrtps_cppExport-noconfig.cmake
+[5.053s] -- Installing: /home/qubot/ros2_ws/install/action_interfaces/share/action_interfaces/cmake/action_interfaces__rosidl_typesupport_introspection_cppExport.cmake
+[5.053s] -- Installing: /home/qubot/ros2_ws/install/action_interfaces/share/action_interfaces/cmake/action_interfaces__rosidl_typesupport_introspection_cppExport-noconfig.cmake
+[5.053s] -- Installing: /home/qubot/ros2_ws/install/action_interfaces/share/action_interfaces/cmake/action_interfaces__rosidl_typesupport_cppExport.cmake
+[5.053s] -- Installing: /home/qubot/ros2_ws/install/action_interfaces/share/action_interfaces/cmake/action_interfaces__rosidl_typesupport_cppExport-noconfig.cmake
+[5.053s] -- Installing: /home/qubot/ros2_ws/install/action_interfaces/share/action_interfaces/cmake/export_action_interfaces__rosidl_generator_pyExport.cmake
+[5.053s] -- Installing: /home/qubot/ros2_ws/install/action_interfaces/share/action_interfaces/cmake/export_action_interfaces__rosidl_generator_pyExport-noconfig.cmake
+[5.055s] Invoked command in '/home/qubot/ros2_ws/build/action_interfaces' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/opt/ros/humble /usr/bin/cmake --install /home/qubot/ros2_ws/build/action_interfaces

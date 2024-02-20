@@ -1,0 +1,9 @@
+source;share/qubot/hook/pythonpath.ps1
+source;share/qubot/hook/pythonpath.dsv
+source;share/qubot/hook/pythonpath.sh
+source;share/qubot/hook/ament_prefix_path.ps1
+source;share/qubot/hook/ament_prefix_path.dsv
+source;share/qubot/hook/ament_prefix_path.sh
+source;../../build/qubot/share/qubot/hook/pythonpath_develop.ps1
+source;../../build/qubot/share/qubot/hook/pythonpath_develop.dsv
+source;../../build/qubot/share/qubot/hook/pythonpath_develop.sh

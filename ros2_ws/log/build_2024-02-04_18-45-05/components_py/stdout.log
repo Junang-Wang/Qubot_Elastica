@@ -1,0 +1,15 @@
+running develop
+running egg_info
+writing components_py.egg-info/PKG-INFO
+writing dependency_links to components_py.egg-info/dependency_links.txt
+writing entry points to components_py.egg-info/entry_points.txt
+writing requirements to components_py.egg-info/requires.txt
+writing top-level names to components_py.egg-info/top_level.txt
+reading manifest file 'components_py.egg-info/SOURCES.txt'
+writing manifest file 'components_py.egg-info/SOURCES.txt'
+running build_ext
+Creating /home/qubot/ros2_ws/install/components_py/lib/python3.10/site-packages/components-py.egg-link (link to .)
+Installing manual_composition script to /home/qubot/ros2_ws/install/components_py/lib/components_py
+
+Installed /home/qubot/ros2_ws/build/components_py
+running install_data

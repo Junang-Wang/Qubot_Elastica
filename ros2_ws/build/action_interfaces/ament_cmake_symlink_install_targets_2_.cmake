@@ -1,0 +1,1 @@
+ament_cmake_symlink_install_targets("TARGET_FILES" "/home/qubot/ros2_ws/build/action_interfaces/rosidl_generator_py/action_interfaces/action_interfaces_s__rosidl_typesupport_c.cpython-310-x86_64-linux-gnu.so" "TARGETS" "action_interfaces__rosidl_typesupport_c__pyext" "DESTINATION" "lib/python3.10/site-packages/action_interfaces")

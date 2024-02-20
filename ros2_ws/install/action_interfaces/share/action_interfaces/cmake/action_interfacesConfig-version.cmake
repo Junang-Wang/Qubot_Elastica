@@ -1,0 +1,1 @@
+/home/qubot/ros2_ws/build/action_interfaces/ament_cmake_core/action_interfacesConfig-version.cmake
