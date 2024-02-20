@@ -103,8 +103,8 @@ def createScene(rootNode):
         rootNode    = rootNode,
         name        = 'Env',
         filename    = env_stl,
-        translation = [0.0,0.0,-1.0],
-        rotation    = [0.0,0.0,0.0],
+        translation = [20.0,180.0,-1.0],
+        rotation    = [0.0,180.0,-90.0],
         scale       = 3,
         color       = [1,0,0,0.3]
     )
