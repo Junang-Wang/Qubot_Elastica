@@ -25,7 +25,7 @@ def adjust_learning_rate(optimizer, lrd):
       param_group['lr'] *= lrd
 
 ######################################################################################################################################
-def train_part(model,optimizer,train_loader,valid_loader, epochs = 1, learning_rate_decay =.1,weight_decay=1e-4, schedule=[], verbose=True):
+def train_part(model,optimizer,train_loader,valid_loader, epochs = 1, learning_rate_decay =.1,weight_decay=1e-4, schedule=[], verbose=True, device= 'cuda'):
     """
     Train a model using torch API
 
@@ -36,7 +36,7 @@ def train_part(model,optimizer,train_loader,valid_loader, epochs = 1, learning_r
 
     Returns: model accuracies, prints model loss during training
     """
-    model = model.to(device='cuda')
+    model = model.to(device=device)
     num_iters = epochs*len(train_loader)
     print_every = 100 
     adjust_epoch_count = 0
@@ -46,8 +46,8 @@ def train_part(model,optimizer,train_loader,valid_loader, epochs = 1, learning_r
         num_prints = epochs 
     
     # initial accuracy history and iter history
-    acc_history = torch.zeros(num_prints,dtype = torch.float)
-    acc_val_history = torch.zeros(num_prints,dtype = torch.float)
+    RMSE_history = torch.zeros(num_prints,dtype = torch.float)
+    RMSE_val_history = torch.zeros(num_prints,dtype = torch.float)
     iter_history = torch.zeros(num_prints,dtype = torch.float)
     loss_history = torch.zeros(num_prints,dtype = torch.float)
      
@@ -63,8 +63,8 @@ def train_part(model,optimizer,train_loader,valid_loader, epochs = 1, learning_r
     for epoch in range(epochs):
       for t, (x,y) in enumerate(train_loader):
         model.train()
-        x = x.to(device='cuda',dtype=torch.float)
-        y = y.to(device='cuda',dtype=torch.int64)
+        x = x.to(device=device,dtype=torch.float)
+        y = y.to(device=device,dtype=torch.int64)
         #scores = model(x).reshape(-1)#for one output
         #L1_norm = 0
         #for param in model.parameters():
@@ -84,23 +84,23 @@ def train_part(model,optimizer,train_loader,valid_loader, epochs = 1, learning_r
 # print loss during training 
         if verbose and (tt % print_every == 1 or (epoch == epochs -1 and t == len(train_loader) -1) ) :
           print(f'Epoch {epoch:d}, Iteration {tt:d}, loss = {loss.item():.4f}')
-          acc_val = check_accuary(valid_loader,model)
-          acc = check_accuary(train_loader,model)
-          acc_val_history[tt//print_every] = acc_val
-          acc_history[tt // print_every] = acc 
+        #   RMSE_val = check_RMSE(valid_loader,model)
+        #   RMSE = check_RMSE(train_loader,model)
+        #   RMSE_val_history[tt//print_every] = RMSE_val
+        #   RMSE_history[tt // print_every] = RMSE 
           iter_history[tt // print_every] = tt 
           loss_history[tt // print_every] = torch.round(loss,decimals=4).item()
           print()
-          if (acc_val >= 0.995) and (epoch > 10):
-            print('acc_val larger than 0.995, end the training loop')
-            return acc_history, acc_val_history,loss_history, iter_history
+        #   if (RMSE_val >= 0.995) and (epoch > 10):
+        #     print('RMSE_val larger than 0.995, end the training loop')
+        #     return RMSE_history, RMSE_val_history,loss_history, iter_history
             
         elif not verbose and (t == len(train_loader)-1):
           print(f'Epoch {epoch:d}, Iteration {tt:d}, loss = {loss.item():.4f}')
-          acc_val = check_accuary(valid_loader,model)
-          acc = check_accuary(train_loader,model)
-          acc_val_history[epoch] = acc_val
-          acc_history[epoch] = acc 
+        #   RMSE_val = check_RMSE(valid_loader,model)
+        #   RMSE = check_RMSE(train_loader,model)
+        #   RMSE_val_history[epoch] = RMSE_val
+        #   RMSE_history[epoch] = RMSE 
           iter_history[epoch] = tt 
           loss_history[epoch] = torch.round(loss,decimals=4).item()
           print()
@@ -111,14 +111,15 @@ def train_part(model,optimizer,train_loader,valid_loader, epochs = 1, learning_r
               print(f'{loss_history[epoch-3:epoch+1].mean():.2f} >= {0.95*loss_history[epoch-7:epoch-3].mean():.2f}')
               # adjust learning rate if loss has not decrease in 3 epochs
               adjust_epoch_count = 0
-          if epoch > 10:    
-            if (acc_val >= 0.995) and (loss_history[epoch-3:epoch+1].mean() >= 0.95*loss_history[epoch-10:epoch-3].mean()):
-              print('acc_val reachs to 100%, end the training loop')
-              return acc_history, acc_val_history,loss_history, iter_history
+        #   if epoch > 10:    
+        #     if (RMSE_val >= 0.995) and (loss_history[epoch-3:epoch+1].mean() >= 0.95*loss_history[epoch-10:epoch-3].mean()):
+        #       print('RMSE_val reachs to 100%, end the training loop')
+              return RMSE_history, RMSE_val_history,loss_history, iter_history
           
-    return acc_history, acc_val_history,loss_history, iter_history
+    return RMSE_history, RMSE_val_history,loss_history, iter_history
 
-def check_accuary(dataloader,model,verbose=False):
+# TODO update Root mean squared error
+def check_RMSE(dataloader,model,verbose=False):
     #if dataloader.dataset.train:
         #print("Checking accuracy on train or validation set")
     #else:
@@ -140,8 +141,8 @@ def check_accuary(dataloader,model,verbose=False):
     if not verbose:
       with torch.no_grad():
         for x,y in dataloader:
-          x = x.to(device='cuda')
-          y = y.to(device='cuda')
+          x = x.to(device=device)
+          y = y.to(device=device)
           scores = model(x)
           #preds = (torch.round(scores)).reshape(-1)
           preds = torch.argmax(scores,dim=1)
@@ -153,8 +154,8 @@ def check_accuary(dataloader,model,verbose=False):
     if verbose:
       with torch.no_grad():
         for x,y in dataloader:
-          x = x.to(device='cuda')
-          y = y.to(device='cuda')
+          x = x.to(device=device)
+          y = y.to(device=device)
           scores = model(x)
           #preds = (torch.round(scores)).reshape(-1)
           preds = torch.argmax(scores,dim=1)
@@ -202,9 +203,9 @@ def check_accuary_density(dataloader,model,bins,range):
   correct_density = torch.zeros(bins)
   with torch.no_grad():
     for x,y,z in dataloader:
-      x = x.to('cuda')
-      y = y.to('cuda')
-      z = z.to('cuda')
+      x = x.to(device)
+      y = y.to(device)
+      z = z.to(device)
       preds = torch.argmax(model(x),dim=1)
       num_correct += (preds == y).sum()
       num_samples += preds.size(0)
