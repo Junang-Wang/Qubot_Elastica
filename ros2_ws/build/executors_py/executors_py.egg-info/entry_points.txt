@@ -1,4 +1,0 @@
-[console_scripts]
-multi_threaded_executor = executors_py.multi_threaded_executor:main
-single_threaded_executor = executors_py.single_threaded_executor:main
-

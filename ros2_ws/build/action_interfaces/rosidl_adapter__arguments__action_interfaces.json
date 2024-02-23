@@ -1,8 +1,0 @@
-{
-  "package_name": "action_interfaces",
-  "non_idl_tuples": [
-    "/home/qubot/ros2_ws/src/action_interfaces:action/Fibonacci.action",
-    "/home/qubot/ros2_ws/src/action_interfaces:action/CountUntil.action",
-    "/home/qubot/ros2_ws/src/action_interfaces:msg/MagneticSpherical.msg"
-  ]
-}

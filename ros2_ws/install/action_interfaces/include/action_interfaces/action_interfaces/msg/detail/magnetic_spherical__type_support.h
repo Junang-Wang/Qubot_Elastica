@@ -1,1 +1,0 @@
-/home/qubot/ros2_ws/build/action_interfaces/rosidl_generator_c/action_interfaces/msg/detail/magnetic_spherical__type_support.h
