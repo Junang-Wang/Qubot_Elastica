@@ -1,3 +1,0 @@
-[console_scripts]
-number_publisher = lifecycle_py.number_publisher:main
-
