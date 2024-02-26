@@ -89,7 +89,7 @@ def train_part(model,optimizer,train_loader,valid_loader, epochs = 1, learning_r
           RMSE_val_history[tt//print_every] = RMSE_val
           RMSE_history[tt // print_every] = RMSE 
           iter_history[tt // print_every] = tt 
-          loss_history[tt // print_every] = torch.round(loss,decimals=4).item()
+          loss_history[tt // print_every] = loss.itme()
           print()
         #   if (RMSE_val >= 0.995) and (epoch > 10):
         #     print('RMSE_val larger than 0.995, end the training loop')
@@ -102,7 +102,7 @@ def train_part(model,optimizer,train_loader,valid_loader, epochs = 1, learning_r
           RMSE_val_history[epoch] = RMSE_val
           RMSE_history[epoch] = RMSE 
           iter_history[epoch] = tt 
-          loss_history[epoch] = torch.round(loss,decimals=4).item()
+          loss_history[epoch] = loss.item()
           print()
           adjust_epoch_count += 1
           # if epoch > 6 and adjust_epoch_count > 3:
