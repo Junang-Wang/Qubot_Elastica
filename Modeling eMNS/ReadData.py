@@ -14,10 +14,10 @@ def ReadFolder(foldername, filepattern):
         if i == 0:
             data_temp = ReadData(filename=fileList[i])
             [row, col] = data_temp.shape
-            data = torch.empty(row,col,fileCounter)
-            data[:,:,i] = data_temp
+            data = torch.empty(fileCounter,row,col)
+            data[i] = data_temp
         else:
-            data[:,:,i] = ReadData(filename=fileList[i])
+            data[i] = ReadData(filename=fileList[i])
     
     return data
 
