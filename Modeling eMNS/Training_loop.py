@@ -45,7 +45,7 @@ def train_part(model,optimizer,train_loader,valid_loader, epochs = 1, learning_r
     else:
         num_prints = epochs 
     
-    # initial accuracy history and iter history
+    # initial loss history and iter history
     RMSE_history = torch.zeros(num_prints,dtype = torch.float)
     RMSE_val_history = torch.zeros(num_prints,dtype = torch.float)
     iter_history = torch.zeros(num_prints,dtype = torch.float)
@@ -64,7 +64,7 @@ def train_part(model,optimizer,train_loader,valid_loader, epochs = 1, learning_r
       for t, (x,y) in enumerate(train_loader):
         model.train()
         x = x.to(device=device,dtype=torch.float)
-        y = y.to(device=device,dtype=torch.int64)
+        y = y.to(device=device,dtype=torch.float)
         #scores = model(x).reshape(-1)#for one output
         #L1_norm = 0
         #for param in model.parameters():
@@ -84,10 +84,10 @@ def train_part(model,optimizer,train_loader,valid_loader, epochs = 1, learning_r
 # print loss during training 
         if verbose and (tt % print_every == 1 or (epoch == epochs -1 and t == len(train_loader) -1) ) :
           print(f'Epoch {epoch:d}, Iteration {tt:d}, loss = {loss.item():.4f}')
-        #   RMSE_val = check_RMSE(valid_loader,model)
-        #   RMSE = check_RMSE(train_loader,model)
-        #   RMSE_val_history[tt//print_every] = RMSE_val
-        #   RMSE_history[tt // print_every] = RMSE 
+          RMSE_val = check_RMSE(valid_loader,model,device)
+          RMSE = check_RMSE(train_loader,model, device)
+          RMSE_val_history[tt//print_every] = RMSE_val
+          RMSE_history[tt // print_every] = RMSE 
           iter_history[tt // print_every] = tt 
           loss_history[tt // print_every] = torch.round(loss,decimals=4).item()
           print()
@@ -97,46 +97,30 @@ def train_part(model,optimizer,train_loader,valid_loader, epochs = 1, learning_r
             
         elif not verbose and (t == len(train_loader)-1):
           print(f'Epoch {epoch:d}, Iteration {tt:d}, loss = {loss.item():.4f}')
-        #   RMSE_val = check_RMSE(valid_loader,model)
-        #   RMSE = check_RMSE(train_loader,model)
-        #   RMSE_val_history[epoch] = RMSE_val
-        #   RMSE_history[epoch] = RMSE 
+          RMSE_val = check_RMSE(valid_loader,model, device)
+          RMSE = check_RMSE(train_loader,model, device)
+          RMSE_val_history[epoch] = RMSE_val
+          RMSE_history[epoch] = RMSE 
           iter_history[epoch] = tt 
           loss_history[epoch] = torch.round(loss,decimals=4).item()
           print()
           adjust_epoch_count += 1
-          if epoch > 6 and adjust_epoch_count > 3:
-            if loss_history[epoch-3:epoch+1].mean() >= 0.90*loss_history[epoch-7:epoch-3].mean():
-              adjust_learning_rate(optimizer=optimizer,lrd= learning_rate_decay)
-              print(f'{loss_history[epoch-3:epoch+1].mean():.2f} >= {0.95*loss_history[epoch-7:epoch-3].mean():.2f}')
+          # if epoch > 6 and adjust_epoch_count > 3:
+          #   if loss_history[epoch-3:epoch+1].mean() >= 0.90*loss_history[epoch-7:epoch-3].mean():
+          #     adjust_learning_rate(optimizer=optimizer,lrd= learning_rate_decay)
+          #     print(f'{loss_history[epoch-3:epoch+1].mean():.2f} >= {0.95*loss_history[epoch-7:epoch-3].mean():.2f}')
               # adjust learning rate if loss has not decrease in 3 epochs
-              adjust_epoch_count = 0
+              # adjust_epoch_count = 0
         #   if epoch > 10:    
         #     if (RMSE_val >= 0.995) and (loss_history[epoch-3:epoch+1].mean() >= 0.95*loss_history[epoch-10:epoch-3].mean()):
         #       print('RMSE_val reachs to 100%, end the training loop')
-              return RMSE_history, RMSE_val_history,loss_history, iter_history
+              # return RMSE_history, RMSE_val_history,loss_history, iter_history
           
     return RMSE_history, RMSE_val_history,loss_history, iter_history
 
 # TODO update Root mean squared error
-def check_RMSE(dataloader,model,verbose=False):
-    #if dataloader.dataset.train:
-        #print("Checking accuracy on train or validation set")
-    #else:
-       # print('Checking accuracy on test set')
-    
-    num_correct = 0 
-    num_samples = 0 
-    num_c0 = 0 # the number of trivial cases (when the preds are correct)
-    num_c1 = 0 # the number of trivial cases (when the preds are correct)
-    num_0 = 0 # the number of trivial cases (when the preds are wrong)
-    num_1 = 0 # the number of 1 cases (when the preds are wrong)
-    num_2 = 0 # the number of 2 cases (when the preds are wrong)
-    num_3 = 0 # the number of 3 cases (when the preds are wrong)
-    num_4 = 0 # the number of 4 cases (when the preds are wrong)
-    num_5 = 0 # the number of 5 cases (when the preds are wrong)
-    num_6 = 0 # the number of 6 cases (when the preds are wrong)
-    num_7 = 0 # the number of larger than 6 cases (when the preds are wrong)
+def check_RMSE(dataloader,model,device,verbose=False):
+    MSE = 0
     model.eval() # set model to evaluation model 
     if not verbose:
       with torch.no_grad():
@@ -144,12 +128,13 @@ def check_RMSE(dataloader,model,verbose=False):
           x = x.to(device=device)
           y = y.to(device=device)
           scores = model(x)
-          #preds = (torch.round(scores)).reshape(-1)
-          preds = torch.argmax(scores,dim=1)
-          num_correct += (preds == y).sum()
-          num_samples += preds.size(0)
-        acc = float(num_correct) / num_samples 
-        print(f'Got {num_correct:d} / {num_samples:d} correct {acc:.2f}')
+          # preds = torch.argmax(scores,dim=1)
+          # num_correct += (preds == y).sum()
+          MSE += F.mse_loss(scores, y, reduce='sum')
+        #   num_samples += preds.size(0)
+        # acc = float(num_correct) / num_samples 
+        RMSE = torch.sqrt(MSE/len(dataloader))
+        print(f'Got RMSE {RMSE}')
 
     if verbose:
       with torch.no_grad():
@@ -194,7 +179,7 @@ def check_RMSE(dataloader,model,verbose=False):
         print(f'Got {num_6:d} / {num_samples:d} wrong {acc_6:.2f} preds as 6')
         print(f'Got {num_7:d} / {num_samples:d} wrong {acc_7:.2f} preds as larger than 6')
            
-    return acc
+    return RMSE
 
 def check_accuary_density(dataloader,model,bins,range):
   num_correct = 0
