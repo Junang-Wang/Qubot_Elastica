@@ -21,7 +21,7 @@ def ReadFolder(foldername, filepattern):
     
     return data
 
-        
+
             
 
 
