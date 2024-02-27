@@ -1,6 +1,7 @@
 import torch 
 import glob
 import pandas as pd
+import numpy as np
 dataFile = 'Modeling eMNS/Data/MagneticField0.txt'
 def ReadData(filename):
     data = torch.tensor(pd.read_table(filename, sep='\s+', skiprows=2).values)
@@ -9,7 +10,6 @@ def ReadData(filename):
 def ReadFolder(foldername, filepattern):
     fileList = glob.glob(foldername+filepattern)
     fileCounter = len(fileList)
-    
     for i in range(fileCounter):
         if i == 0:
             data_temp = ReadData(filename=fileList[i])
@@ -22,6 +22,34 @@ def ReadFolder(foldername, filepattern):
     return data
 
 
+
+def ReadCurrentAndField(foldername, filepattern):
+
+    #Read Current
+    CurrentData = pd.read_table('Data\SampleCurrent.txt',skiprows=0,sep='\\s+',index_col=None,header=None) 
+    print(CurrentData)
+
+    fileList = glob.glob(foldername+filepattern)
+    fileCounter = len(fileList)
+    print(CurrentData)
+
+    for i in range(fileCounter):
+        if i == 0:
+            data_temp = ReadData(filename=fileList[i])
+            current=CurrentData.loc[i]
+            matrix = np.tile(current, (data_temp.shape[0], 1))
+            data_temp = np.hstack((matrix,data_temp))
+            [row, col] = data_temp.shape
+            data = torch.empty(fileCounter,row,col)
+            data[i] = data_temp
+        else:
+            data_temp = ReadData(filename=fileList[i])
+            current=CurrentData.loc[i]
+            matrix = np.tile(current, (data_temp.shape[0], 1))
+            data_temp = np.hstack((matrix,data_temp))
+            data[i] = data_temp
+    
+    return data
             
 
 
