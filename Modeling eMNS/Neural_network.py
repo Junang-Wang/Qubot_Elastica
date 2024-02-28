@@ -2,6 +2,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import numpy as np
 # set up dataset class
 class eMNS_Dataset(torch.utils.data.Dataset):
     def __init__(self,train_x,train_y):
@@ -36,12 +37,31 @@ class Plain_CNN_block_1D(nn.Module):
         #h2 = self.MaxPool(h1)
         return h1
 ###############################################################################
-# plain Conv network block
+# plain 2d Conv network block
 ###############################################################################
 class Plain_CNN_block(nn.Module):
     def __init__(self,in_channel,med_channel):
         super().__init__()
         self.conv1 = nn.Conv2d(in_channel,med_channel,3,padding=1,bias=True)
+        #self.BatchNorm = nn.BatchNorm2d(med_channel)
+        #self.MaxPool = nn.MaxPool2d(2,2)
+        self.relu = nn.ReLU()
+        nn.init.kaiming_normal_(self.conv1.weight)
+        nn.init.zeros_(self.conv1.bias)
+    def forward(self,x):
+        #h1 = F.relu(self.BatchNorm(self.conv1(x)))
+        #h2 = self.MaxPool(h1)
+        h1 = self.relu(self.conv1(x))
+        #h2 = self.MaxPool(h1)
+        return h1   
+    
+###############################################################################
+# plain 3d Conv network block
+###############################################################################
+class Plain_CNN_block_3D(nn.Module):
+    def __init__(self,in_channel,med_channel):
+        super().__init__()
+        self.conv1 = nn.Conv3d(in_channel,med_channel,3,padding=1,bias=True)
         #self.BatchNorm = nn.BatchNorm2d(med_channel)
         #self.MaxPool = nn.MaxPool2d(2,2)
         self.relu = nn.ReLU()
@@ -99,6 +119,79 @@ class ResidualBasicBlock_2d(nn.Module):
     
     def forward(self,x):
         return self.block(x) + self.shortcut(x)
+    
+class ResidualBasicBlock_3d(nn.Module):
+    def __init__(self,Cin,Cout):
+        super().__init__()
+
+        self.block = nn.Sequential(
+            nn.BatchNorm3d(Cin),
+            nn.ReLU(),
+            nn.Conv3d(Cin,Cout,3,padding=1,bias=True),
+            nn.BatchNorm3d(Cout),
+            nn.ReLU(),
+            nn.Conv3d(Cout,Cout,3,padding=1,bias=True)
+        )
+        if Cin == Cout:
+            self.shortcut = nn.Identity()
+        else:
+            self.shortcut = nn.Conv3d(Cin,Cout,1)
+    
+    def forward(self,x):
+        return self.block(x) + self.shortcut(x)
+    
+class ResidualEMNSBlock_3d(nn.Module):
+    def __init__(self,Cin,Cout):
+        super().__init__()
+
+        self.block = nn.Sequential(
+            nn.BatchNorm3d(Cin),
+            nn.Conv3d(Cin,Cout,3,padding=1,bias=True),
+            nn.LeakyReLU(),
+        )
+        if Cin == Cout:
+            self.shortcut = nn.Identity()
+        else:
+            self.shortcut = nn.Conv3d(Cin,Cout,1)
+    
+    def forward(self,x):
+        return self.block(x) + self.shortcut(x)
+
+######################################################################
+# upsample block
+######################################################################
+class UpsampleBlock(nn.Module):
+    def __init__(self,scale_factor):
+        super().__init__()
+
+        self.block = nn.Sequential(
+            nn.Upsample(scale_factor=scale_factor, mode='nearest'),
+        )
+    
+    def forward(self,x):
+        return self.block(x)
+
+######################################################################
+# Big block (BB for generative model)
+######################################################################
+class BigBlock(nn.Module):
+    '''
+    A catchy class for the Big block in the paper "Modeling Electromagnetic Navigation Systems"
+    SB_args: Small block arguments (Cin, Cout, num_block) 
+    SmallBlock: template of small block
+    scale_factor: upsample multiplier for spatial size
+    '''
+    def __init__(self, SB_args, SmallBlock, scale_factor):
+        super().__init__()
+        NNstages = []
+        if SB_args:
+            Cin, Cout, num_block = SB_args
+            for _ in range(num_block):
+                NNstages.append(SmallBlock(Cin,Cout))
+            NNstages.append(UpsampleBlock(scale_factor))
+        self.block = nn.Sequential(*NNstages)
+    def forward(self,x):
+        return self.block(x)
 ######################################################################
 # fully connected block
 ######################################################################
@@ -156,7 +249,47 @@ class NN_net(nn.Module):
             )
     def forward(self,x):
         return  self.total_net(x)
+class Generative_net(nn.Module):   
+    '''
+    A catchy class to generate simple generative neural networks, refer to "Modeling Electromagnetic Navigation Systems" by import 
+    SB_args = (Cin,Cout,num_block)
+    BB_args = (scale_factor,num_block)
+    SB_block: custom designed small block
+    BB_block: custom designed Big block
+    output_shape: shape of output (dimensions, grid_x, grid_y, grid_z)
+    num_input: int
+    '''
+    def __init__(self,SB_args,BB_args,SB_block,BB_block, num_input, output_shape):
+        super().__init__()
+        NNstages = []
+        if SB_args and BB_args: # if SB_args and BB_args are not empty
+            Cin, Cout, SB_num_block = SB_args
+            scale_factor, BB_num_block = BB_args
+            for _ in range(BB_num_block):
+                NNstages.append(BB_block(SB_args, SB_block, scale_factor))
         
+        D, grid_x, grid_y, grid_z = output_shape
+        d_max = max(output_shape[1:])
+        q = np.log2(d_max) - 3
+        Nout = grid_x * grid_y * grid_z * Cout / (2**(3*q))
+        # projection layer
+        self.proj = nn.Linear(num_input, Nout,bias=True)
+        nn.init.kaiming_normal_(self.proj.weight)
+        nn.init.zeros_(self.proj.bias)
+
+        # Output Conv3d layer
+        self.conv3d = nn.Conv3d(Cout,D, 3, padding=1)
+
+
+        self.total_net = nn.Sequential(
+            self.proj,
+            nn.Unflatten(0,(D, grid_x/2**q, grid_y/2**q, grid_z/2**q)),
+            *NNstages,
+            nn.BatchNorm3d(Cout),
+            self.conv3d,
+            )
+    def forward(self,x):
+        return  self.total_net(x)
 class Two_Branches_NN_net(nn.Module):
     '''
     A catchy class to generate simple neural networks by import 
