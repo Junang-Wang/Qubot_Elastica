@@ -3,6 +3,7 @@
 #############################################################################
 import torch
 import torch.nn.functional as F
+from early_stopping import EarlyStopping
 
 def adjust_learning_rate_sch(optimizer, lrd, epoch, schedule):
     """
@@ -118,6 +119,118 @@ def train_part(model,optimizer,train_loader,valid_loader, epochs = 1, learning_r
           
     return RMSE_history, RMSE_val_history,loss_history, iter_history
 
+
+
+######################################################################################################################################
+def train_part_v1(model,optimizer,train_loader,valid_loader, epochs = 1, learning_rate_decay =.1,weight_decay=1e-4, schedule=[], verbose=True, device= 'cuda'):
+    """
+    Train a model using torch API
+
+    Inputs: 
+    - model: A Pytorch Module giving the model to train
+    - optimizer: An optimizer object we will use to train the model
+    - epochs: A Python integer giving the number of epochs to train for
+
+    Returns: model accuracies, prints model loss during training
+    """
+    model = model.to(device=device)
+    num_iters = epochs*len(train_loader)
+    print_every = 100 
+    adjust_epoch_count = 0
+    if verbose:
+        num_prints = num_iters // print_every + 1 
+    else:
+        num_prints = epochs 
+    
+    # initial loss history and iter history
+    RMSE_history = torch.zeros(num_prints,dtype = torch.float)
+    RMSE_val_history = torch.zeros(num_prints,dtype = torch.float)
+    iter_history = torch.zeros(num_prints,dtype = torch.float)
+    loss_history = torch.zeros(num_prints,dtype = torch.float)
+    loss_val_history= torch.zeros(num_prints,dtype = torch.float)
+
+
+    patience = 5	# 当验证集损失在连5次训练周期中都没有得到降低时，停止模型训练，以防止模型过拟合
+    early_stopping = EarlyStopping(patience, verbose=True)     
+    epoch_stop = 0
+
+    ###########################################################
+    # train loop:
+    # step 1: update learning rate
+    # step 2: put model to train model, move data to gpu 
+    # step 3: compute scores, calculate loss function
+    # step 4: Zero out all of gradients for the variables which the optimizer will update
+    # step 5: compute gradient of loss, update parameters
+    ###########################################################
+    for epoch in range(epochs):
+      for t, (x,y) in enumerate(train_loader):
+        model.train()
+        x = x.to(device=device,dtype=torch.float)
+        y = y.to(device=device,dtype=torch.float)
+        #scores = model(x).reshape(-1)#for one output
+        #L1_norm = 0
+        #for param in model.parameters():
+        #  L1_norm += weight_decay*torch.sum(torch.abs(param))
+        #loss = F.mse_loss(scores,y) + L1_norm
+        scores = model(x)
+        # loss = F.cross_entropy(scores,y)
+        # mean squared error
+        loss = F.mse_loss(scores, y)
+        optimizer.zero_grad() #zero out all of gradient
+        loss.backward() # compute gradient of loss
+        optimizer.step() #update parameters
+        
+        tt = t + epoch*len(train_loader) +1
+
+        ###########################################################
+        # print loss during training 
+        if verbose and (tt % print_every == 1 or (epoch == epochs -1 and t == len(train_loader) -1) ) :
+          print(f'Epoch {epoch:d}, Iteration {tt:d}, loss = {loss.item():.4f}')
+          RMSE_val = check_RMSE(valid_loader,model,device)
+          RMSE = check_RMSE(train_loader,model, device)
+          RMSE_val_history[tt//print_every] = RMSE_val
+          RMSE_history[tt // print_every] = RMSE 
+          iter_history[tt // print_every] = tt 
+          loss_history[tt // print_every] = loss.itme()
+          print()
+        #   if (RMSE_val >= 0.995) and (epoch > 10):
+        #     print('RMSE_val larger than 0.995, end the training loop')
+        #     return RMSE_history, RMSE_val_history,loss_history, iter_history
+            
+        elif not verbose and (t == len(train_loader)-1):
+          print(f'Epoch {epoch:d}, Iteration {tt:d}, loss = {loss.item():.4f}')
+          RMSE_val,loss_val= check_RMSE(valid_loader,model, device)
+          RMSE,loss_train = check_RMSE(train_loader,model, device)
+          RMSE_val_history[epoch] = RMSE_val
+          RMSE_history[epoch] = RMSE 
+          iter_history[epoch] = tt 
+          loss_history[epoch] = loss.item()
+          loss_val_history[epoch] = loss_val
+
+          print()
+          adjust_epoch_count += 1
+          # if epoch > 6 and adjust_epoch_count > 3:
+          #   if loss_history[epoch-3:epoch+1].mean() >= 0.90*loss_history[epoch-7:epoch-3].mean():
+          #     adjust_learning_rate(optimizer=optimizer,lrd= learning_rate_decay)
+          #     print(f'{loss_history[epoch-3:epoch+1].mean():.2f} >= {0.95*loss_history[epoch-7:epoch-3].mean():.2f}')
+              # adjust learning rate if loss has not decrease in 3 epochs
+              # adjust_epoch_count = 0
+        #   if epoch > 10:    
+        #     if (RMSE_val >= 0.995) and (loss_history[epoch-3:epoch+1].mean() >= 0.95*loss_history[epoch-10:epoch-3].mean()):
+        #       print('RMSE_val reachs to 100%, end the training loop')
+              # return RMSE_history, RMSE_val_history,loss_history, iter_history
+      #set early stop
+      early_stopping(loss_history[epoch], model)
+    	# 若满足 early stopping 要求
+      if early_stopping.early_stop:
+        epoch_stop = epoch
+        print("Early stopping")
+		    #结束模型训练
+        break
+
+          
+    return RMSE_history, RMSE_val_history,loss_history, iter_history, loss_val_history,epoch_stop
+
 # TODO update Root mean squared error
 def check_RMSE(dataloader,model,device,verbose=False):
     MSE = 0
@@ -179,7 +292,8 @@ def check_RMSE(dataloader,model,device,verbose=False):
         print(f'Got {num_6:d} / {num_samples:d} wrong {acc_6:.2f} preds as 6')
         print(f'Got {num_7:d} / {num_samples:d} wrong {acc_7:.2f} preds as larger than 6')
            
-    return RMSE
+    return RMSE , MSE/len(dataloader)
+
 
 def check_accuary_density(dataloader,model,bins,range):
   num_correct = 0
