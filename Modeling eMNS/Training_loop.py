@@ -90,7 +90,7 @@ def train_part(model,optimizer,train_loader,valid_loader, epochs = 1, learning_r
           RMSE_val_history[tt//print_every] = RMSE_val
           RMSE_history[tt // print_every] = RMSE 
           iter_history[tt // print_every] = tt 
-          loss_history[tt // print_every] = loss.itme()
+          loss_history[tt // print_every] = loss.item()
           print()
         #   if (RMSE_val >= 0.995) and (epoch > 10):
         #     print('RMSE_val larger than 0.995, end the training loop')
