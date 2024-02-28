@@ -269,9 +269,10 @@ class Generative_net(nn.Module):
                 NNstages.append(BB_block(SB_args, SB_block, scale_factor))
         
         D, grid_x, grid_y, grid_z = output_shape
-        d_max = max(output_shape[1:])
-        q = np.log2(d_max) - 3
-        Nout = grid_x * grid_y * grid_z * Cout / (2**(3*q))
+        # d_max = max(output_shape[1:])
+        # q = np.log2(d_max) - 3
+        q = BB_num_block
+        Nout = int(grid_x * grid_y * grid_z * Cout / (2**(3*q)))
         # projection layer
         self.proj = nn.Linear(num_input, Nout,bias=True)
         nn.init.kaiming_normal_(self.proj.weight)
@@ -283,7 +284,7 @@ class Generative_net(nn.Module):
 
         self.total_net = nn.Sequential(
             self.proj,
-            nn.Unflatten(0,(D, grid_x/2**q, grid_y/2**q, grid_z/2**q)),
+            nn.Unflatten(0,(Cout, int(grid_x/2**q), int(grid_y/2**q),int( grid_z/2**q))),
             *NNstages,
             nn.BatchNorm3d(Cout),
             self.conv3d,
