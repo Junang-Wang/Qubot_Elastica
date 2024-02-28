@@ -33,8 +33,9 @@ def ReadCurrentAndField(foldername, filepattern):
 
     fileList = glob.glob(foldername+filepattern)
     fileCounter = len(fileList)
-    #print(CurrentData)
 
+    train_file_num = 50
+    #print(CurrentData)
     for i in range(fileCounter):
         if i == 0:
             data_temp = ReadData(filename=fileList[i])
