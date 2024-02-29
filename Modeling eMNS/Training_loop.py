@@ -292,8 +292,8 @@ def train_part_GM(model,optimizer,train_loader,valid_loader, epochs = 1, learnin
         # print loss during training 
         if verbose and (tt % print_every == 1 or (epoch == epochs -1 and t == len(train_loader) -1) ) :
           print(f'Epoch {epoch:d}, Iteration {tt:d}, loss = {loss.item():.4f}')
-          RMSE_val = check_RMSE(valid_loader,model,device)
-          RMSE = check_RMSE(train_loader,model, device)
+          RMSE_val = check_RMSE_CNN(valid_loader,model,device)
+          RMSE = check_RMSE_CNN(train_loader,model, device)
           RMSE_val_history[tt//print_every] = RMSE_val
           RMSE_history[tt // print_every] = RMSE 
           iter_history[tt // print_every] = tt 
@@ -305,8 +305,8 @@ def train_part_GM(model,optimizer,train_loader,valid_loader, epochs = 1, learnin
             
         elif not verbose and (t == len(train_loader)-1):
           print(f'Epoch {epoch:d}, Iteration {tt:d}, loss = {loss.item():.4f}')
-          RMSE_val,loss_val= check_RMSE(valid_loader,model, device)
-          RMSE,loss_train = check_RMSE(train_loader,model, device)
+          RMSE_val,loss_val= check_RMSE_CNN(valid_loader,model, device)
+          RMSE,loss_train = check_RMSE_CNN(train_loader,model, device)
           RMSE_val_history[epoch] = RMSE_val
           RMSE_history[epoch] = RMSE 
           iter_history[epoch] = tt 
@@ -400,6 +400,36 @@ def check_RMSE(dataloader,model,device,verbose=False):
            
     return RMSE , MSE/len(dataloader)
 
+def check_RMSE_CNN(dataloader,model,device,verbose=False):
+    MSE = 0
+    _,_,grid_x,grid_y,grid_z = dataloader.x.shape
+    model.eval() # set model to evaluation model 
+    if not verbose:
+      with torch.no_grad():
+        for x,y in dataloader:
+          x = x.to(device=device,dtype=torch.float)
+          y = y.to(device=device,dtype=torch.float)
+          scores = model(x)
+          # preds = torch.argmax(scores,dim=1)
+          # num_correct += (preds == y).sum()
+          MSE += F.mse_loss(scores, y, reduce='sum')
+        #   num_samples += preds.size(0)
+        # acc = float(num_correct) / num_samples 
+        RMSE = torch.sqrt(MSE/len(dataloader)/grid_x/grid_y/grid_z)
+        print(f'Got RMSE {RMSE}')
+
+
+    #####################################################
+    if verbose:
+      with torch.no_grad():
+        for x,y in dataloader:
+          x = x.to(device=device)
+          y = y.to(device=device)
+          scores = model(x)
+          #preds = (torch.round(scores)).reshape(-1)
+          preds = torch.argmax(scores,dim=1)
+           
+    return RMSE , MSE/len(dataloader)/grid_x/grid_y/grid_z
 
 def check_accuary_density(dataloader,model,bins,range):
   num_correct = 0
