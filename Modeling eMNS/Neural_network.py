@@ -291,6 +291,7 @@ class Generative_net(nn.Module):
             )
     def forward(self,x):
         return  self.total_net(x)
+    
 class Two_Branches_NN_net(nn.Module):
     '''
     A catchy class to generate simple neural networks by import 
