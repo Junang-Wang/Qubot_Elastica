@@ -150,7 +150,7 @@ def train_part_v1(model,optimizer,train_loader,valid_loader, epochs = 1, learnin
     loss_val_history= torch.zeros(num_prints,dtype = torch.float)
 
 
-    patience = 5	# 当验证集损失在连5次训练周期中都没有得到降低时，停止模型训练，以防止模型过拟合
+    patience = 30	# 当验证集损失在连5次训练周期中都没有得到降低时，停止模型训练，以防止模型过拟合
     early_stopping = EarlyStopping(patience, verbose=True)     
     epoch_stop = 0
 
