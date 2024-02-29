@@ -232,7 +232,7 @@ def train_part_v1(model,optimizer,train_loader,valid_loader, epochs = 1, learnin
     return RMSE_history, RMSE_val_history,loss_history, iter_history, loss_val_history,epoch_stop
 
 ######################################################################################################################################
-def train_part_GM(model,optimizer,train_loader,valid_loader, epochs = 1, learning_rate_decay =.1,weight_decay=1e-4, schedule=[], verbose=True, device= 'cuda'):
+def train_part_GM(model,optimizer,train_loader,valid_loader, epochs = 1, learning_rate_decay =.1,weight_decay=1e-4, schedule=[], grid_space= 20*20*20, verbose=True, device= 'cuda'):
     """
     Train a model using torch API
 
@@ -292,8 +292,8 @@ def train_part_GM(model,optimizer,train_loader,valid_loader, epochs = 1, learnin
         # print loss during training 
         if verbose and (tt % print_every == 1 or (epoch == epochs -1 and t == len(train_loader) -1) ) :
           print(f'Epoch {epoch:d}, Iteration {tt:d}, loss = {loss.item():.4f}')
-          RMSE_val = check_RMSE_CNN(valid_loader,model,device)
-          RMSE = check_RMSE_CNN(train_loader,model, device)
+          RMSE_val = check_RMSE_CNN(valid_loader,model,grid_space, device)
+          RMSE = check_RMSE_CNN(train_loader,model, grid_space, device)
           RMSE_val_history[tt//print_every] = RMSE_val
           RMSE_history[tt // print_every] = RMSE 
           iter_history[tt // print_every] = tt 
@@ -305,8 +305,8 @@ def train_part_GM(model,optimizer,train_loader,valid_loader, epochs = 1, learnin
             
         elif not verbose and (t == len(train_loader)-1):
           print(f'Epoch {epoch:d}, Iteration {tt:d}, loss = {loss.item():.4f}')
-          RMSE_val,loss_val= check_RMSE_CNN(valid_loader,model, device)
-          RMSE,loss_train = check_RMSE_CNN(train_loader,model, device)
+          RMSE_val,loss_val= check_RMSE_CNN(valid_loader,model, grid_space, device)
+          RMSE,loss_train = check_RMSE_CNN(train_loader,model, grid_space, device)
           RMSE_val_history[epoch] = RMSE_val
           RMSE_history[epoch] = RMSE 
           iter_history[epoch] = tt 
@@ -400,9 +400,8 @@ def check_RMSE(dataloader,model,device,verbose=False):
            
     return RMSE , MSE/len(dataloader)
 
-def check_RMSE_CNN(dataloader,model,device,verbose=False):
+def check_RMSE_CNN(dataloader,model, grid_space, device, verbose=False):
     MSE = 0
-    _,_,grid_x,grid_y,grid_z = dataloader.x.shape
     model.eval() # set model to evaluation model 
     if not verbose:
       with torch.no_grad():
@@ -415,7 +414,7 @@ def check_RMSE_CNN(dataloader,model,device,verbose=False):
           MSE += F.mse_loss(scores, y, reduce='sum')
         #   num_samples += preds.size(0)
         # acc = float(num_correct) / num_samples 
-        RMSE = torch.sqrt(MSE/len(dataloader)/grid_x/grid_y/grid_z)
+        RMSE = torch.sqrt(MSE/len(dataloader)/grid_space)
         print(f'Got RMSE {RMSE}')
 
 
@@ -429,7 +428,7 @@ def check_RMSE_CNN(dataloader,model,device,verbose=False):
           #preds = (torch.round(scores)).reshape(-1)
           preds = torch.argmax(scores,dim=1)
            
-    return RMSE , MSE/len(dataloader)/grid_x/grid_y/grid_z
+    return RMSE , MSE/len(dataloader)/grid_space
 
 def check_accuary_density(dataloader,model,bins,range):
   num_correct = 0
