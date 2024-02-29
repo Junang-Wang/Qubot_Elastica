@@ -56,3 +56,24 @@ def ReadCurrentAndField(foldername, filepattern):
             
 
 
+def ReadCurrentAndField_CNN(foldername, filepattern):
+
+    #Read Current
+    Current = pd.read_table('Data\SampleCurrent.txt',skiprows=0,sep='\\s+',index_col=None,header=None) 
+    fileList = glob.glob(foldername+filepattern)
+    fileCounter = len(fileList)
+    for i in range(fileCounter):
+        if i == 0:
+            #read position + field data
+            data_temp = ReadData(filename=fileList[i])
+            my_tensor = torch.t(data_temp)
+            y=my_tensor.reshape(6,21,21,21) 
+            data = torch.empty(fileCounter,6,21,21,21)
+            data[i] = y
+        else:
+            data_temp = ReadData(filename=fileList[i])
+            my_tensor = torch.t(data_temp)
+            y=my_tensor.reshape(6,21,21,21) 
+            data[i] = y
+    
+    return torch.tensor(Current.values),data
