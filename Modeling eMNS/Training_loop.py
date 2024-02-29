@@ -344,8 +344,8 @@ def check_RMSE(dataloader,model,device,verbose=False):
     if not verbose:
       with torch.no_grad():
         for x,y in dataloader:
-          x = x.to(device=device)
-          y = y.to(device=device)
+          x = x.to(device=device,dtype=torch.float)
+          y = y.to(device=device,dtype=torch.float)
           scores = model(x)
           # preds = torch.argmax(scores,dim=1)
           # num_correct += (preds == y).sum()
@@ -429,6 +429,8 @@ def grad_loss(preds, y):
    '''
    grad_preds = torch.gradient(preds,spacing=1.0)
    grad_y = torch.gradient(y, spacing=1)
-
-   grad_loss = torch.mean(torch.abs(grad_y-grad_preds))
+   grad_loss = 0
+   for i in range(3):
+      # accumulate grad loss for grad_x,y,z
+      grad_loss += torch.mean(torch.abs(grad_y[i]-grad_preds[i]))/3
    return grad_loss

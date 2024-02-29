@@ -28,7 +28,7 @@ def ReadFolder(foldername, filepattern):
 def ReadCurrentAndField(foldername, filepattern):
 
     #Read Current
-    CurrentData = pd.read_table('Data\SampleCurrent.txt',skiprows=0,sep='\\s+',index_col=None,header=None) 
+    CurrentData = pd.read_table('./Data/SampleCurrent.txt',skiprows=0,sep='\\s+',index_col=None,header=None) 
     #print(CurrentData)
 
     fileList = glob.glob(foldername+filepattern)
@@ -59,7 +59,7 @@ def ReadCurrentAndField(foldername, filepattern):
 def ReadCurrentAndField_CNN(foldername, filepattern):
 
     #Read Current
-    Current = pd.read_table('Data\SampleCurrent.txt',skiprows=0,sep='\\s+',index_col=None,header=None) 
+    Current = pd.read_table('./Data/SampleCurrent.txt',skiprows=0,sep='\\s+',index_col=None,header=None) 
     fileList = glob.glob(foldername+filepattern)
     fileCounter = len(fileList)
     for i in range(fileCounter):
