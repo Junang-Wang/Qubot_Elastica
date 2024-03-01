@@ -1,6 +1,6 @@
-import numpy as np
-def curl(A_field):
+import torch
+def discrete_curl(A_field):
     '''
-    A_field: (Dimensions, grid_x, grid_y, grid_z)
+    A_field: (batch, Dimensions, grid_x, grid_y, grid_z)
     '''
-    B_field = np.gradient(A_field,1)
+    B_field = torch.gradient(A_field,spacing=1.0)

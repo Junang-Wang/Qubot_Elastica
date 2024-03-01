@@ -339,6 +339,7 @@ def train_part_GM(model,optimizer,train_loader,valid_loader, epochs = 1, learnin
 
 # TODO update Root mean squared error
 def check_RMSE(dataloader,model,device,verbose=False):
+    num_samples = 0
     MSE = 0
     model.eval() # set model to evaluation model 
     if not verbose:
@@ -346,13 +347,14 @@ def check_RMSE(dataloader,model,device,verbose=False):
         for x,y in dataloader:
           x = x.to(device=device,dtype=torch.float)
           y = y.to(device=device,dtype=torch.float)
+          num_samples += x.shape[0]
           scores = model(x)
           # preds = torch.argmax(scores,dim=1)
           # num_correct += (preds == y).sum()
           MSE += F.mse_loss(scores, y, reduce='sum')
         #   num_samples += preds.size(0)
         # acc = float(num_correct) / num_samples 
-        RMSE = torch.sqrt(MSE/len(dataloader))
+        RMSE = torch.sqrt(MSE/num_samples)
         print(f'Got RMSE {RMSE}')
 
     if verbose:
@@ -402,21 +404,24 @@ def check_RMSE(dataloader,model,device,verbose=False):
 
 
 def get_mean_of_dataloader(dataloader,model,device):
-    
+    num_samples = 0
     b = torch.zeros([3,20,20,20],device=device)
     model.eval()
     for x,y in dataloader:
         y = y.to(device=device,dtype=torch.float)
-        a = y.mean(dim=0)
+        # use sum instead of mean, what do you think?
+        a = y.sum(dim=0)
+        num_samples += y.shape[0]
         print(y.size)
         b =b+a
-    return b/len(dataloader)
+    return b/num_samples
 
 
 def check_RMSE_CNN(dataloader,model, grid_space, device, verbose=False):
     MSE = 0
     R_temp=0
     Rsquare=0
+    num_samples = 0
     # print(Bfield_mean)
 
     data = next(iter(dataloader))
@@ -431,6 +436,7 @@ def check_RMSE_CNN(dataloader,model, grid_space, device, verbose=False):
         for x,y in dataloader:
           x = x.to(device=device,dtype=torch.float)
           y = y.to(device=device,dtype=torch.float)
+          num_samples += x.shape[0]
           scores = model(x)
           # preds = torch.argmax(scores,dim=1)
           # num_correct += (preds == y).sum()
@@ -438,7 +444,7 @@ def check_RMSE_CNN(dataloader,model, grid_space, device, verbose=False):
           R_temp += F.mse_loss(Bfield_mean, y, reduce='sum')
         #   num_samples += preds.size(0)
         # acc = float(num_correct) / num_samples 
-        RMSE = torch.sqrt(MSE/len(dataloader)/grid_space)
+        RMSE = torch.sqrt(MSE/num_samples/grid_space)
 
         Rsquare=1-MSE/R_temp
         print(f'Got RMSE {RMSE}')
@@ -480,12 +486,13 @@ def check_accuary_density(dataloader,model,bins,range):
 
 def grad_loss(preds, y):
    '''
+   preds, y shape: (batch, dimension, grid_x, grid_y, grid_z)
    This function computes lamda_g*| nabla(y) - nabla(preds)|
    '''
    grad_preds = torch.gradient(preds,spacing=1.0)
    grad_y = torch.gradient(y, spacing=1)
    grad_loss = 0
-   for i in range(3):
+   for i in range(2,5):
       # accumulate grad loss for grad_x,y,z
       grad_loss += torch.mean(torch.abs(grad_y[i]-grad_preds[i]))/3
    return grad_loss
