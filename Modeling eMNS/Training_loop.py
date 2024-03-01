@@ -408,8 +408,8 @@ def get_mean_of_dataloader(dataloader,model,device):
     for x,y in dataloader:
         y = y.to(device=device,dtype=torch.float)
         a = y.mean(dim=0)
-        print(y.size)
         b =b+a
+        print(len(dataloader))
     return b/len(dataloader)
 
 
@@ -440,10 +440,10 @@ def check_RMSE_CNN(dataloader,model, grid_space, device, verbose=False):
         # acc = float(num_correct) / num_samples 
         RMSE = torch.sqrt(MSE/len(dataloader)/grid_space)
 
-        Rsquare=1-MSE/R_temp
+        Rsquare=1-MSE/R_temp/100
         print(f'Got RMSE {RMSE}')
 
-
+        
     #####################################################
     if verbose:
       with torch.no_grad():
