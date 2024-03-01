@@ -4,6 +4,7 @@
 import torch
 import torch.nn.functional as F
 from early_stopping import EarlyStopping
+from utils import compute_discrete_curl
 
 def adjust_learning_rate_sch(optimizer, lrd, epoch, schedule):
     """
@@ -232,7 +233,7 @@ def train_part_v1(model,optimizer,train_loader,valid_loader, epochs = 1, learnin
     return RMSE_history, RMSE_val_history,loss_history, iter_history, loss_val_history,epoch_stop
 
 ######################################################################################################################################
-def train_part_GM(model,optimizer,train_loader,valid_loader, epochs = 1, learning_rate_decay =.1,weight_decay=1e-4, schedule=[], grid_space= 20*20*20, verbose=True, device= 'cuda'):
+def train_part_GM(model,optimizer,train_loader,valid_loader, epochs = 1, learning_rate_decay =.1,weight_decay=1e-4, schedule=[], grid_space= 20*20*20, DF= False, verbose=True, device= 'cuda'):
     """
     Train a model using torch API
 
@@ -278,7 +279,10 @@ def train_part_GM(model,optimizer,train_loader,valid_loader, epochs = 1, learnin
         x = x.to(device=device,dtype=torch.float)
         y = y.to(device=device,dtype=torch.float)
 
-        preds = model(x)
+        if DF: 
+          preds = compute_discrete_curl(model(x))
+        else:
+          preds = model(x)
         # loss function in the paper "Modeling Electromagnetic Navigation Systems" 
         # loss= lamda_b*|y-preds| + lamda_g*| nabla(y) - nabla(preds)|
         loss = F.l1_loss(preds, y) + grad_loss(preds,y)
