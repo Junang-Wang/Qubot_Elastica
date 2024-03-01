@@ -232,7 +232,7 @@ def train_part_v1(model,optimizer,train_loader,valid_loader, epochs = 1, learnin
     return RMSE_history, RMSE_val_history,loss_history, iter_history, loss_val_history,epoch_stop
 
 ######################################################################################################################################
-def train_part_GM(model,optimizer,train_loader,valid_loader, epochs = 1, learning_rate_decay =.1,weight_decay=1e-4, schedule=[], verbose=True, device= 'cuda'):
+def train_part_GM(model,optimizer,train_loader,valid_loader, epochs = 1, learning_rate_decay =.1,weight_decay=1e-4, schedule=[], grid_space= 20*20*20, verbose=True, device= 'cuda'):
     """
     Train a model using torch API
 
@@ -260,7 +260,7 @@ def train_part_GM(model,optimizer,train_loader,valid_loader, epochs = 1, learnin
     loss_val_history= torch.zeros(num_prints,dtype = torch.float)
 
 
-    patience = 5	# 当验证集损失在连5次训练周期中都没有得到降低时，停止模型训练，以防止模型过拟合
+    patience = 10	# 当验证集损失在连5次训练周期中都没有得到降低时，停止模型训练，以防止模型过拟合
     early_stopping = EarlyStopping(patience, verbose=True)     
     epoch_stop = 0
 
@@ -292,8 +292,8 @@ def train_part_GM(model,optimizer,train_loader,valid_loader, epochs = 1, learnin
         # print loss during training 
         if verbose and (tt % print_every == 1 or (epoch == epochs -1 and t == len(train_loader) -1) ) :
           print(f'Epoch {epoch:d}, Iteration {tt:d}, loss = {loss.item():.4f}')
-          RMSE_val = check_RMSE(valid_loader,model,device)
-          RMSE = check_RMSE(train_loader,model, device)
+          RMSE_val,loss_val,Rsquare = check_RMSE_CNN(valid_loader,model,grid_space, device)
+          RMSE,loss_train,R_TEMP = check_RMSE_CNN(train_loader,model, grid_space, device)
           RMSE_val_history[tt//print_every] = RMSE_val
           RMSE_history[tt // print_every] = RMSE 
           iter_history[tt // print_every] = tt 
@@ -305,12 +305,12 @@ def train_part_GM(model,optimizer,train_loader,valid_loader, epochs = 1, learnin
             
         elif not verbose and (t == len(train_loader)-1):
           print(f'Epoch {epoch:d}, Iteration {tt:d}, loss = {loss.item():.4f}')
-          RMSE_val,loss_val= check_RMSE(valid_loader,model, device)
-          RMSE,loss_train = check_RMSE(train_loader,model, device)
+          RMSE_val,loss_val,Rsquare= check_RMSE_CNN(valid_loader,model, grid_space, device)
+          RMSE,loss_train,R_TEMP = check_RMSE_CNN(train_loader,model, grid_space, device)
           RMSE_val_history[epoch] = RMSE_val
           RMSE_history[epoch] = RMSE 
           iter_history[epoch] = tt 
-          loss_history[epoch] = loss.item()
+          loss_history[epoch] = loss_train
           loss_val_history[epoch] = loss_val
 
           print()
@@ -335,7 +335,7 @@ def train_part_GM(model,optimizer,train_loader,valid_loader, epochs = 1, learnin
         break
 
           
-    return RMSE_history, RMSE_val_history,loss_history, iter_history, loss_val_history,epoch_stop
+    return RMSE_history, RMSE_val_history,loss_history, iter_history, loss_val_history,epoch_stop,Rsquare
 
 # TODO update Root mean squared error
 def check_RMSE(dataloader,model,device,verbose=False):
@@ -344,8 +344,8 @@ def check_RMSE(dataloader,model,device,verbose=False):
     if not verbose:
       with torch.no_grad():
         for x,y in dataloader:
-          x = x.to(device=device)
-          y = y.to(device=device)
+          x = x.to(device=device,dtype=torch.float)
+          y = y.to(device=device,dtype=torch.float)
           scores = model(x)
           # preds = torch.argmax(scores,dim=1)
           # num_correct += (preds == y).sum()
@@ -401,6 +401,61 @@ def check_RMSE(dataloader,model,device,verbose=False):
     return RMSE , MSE/len(dataloader)
 
 
+def get_mean_of_dataloader(dataloader,model,device):
+    
+    b = torch.zeros([3,20,20,20],device=device)
+    model.eval()
+    for x,y in dataloader:
+        y = y.to(device=device,dtype=torch.float)
+        a = y.mean(dim=0)
+        print(y.size)
+        b =b+a
+    return b/len(dataloader)
+
+
+def check_RMSE_CNN(dataloader,model, grid_space, device, verbose=False):
+    MSE = 0
+    R_temp=0
+    Rsquare=0
+    # print(Bfield_mean)
+
+    data = next(iter(dataloader))
+    mean = data[0].mean()
+
+    Bfield_mean=get_mean_of_dataloader(dataloader,model,device)
+
+
+    model.eval() # set model to evaluation model 
+    if not verbose:
+      with torch.no_grad():
+        for x,y in dataloader:
+          x = x.to(device=device,dtype=torch.float)
+          y = y.to(device=device,dtype=torch.float)
+          scores = model(x)
+          # preds = torch.argmax(scores,dim=1)
+          # num_correct += (preds == y).sum()
+          MSE += F.mse_loss(scores, y, reduce='sum')
+          R_temp += F.mse_loss(Bfield_mean, y, reduce='sum')
+        #   num_samples += preds.size(0)
+        # acc = float(num_correct) / num_samples 
+        RMSE = torch.sqrt(MSE/len(dataloader)/grid_space)
+
+        Rsquare=1-MSE/R_temp
+        print(f'Got RMSE {RMSE}')
+
+
+    #####################################################
+    if verbose:
+      with torch.no_grad():
+        for x,y in dataloader:
+          x = x.to(device=device)
+          y = y.to(device=device)
+          scores = model(x)
+          #preds = (torch.round(scores)).reshape(-1)
+          preds = torch.argmax(scores,dim=1)
+           
+    return RMSE, MSE/len(dataloader)/grid_space,Rsquare
+
 def check_accuary_density(dataloader,model,bins,range):
   num_correct = 0
   num_samples = 0
@@ -429,6 +484,8 @@ def grad_loss(preds, y):
    '''
    grad_preds = torch.gradient(preds,spacing=1.0)
    grad_y = torch.gradient(y, spacing=1)
-
-   grad_loss = torch.mean(torch.abs(grad_y-grad_preds))
+   grad_loss = 0
+   for i in range(3):
+      # accumulate grad loss for grad_x,y,z
+      grad_loss += torch.mean(torch.abs(grad_y[i]-grad_preds[i]))/3
    return grad_loss

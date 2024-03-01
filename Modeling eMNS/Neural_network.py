@@ -284,13 +284,14 @@ class Generative_net(nn.Module):
 
         self.total_net = nn.Sequential(
             self.proj,
-            nn.Unflatten(0,(Cout, int(grid_x/2**q), int(grid_y/2**q),int( grid_z/2**q))),
+            nn.Unflatten(1,(Cout, int(grid_x/2**q), int(grid_y/2**q),int( grid_z/2**q))),
             *NNstages,
             nn.BatchNorm3d(Cout),
             self.conv3d,
             )
     def forward(self,x):
         return  self.total_net(x)
+    
 class Two_Branches_NN_net(nn.Module):
     '''
     A catchy class to generate simple neural networks by import 
