@@ -409,15 +409,15 @@ def check_RMSE(dataloader,model,device,verbose=False):
 
 def get_mean_of_dataloader(dataloader,model,device):
     num_samples = 0
-    b = torch.zeros([3,20,20,20],device=device)
+    b = torch.zeros(1,device=device)
     model.eval()
     for x,y in dataloader:
         y = y.to(device=device,dtype=torch.float)
         # use sum instead of mean, what do you think?
-        a = y.sum(dim=0)
+        y_sum = y.sum(dim=0,keepdim=True)
         num_samples += y.shape[0]
-        print(y.size)
-        b =b+a
+        print(y.shape[0])
+        b =b+y_sum
     return b/num_samples
 
 
@@ -445,15 +445,15 @@ def check_RMSE_CNN(dataloader,model, grid_space, device, verbose=False):
           # preds = torch.argmax(scores,dim=1)
           # num_correct += (preds == y).sum()
           MSE += F.mse_loss(scores, y, reduce='sum')
-          R_temp += F.mse_loss(Bfield_mean, y, reduce='sum')
+          R_temp += F.mse_loss(Bfield_mean.expand_as(y), y, reduce='sum')
         #   num_samples += preds.size(0)
         # acc = float(num_correct) / num_samples 
         RMSE = torch.sqrt(MSE/num_samples/grid_space)
 
-        Rsquare=1-MSE/R_temp
+        Rsquare=1-MSE/R_temp/num_samples
         print(f'Got RMSE {RMSE}')
 
-
+        
     #####################################################
     if verbose:
       with torch.no_grad():
