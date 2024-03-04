@@ -355,7 +355,7 @@ def check_RMSE(dataloader,model,device,verbose=False):
           scores = model(x)
           # preds = torch.argmax(scores,dim=1)
           # num_correct += (preds == y).sum()
-          MSE += F.mse_loss(scores, y, reduce='sum')
+          MSE += F.mse_loss(scores, y, reduction='sum')
         #   num_samples += preds.size(0)
         # acc = float(num_correct) / num_samples 
         RMSE = torch.sqrt(MSE/num_samples)
