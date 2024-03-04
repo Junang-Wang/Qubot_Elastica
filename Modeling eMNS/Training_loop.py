@@ -260,7 +260,7 @@ def train_part_GM(model,optimizer,train_loader,valid_loader, epochs = 1, learnin
     loss_val_history= torch.zeros(num_prints,dtype = torch.float)
 
 
-    patience = 10	# 当验证集损失在连5次训练周期中都没有得到降低时，停止模型训练，以防止模型过拟合
+    patience = 20	# 当验证集损失在连5次训练周期中都没有得到降低时，停止模型训练，以防止模型过拟合
     early_stopping = EarlyStopping(patience, verbose=True)     
     epoch_stop = 0
 
@@ -325,16 +325,17 @@ def train_part_GM(model,optimizer,train_loader,valid_loader, epochs = 1, learnin
         #     if (RMSE_val >= 0.995) and (loss_history[epoch-3:epoch+1].mean() >= 0.95*loss_history[epoch-10:epoch-3].mean()):
         #       print('RMSE_val reachs to 100%, end the training loop')
               # return RMSE_history, RMSE_val_history,loss_history, iter_history
+      
       #set early stop
       early_stopping(loss_history[epoch], model)
     	# 若满足 early stopping 要求
-      if early_stopping.early_stop:
-        epoch_stop = epoch
-        print("Early stopping")
-		    #结束模型训练
-        break
+      # if early_stopping.early_stop:
+      epoch_stop = epoch
+      #    print("Early stopping")
+		  #    #结束模型训练
+      #    break
+    
 
-          
     return RMSE_history, RMSE_val_history,loss_history, iter_history, loss_val_history,epoch_stop,Rsquare
 
 # TODO update Root mean squared error
