@@ -47,8 +47,8 @@ def train_part(model,optimizer,train_loader,valid_loader, epochs = 1, learning_r
         num_prints = epochs 
     
     # initial loss history and iter history
-    RMSE_history = torch.zeros(num_prints,dtype = torch.float)
-    RMSE_val_history = torch.zeros(num_prints,dtype = torch.float)
+    rmse_history = torch.zeros(num_prints,dtype = torch.float)
+    rmse_val_history = torch.zeros(num_prints,dtype = torch.float)
     iter_history = torch.zeros(num_prints,dtype = torch.float)
     loss_history = torch.zeros(num_prints,dtype = torch.float)
      
@@ -85,23 +85,23 @@ def train_part(model,optimizer,train_loader,valid_loader, epochs = 1, learning_r
 # print loss during training 
         if verbose and (tt % print_every == 1 or (epoch == epochs -1 and t == len(train_loader) -1) ) :
           print(f'Epoch {epoch:d}, Iteration {tt:d}, loss = {loss.item():.4f}')
-          RMSE_val = check_RMSE(valid_loader,model,device)
-          RMSE = check_RMSE(train_loader,model, device)
-          RMSE_val_history[tt//print_every] = RMSE_val
-          RMSE_history[tt // print_every] = RMSE 
+          rmse_val = check_rmse(valid_loader,model,device)
+          rmse = check_rmse(train_loader,model, device)
+          rmse_val_history[tt//print_every] = rmse_val
+          rmse_history[tt // print_every] = rmse 
           iter_history[tt // print_every] = tt 
           loss_history[tt // print_every] = loss.item()
           print()
-        #   if (RMSE_val >= 0.995) and (epoch > 10):
-        #     print('RMSE_val larger than 0.995, end the training loop')
-        #     return RMSE_history, RMSE_val_history,loss_history, iter_history
+        #   if (rmse_val >= 0.995) and (epoch > 10):
+        #     print('rmse_val larger than 0.995, end the training loop')
+        #     return rmse_history, rmse_val_history,loss_history, iter_history
             
         elif not verbose and (t == len(train_loader)-1):
           print(f'Epoch {epoch:d}, Iteration {tt:d}, loss = {loss.item():.4f}')
-          RMSE_val = check_RMSE(valid_loader,model, device)
-          RMSE = check_RMSE(train_loader,model, device)
-          RMSE_val_history[epoch] = RMSE_val
-          RMSE_history[epoch] = RMSE 
+          rmse_val = check_rmse(valid_loader,model, device)
+          rmse = check_rmse(train_loader,model, device)
+          rmse_val_history[epoch] = rmse_val
+          rmse_history[epoch] = rmse 
           iter_history[epoch] = tt 
           loss_history[epoch] = loss.item()
           print()
@@ -113,11 +113,11 @@ def train_part(model,optimizer,train_loader,valid_loader, epochs = 1, learning_r
               # adjust learning rate if loss has not decrease in 3 epochs
               # adjust_epoch_count = 0
         #   if epoch > 10:    
-        #     if (RMSE_val >= 0.995) and (loss_history[epoch-3:epoch+1].mean() >= 0.95*loss_history[epoch-10:epoch-3].mean()):
-        #       print('RMSE_val reachs to 100%, end the training loop')
-              # return RMSE_history, RMSE_val_history,loss_history, iter_history
+        #     if (rmse_val >= 0.995) and (loss_history[epoch-3:epoch+1].mean() >= 0.95*loss_history[epoch-10:epoch-3].mean()):
+        #       print('rmse_val reachs to 100%, end the training loop')
+              # return rmse_history, rmse_val_history,loss_history, iter_history
           
-    return RMSE_history, RMSE_val_history,loss_history, iter_history
+    return rmse_history, rmse_val_history,loss_history, iter_history
 
 
 
@@ -143,8 +143,8 @@ def train_part_v1(model,optimizer,train_loader,valid_loader, epochs = 1, learnin
         num_prints = epochs 
     
     # initial loss history and iter history
-    RMSE_history = torch.zeros(num_prints,dtype = torch.float)
-    RMSE_val_history = torch.zeros(num_prints,dtype = torch.float)
+    rmse_history = torch.zeros(num_prints,dtype = torch.float)
+    rmse_val_history = torch.zeros(num_prints,dtype = torch.float)
     iter_history = torch.zeros(num_prints,dtype = torch.float)
     loss_history = torch.zeros(num_prints,dtype = torch.float)
     loss_val_history= torch.zeros(num_prints,dtype = torch.float)
@@ -186,23 +186,23 @@ def train_part_v1(model,optimizer,train_loader,valid_loader, epochs = 1, learnin
         # print loss during training 
         if verbose and (tt % print_every == 1 or (epoch == epochs -1 and t == len(train_loader) -1) ) :
           print(f'Epoch {epoch:d}, Iteration {tt:d}, loss = {loss.item():.4f}')
-          RMSE_val = check_RMSE(valid_loader,model,device)
-          RMSE = check_RMSE(train_loader,model, device)
-          RMSE_val_history[tt//print_every] = RMSE_val
-          RMSE_history[tt // print_every] = RMSE 
+          rmse_val = check_rmse(valid_loader,model,device)
+          rmse = check_rmse(train_loader,model, device)
+          rmse_val_history[tt//print_every] = rmse_val
+          rmse_history[tt // print_every] = rmse 
           iter_history[tt // print_every] = tt 
           loss_history[tt // print_every] = loss.item()
           print()
-        #   if (RMSE_val >= 0.995) and (epoch > 10):
-        #     print('RMSE_val larger than 0.995, end the training loop')
-        #     return RMSE_history, RMSE_val_history,loss_history, iter_history
+        #   if (rmse_val >= 0.995) and (epoch > 10):
+        #     print('rmse_val larger than 0.995, end the training loop')
+        #     return rmse_history, rmse_val_history,loss_history, iter_history
             
         elif not verbose and (t == len(train_loader)-1):
           print(f'Epoch {epoch:d}, Iteration {tt:d}, loss = {loss.item():.4f}')
-          RMSE_val,loss_val= check_RMSE(valid_loader,model, device)
-          RMSE,loss_train = check_RMSE(train_loader,model, device)
-          RMSE_val_history[epoch] = RMSE_val
-          RMSE_history[epoch] = RMSE 
+          rmse_val,loss_val= check_rmse(valid_loader,model, device)
+          rmse,loss_train = check_rmse(train_loader,model, device)
+          rmse_val_history[epoch] = rmse_val
+          rmse_history[epoch] = rmse 
           iter_history[epoch] = tt 
           loss_history[epoch] = loss.item()
           loss_val_history[epoch] = loss_val
@@ -216,9 +216,9 @@ def train_part_v1(model,optimizer,train_loader,valid_loader, epochs = 1, learnin
               # adjust learning rate if loss has not decrease in 3 epochs
               # adjust_epoch_count = 0
         #   if epoch > 10:    
-        #     if (RMSE_val >= 0.995) and (loss_history[epoch-3:epoch+1].mean() >= 0.95*loss_history[epoch-10:epoch-3].mean()):
-        #       print('RMSE_val reachs to 100%, end the training loop')
-              # return RMSE_history, RMSE_val_history,loss_history, iter_history
+        #     if (rmse_val >= 0.995) and (loss_history[epoch-3:epoch+1].mean() >= 0.95*loss_history[epoch-10:epoch-3].mean()):
+        #       print('rmse_val reachs to 100%, end the training loop')
+              # return rmse_history, rmse_val_history,loss_history, iter_history
       #set early stop
       early_stopping(loss_history[epoch], model)
     	# 若满足 early stopping 要求
@@ -229,7 +229,7 @@ def train_part_v1(model,optimizer,train_loader,valid_loader, epochs = 1, learnin
         break
 
           
-    return RMSE_history, RMSE_val_history,loss_history, iter_history, loss_val_history,epoch_stop
+    return rmse_history, rmse_val_history,loss_history, iter_history, loss_val_history,epoch_stop
 
 ######################################################################################################################################
 def train_part_GM(model,optimizer,train_loader,valid_loader, epochs = 1, learning_rate_decay =.1,weight_decay=1e-4, schedule=[], grid_space= 20*20*20, verbose=True, device= 'cuda'):
@@ -253,11 +253,12 @@ def train_part_GM(model,optimizer,train_loader,valid_loader, epochs = 1, learnin
         num_prints = epochs 
     
     # initial loss history and iter history
-    RMSE_history = torch.zeros(num_prints,dtype = torch.float)
-    RMSE_val_history = torch.zeros(num_prints,dtype = torch.float)
+    rmse_history = torch.zeros(num_prints,dtype = torch.float)
+    rmse_val_history = torch.zeros(num_prints,dtype = torch.float)
     iter_history = torch.zeros(num_prints,dtype = torch.float)
     loss_history = torch.zeros(num_prints,dtype = torch.float)
-    loss_val_history= torch.zeros(num_prints,dtype = torch.float)
+    mse_history= torch.zeros(num_prints,dtype = torch.float)
+    mse_val_history= torch.zeros(num_prints,dtype = torch.float)
 
 
     patience = 20	# 当验证集损失在连5次训练周期中都没有得到降低时，停止模型训练，以防止模型过拟合
@@ -292,26 +293,27 @@ def train_part_GM(model,optimizer,train_loader,valid_loader, epochs = 1, learnin
         # print loss during training 
         if verbose and (tt % print_every == 1 or (epoch == epochs -1 and t == len(train_loader) -1) ) :
           print(f'Epoch {epoch:d}, Iteration {tt:d}, loss = {loss.item():.4f}')
-          RMSE_val,loss_val,Rsquare = check_RMSE_CNN(valid_loader,model,grid_space, device)
-          RMSE,loss_train,R_TEMP = check_RMSE_CNN(train_loader,model, grid_space, device)
-          RMSE_val_history[tt//print_every] = RMSE_val
-          RMSE_history[tt // print_every] = RMSE 
+          rmse_val,loss_val,Rsquare = check_rmse_CNN(valid_loader,model,grid_space, device)
+          rmse,loss_train,R_TEMP = check_rmse_CNN(train_loader,model, grid_space, device)
+          rmse_val_history[tt//print_every] = rmse_val
+          rmse_history[tt // print_every] = rmse 
           iter_history[tt // print_every] = tt 
           loss_history[tt // print_every] = loss.item()
           print()
-        #   if (RMSE_val >= 0.995) and (epoch > 10):
-        #     print('RMSE_val larger than 0.995, end the training loop')
-        #     return RMSE_history, RMSE_val_history,loss_history, iter_history
+        #   if (rmse_val >= 0.995) and (epoch > 10):
+        #     print('rmse_val larger than 0.995, end the training loop')
+        #     return rmse_history, rmse_val_history,loss_history, iter_history
             
         elif not verbose and (t == len(train_loader)-1):
           print(f'Epoch {epoch:d}, Iteration {tt:d}, loss = {loss.item():.4f}')
-          RMSE_val,loss_val,Rsquare= check_RMSE_CNN(valid_loader,model, grid_space, device)
-          RMSE,loss_train,R_TEMP = check_RMSE_CNN(train_loader,model, grid_space, device)
-          RMSE_val_history[epoch] = RMSE_val
-          RMSE_history[epoch] = RMSE 
+          rmse_val,mse_val,Rsquare= check_rmse_CNN(valid_loader,model, grid_space, device)
+          rmse,mse_train,R_TEMP = check_rmse_CNN(train_loader,model, grid_space, device)
+          rmse_val_history[epoch] = rmse_val
+          rmse_history[epoch] = rmse 
           iter_history[epoch] = tt 
-          loss_history[epoch] = loss_train
-          loss_val_history[epoch] = loss_val
+          loss_history[epoch] = loss.item()
+          mse_history[epoch] = mse_train
+          mse_val_history[epoch] = mse_val
 
           print()
           adjust_epoch_count += 1
@@ -322,12 +324,12 @@ def train_part_GM(model,optimizer,train_loader,valid_loader, epochs = 1, learnin
               # adjust learning rate if loss has not decrease in 3 epochs
               # adjust_epoch_count = 0
         #   if epoch > 10:    
-        #     if (RMSE_val >= 0.995) and (loss_history[epoch-3:epoch+1].mean() >= 0.95*loss_history[epoch-10:epoch-3].mean()):
-        #       print('RMSE_val reachs to 100%, end the training loop')
-              # return RMSE_history, RMSE_val_history,loss_history, iter_history
+        #     if (rmse_val >= 0.995) and (loss_history[epoch-3:epoch+1].mean() >= 0.95*loss_history[epoch-10:epoch-3].mean()):
+        #       print('rmse_val reachs to 100%, end the training loop')
+              # return rmse_history, rmse_val_history,loss_history, iter_history
       
       #set early stop
-      early_stopping(loss_history[epoch], model)
+      #early_stopping(loss_history[epoch], model)
     	# 若满足 early stopping 要求
       # if early_stopping.early_stop:
       epoch_stop = epoch
@@ -336,12 +338,12 @@ def train_part_GM(model,optimizer,train_loader,valid_loader, epochs = 1, learnin
       #    break
     
 
-    return RMSE_history, RMSE_val_history,loss_history, iter_history, loss_val_history,epoch_stop,Rsquare
+    return rmse_history, rmse_val_history,loss_history, iter_history,mse_history, mse_val_history,epoch_stop,Rsquare
 
 # TODO update Root mean squared error
-def check_RMSE(dataloader,model,device,verbose=False):
+def check_rmse(dataloader,model,device,verbose=False):
     num_samples = 0
-    MSE = 0
+    mse = 0
     model.eval() # set model to evaluation model 
     if not verbose:
       with torch.no_grad():
@@ -352,11 +354,11 @@ def check_RMSE(dataloader,model,device,verbose=False):
           scores = model(x)
           # preds = torch.argmax(scores,dim=1)
           # num_correct += (preds == y).sum()
-          MSE += F.mse_loss(scores, y, reduce='sum')
+          mse += F.mse_loss(scores, y, reduce='sum')
         #   num_samples += preds.size(0)
         # acc = float(num_correct) / num_samples 
-        RMSE = torch.sqrt(MSE/num_samples)
-        print(f'Got RMSE {RMSE}')
+        rmse = torch.sqrt(mse/num_samples)
+        print(f'Got rmse {rmse}')
 
     if verbose:
       with torch.no_grad():
@@ -401,8 +403,7 @@ def check_RMSE(dataloader,model,device,verbose=False):
         print(f'Got {num_6:d} / {num_samples:d} wrong {acc_6:.2f} preds as 6')
         print(f'Got {num_7:d} / {num_samples:d} wrong {acc_7:.2f} preds as larger than 6')
            
-    return RMSE , MSE/len(dataloader)
-
+    return rmse , mse/len(dataloader)
 
 def get_mean_of_dataloader(dataloader,model,device):
     num_samples = 0
@@ -418,8 +419,8 @@ def get_mean_of_dataloader(dataloader,model,device):
     return b/num_samples
 
 
-def check_RMSE_CNN(dataloader,model, grid_space, device, verbose=False):
-    MSE = 0
+def check_rmse_CNN(dataloader,model, grid_space, device, verbose=False):
+    mse_temp = 0
     R_temp=0
     Rsquare=0
     num_samples = 0
@@ -429,7 +430,6 @@ def check_RMSE_CNN(dataloader,model, grid_space, device, verbose=False):
     mean = data[0].mean()
 
     Bfield_mean=get_mean_of_dataloader(dataloader,model,device)
-
 
     model.eval() # set model to evaluation model 
     if not verbose:
@@ -441,14 +441,14 @@ def check_RMSE_CNN(dataloader,model, grid_space, device, verbose=False):
           scores = model(x)
           # preds = torch.argmax(scores,dim=1)
           # num_correct += (preds == y).sum()
-          MSE += F.mse_loss(scores, y, reduce='sum')
-          R_temp += F.mse_loss(Bfield_mean.expand_as(y), y, reduce='sum')
+          mse_temp += F.mse_loss(scores, y, reduction='sum')
+          R_temp += F.mse_loss(Bfield_mean.expand_as(y), y, reduction='sum')
         #   num_samples += preds.size(0)
         # acc = float(num_correct) / num_samples 
-        RMSE = torch.sqrt(MSE/num_samples/grid_space)
+        rmse = torch.sqrt(mse_temp/num_samples/grid_space)
 
-        Rsquare=1-MSE/R_temp/num_samples
-        print(f'Got RMSE {RMSE}')
+        Rsquare=1-mse_temp/R_temp/num_samples
+        print(f'Got rmse {rmse}')
 
         
     #####################################################
@@ -461,7 +461,7 @@ def check_RMSE_CNN(dataloader,model, grid_space, device, verbose=False):
           #preds = (torch.round(scores)).reshape(-1)
           preds = torch.argmax(scores,dim=1)
            
-    return RMSE, MSE/len(dataloader)/grid_space,Rsquare
+    return rmse, mse_temp/num_samples/grid_space,Rsquare
 
 def check_accuary_density(dataloader,model,bins,range):
   num_correct = 0
