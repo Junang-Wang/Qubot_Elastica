@@ -281,7 +281,7 @@ def train_part_GM(model,optimizer,train_loader,valid_loader, epochs = 1, learnin
         y = y.to(device=device,dtype=torch.float)
 
         if DF: 
-          preds = compute_discrete_curl(model(x))
+          preds = compute_discrete_curl(model(x),device=device)
         else:
           preds = model(x)
         # loss function in the paper "Modeling Electromagnetic Navigation Systems" 

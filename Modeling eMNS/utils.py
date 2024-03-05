@@ -1,10 +1,10 @@
 import torch
-def compute_discrete_curl(A_field):
+def compute_discrete_curl(A_field, device):
     '''
     A_field: (batch, Dimensions, grid_x, grid_y, grid_z)
     '''
     batch, dimensions, grid_x, grid_y, grid_z = A_field.shape
-    discrete_curl = torch.zeros(batch, dimensions, grid_x, grid_y, grid_z)
+    discrete_curl = torch.zeros(batch, dimensions, grid_x, grid_y, grid_z, device=device)
 
     # grad_x_A: dA/dx, grad_y_A: dA/dy, grad_z_A: dA/dz
     _,_, grad_x_A, grad_y_A, grad_z_A = torch.gradient(A_field,spacing=1.0)
