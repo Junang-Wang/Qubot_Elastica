@@ -286,7 +286,7 @@ def train_part_GM(model,optimizer,train_loader,valid_loader, epochs = 1, learnin
           preds = model(x)
         # loss function in the paper "Modeling Electromagnetic Navigation Systems" 
         # loss= lamda_b*|y-preds| + lamda_g*| nabla(y) - nabla(preds)|
-        loss = F.l1_loss(preds, y) + grad_loss(preds,y)
+        loss = F.l1_loss(preds, y) + 2.0*grad_loss(preds,y)
         optimizer.zero_grad() #zero out all of gradient
         loss.backward() # compute gradient of loss
         optimizer.step() #update parameters
@@ -418,7 +418,7 @@ def get_mean_of_dataloader(dataloader,model,device):
         # use sum instead of mean, what do you think?
         y_sum = y.sum(dim=0,keepdim=True)
         num_samples += y.shape[0]
-        print(y.shape[0])
+        # print(y.shape[0])
         b =b+y_sum
     return b/num_samples
 
