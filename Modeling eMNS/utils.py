@@ -1,4 +1,5 @@
 import torch
+import matplotlib.pyplot as plt
 def compute_discrete_curl(A_field, device):
     '''
     A_field: (batch, Dimensions, grid_x, grid_y, grid_z)
@@ -29,3 +30,29 @@ def compute_discrete_divergence(A_field):
     # div A = dA_x/dx  + dA_y/dy  + dA_z/dz 
     discrete_div[:,0] = grad_x_A[:,0] + grad_y_A[:,1] + grad_z_A[:,2]
     return discrete_div
+
+def gridData_reshape(data):
+    '''
+    reshape data shape from ( dimension, grid_x, grid_y, grid_z) to (-1,dimension)
+    '''
+    return torch.flatten(data.permute(1,2,3,0), start_dim=0, end_dim=-2) #(-1, dimension)
+
+
+def plot_3D_vector_field(position, vectorField, figsize=(5,5), length=1):
+    '''
+    Plot 3D vector field
+    -----------input----------
+    position: position of grids shape: (1,dimensions,grid_x,grid_y,grid_z)
+    vectorField: shape (1,dimensions,grid_x,grid_y,grid_z)
+    '''
+    fig = plt.figure(figsize=(5,5))
+    ax = fig.add_subplot(111,projection='3d') 
+    p = gridData_reshape(position) #(-1, dimension)
+    vector = gridData_reshape(vectorField) #(-1, dimension)
+
+    ax.quiver(p[:,0], p[:,1], p[:,2], vector[:,0], vector[:,1], vector[:,2], length=length)
+    plt.show()
+
+
+
+
