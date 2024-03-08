@@ -233,7 +233,7 @@ def train_part_v1(model,optimizer,train_loader,valid_loader, epochs = 1, learnin
     return rmse_history, rmse_val_history,loss_history, iter_history, loss_val_history,epoch_stop
 
 ######################################################################################################################################
-def train_part_GM(model,optimizer,train_loader,valid_loader, epochs = 1, learning_rate_decay =.1,weight_decay=1e-4, schedule=[], grid_space= 20*20*20, DF= False, verbose=True, device= 'cuda'):
+def train_part_GM(model,optimizer,train_loader,valid_loader, epochs = 1, learning_rate_decay =.1,weight_decay=1e-4, schedule=[], grid_space= 20*20*20, DF= False, verbose=True, device= 'cuda',maxB=[],minB=[]):
     """
     Train a model using torch API
 
@@ -297,8 +297,8 @@ def train_part_GM(model,optimizer,train_loader,valid_loader, epochs = 1, learnin
         # print loss during training 
         if verbose and (tt % print_every == 1 or (epoch == epochs -1 and t == len(train_loader) -1) ) :
           print(f'Epoch {epoch:d}, Iteration {tt:d}, loss = {loss.item():.4f}')
-          rmse_val,loss_val,Rsquare = check_rmse_CNN(valid_loader,model,grid_space, device)
-          rmse,loss_train,R_TEMP = check_rmse_CNN(train_loader,model, grid_space, device)
+          rmse_val,loss_val,Rsquare = check_rmse_CNN(valid_loader,model,grid_space, device, DF,maxB=maxB,minB=minB)
+          rmse,loss_train,R_TEMP = check_rmse_CNN(train_loader,model, grid_space, device, DF,maxB=maxB,minB=minB)
           rmse_val_history[tt//print_every] = rmse_val
           rmse_history[tt // print_every] = rmse 
           iter_history[tt // print_every] = tt 
@@ -310,8 +310,8 @@ def train_part_GM(model,optimizer,train_loader,valid_loader, epochs = 1, learnin
             
         elif not verbose and (t == len(train_loader)-1):
           print(f'Epoch {epoch:d}, Iteration {tt:d}, loss = {loss.item():.4f}')
-          rmse_val,mse_val,Rsquare= check_rmse_CNN(valid_loader,model, grid_space, DF, device)
-          rmse,mse_train,R_TEMP = check_rmse_CNN(train_loader,model, grid_space, DF, device)
+          rmse_val,mse_val,Rsquare= check_rmse_CNN(valid_loader,model, grid_space, device,DF,maxB=maxB,minB=minB)
+          rmse,mse_train,R_TEMP = check_rmse_CNN(train_loader,model, grid_space, device,DF,maxB=maxB,minB=minB)
           rmse_val_history[epoch] = rmse_val
           rmse_history[epoch] = rmse 
           iter_history[epoch] = tt 
@@ -418,12 +418,12 @@ def get_mean_of_dataloader(dataloader,model,device):
         # use sum instead of mean, what do you think?
         y_sum = y.sum(dim=0,keepdim=True)
         num_samples += y.shape[0]
-        print(y.shape[0])
+        # print(y.shape[0])
         b =b+y_sum
     return b/num_samples
 
 
-def check_rmse_CNN(dataloader,model, grid_space, device, DF, verbose=False):
+def check_rmse_CNN(dataloader,model, grid_space, device, DF, verbose=False, maxB=[],minB=[]):
     mse_temp = 0
     R_temp=0
     Rsquare=0
@@ -448,8 +448,8 @@ def check_rmse_CNN(dataloader,model, grid_space, device, DF, verbose=False):
             scores = model(x)
           # preds = torch.argmax(scores,dim=1)
           # num_correct += (preds == y).sum()
-          mse_temp += F.mse_loss(scores, y, reduction='sum')
-          R_temp += F.mse_loss(Bfield_mean.expand_as(y), y, reduction='sum')
+          mse_temp += F.mse_loss(scores*0.5*(maxB.expand_as(y)-minB.expand_as(y))+0.5*(minB.expand_as(y)+maxB.expand_as(y)), y*0.5*(maxB.expand_as(y)-minB.expand_as(y))+0.5*(minB.expand_as(y)+maxB.expand_as(y)) ,reduction='sum')
+          R_temp += F.mse_loss(Bfield_mean.expand_as(y)*0.5*(maxB.expand_as(y)-minB.expand_as(y))+0.5*(minB.expand_as(y)+maxB.expand_as(y)), y*0.5*(maxB.expand_as(y)-minB.expand_as(y))+0.5*(minB.expand_as(y)+maxB.expand_as(y)), reduction='sum')
         #   num_samples += preds.size(0)
         # acc = float(num_correct) / num_samples 
         rmse = torch.sqrt(mse_temp/num_samples/grid_space)
