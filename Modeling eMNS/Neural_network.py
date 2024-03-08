@@ -141,14 +141,18 @@ class ResidualBasicBlock_3d(nn.Module):
         return self.block(x) + self.shortcut(x)
     
 class ResidualEMNSBlock_3d(nn.Module):
-    def __init__(self,Cin,Cout):
+    def __init__(self,Cin,Cout, num_repeat):
         super().__init__()
-
-        self.block = nn.Sequential(
+        NNstages = []
+        self.conv3d = nn.Sequential(
             nn.BatchNorm3d(Cin),
             nn.Conv3d(Cin,Cout,3,padding=1,bias=True),
             nn.LeakyReLU(),
         )
+        for _ in range(num_repeat):
+            NNstages.append(self.conv3d)
+        self.block = nn.Sequential(*NNstages)
+
         if Cin == Cout:
             self.shortcut = nn.Identity()
         else:
@@ -184,10 +188,10 @@ class BigBlock(nn.Module):
     def __init__(self, SB_args, SmallBlock, scale_factor):
         super().__init__()
         NNstages = []
+
         if SB_args:
-            Cin, Cout, num_block = SB_args
-            for _ in range(num_block):
-                NNstages.append(SmallBlock(Cin,Cout))
+            Cin, Cout, num_repeat = SB_args            
+            NNstages.append(SmallBlock(Cin,Cout,num_repeat))
             NNstages.append(UpsampleBlock(scale_factor))
         self.block = nn.Sequential(*NNstages)
     def forward(self,x):
