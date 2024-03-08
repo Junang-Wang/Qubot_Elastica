@@ -16,6 +16,18 @@ def adjust_learning_rate_sch(optimizer, lrd, epoch, schedule):
         for param_group in optimizer.param_groups:
             print(f'lr decay from { param_group["lr"] } to {param_group["lr"]*lrd}')
             param_group['lr'] *= lrd 
+
+def adjust_learning_rate_cosine(optimizer, lr_schedule, epoch, schedule):
+    """
+    Multiply lrd to the learning rate if epoch in schedule
+
+    Return: None, but learning rate (lr) might be updated
+    """
+    if epoch in schedule:
+        index = schedule.index(epoch)
+        for param_group in optimizer.param_groups:
+            print(f'lr decay from { param_group["lr"] } to {lr_schedule[index]}')
+            param_group['lr'] = lr_schedule[index]
 def adjust_learning_rate(optimizer, lrd):
     """
     Multiply lrd to the learning rate
@@ -321,25 +333,9 @@ def train_part_GM(model,optimizer,train_loader,valid_loader, epochs = 1, learnin
 
           print()
           adjust_epoch_count += 1
-          # if epoch > 6 and adjust_epoch_count > 3:
-          #   if loss_history[epoch-3:epoch+1].mean() >= 0.90*loss_history[epoch-7:epoch-3].mean():
-          #     adjust_learning_rate(optimizer=optimizer,lrd= learning_rate_decay)
-          #     print(f'{loss_history[epoch-3:epoch+1].mean():.2f} >= {0.95*loss_history[epoch-7:epoch-3].mean():.2f}')
-              # adjust learning rate if loss has not decrease in 3 epochs
-              # adjust_epoch_count = 0
-        #   if epoch > 10:    
-        #     if (rmse_val >= 0.995) and (loss_history[epoch-3:epoch+1].mean() >= 0.95*loss_history[epoch-10:epoch-3].mean()):
-        #       print('rmse_val reachs to 100%, end the training loop')
-              # return rmse_history, rmse_val_history,loss_history, iter_history
-      
-      #set early stop
-      #early_stopping(loss_history[epoch], model)
-    	# 若满足 early stopping 要求
-      # if early_stopping.early_stop:
+        adjust_learning_rate_sch(optimizer, learning_rate_decay, epoch, schedule)
       epoch_stop = epoch
-      #    print("Early stopping")
-		  #    #结束模型训练
-      #    break
+
     
 
     return rmse_history, rmse_val_history,loss_history, iter_history,mse_history, mse_val_history,epoch_stop,Rsquare
