@@ -333,7 +333,7 @@ def train_part_GM(model,optimizer,train_loader,valid_loader, epochs = 1, learnin
 
           print()
           adjust_epoch_count += 1
-        adjust_learning_rate_sch(optimizer, learning_rate_decay, epoch, schedule)
+      adjust_learning_rate_sch(optimizer, learning_rate_decay, epoch, schedule)
       epoch_stop = epoch
 
     
