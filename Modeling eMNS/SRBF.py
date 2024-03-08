@@ -13,9 +13,9 @@ def grad_Gaussian(eps,X):
 
 def gridData_reshape(data):
     '''
-    reshape data shape from (1, dimension, grid_x, grid_y, grid_z) to (-1,dimension)
+    reshape data shape from ( dimension, grid_x, grid_y, grid_z) to (-1,dimension)
     '''
-    return torch.flatten(data.permute(0,2,3,4,1), start_dim=0, end_dim=-2) #(-1, dimension)
+    return torch.flatten(data.permute(1,2,3,0), start_dim=0, end_dim=-2) #(-1, dimension)
 
 
 def Euclidean_distance(samples_p, centers_p):
@@ -38,11 +38,11 @@ class SRBF_interpolation():
     def __init__(self, eps, kernel_function=Gaussian):
         '''
         ---------input---------------
-        centers_p: positions of radial kernel centers, shape: (1, dimension, grid_x, grid_y, grid_z)
-        samples_p: positions of samples,               shape: (1, dimension, grid_x, grid_y, grid_z)
+        centers_p: positions of radial kernel centers, shape: ( dimension, grid_x, grid_y, grid_z)
+        samples_p: positions of samples,               shape: ( dimension, grid_x, grid_y, grid_z)
         eps:       shape parameter
         kernel_function: radial kernel function
-        y:         output (1, dimension, grid_x, grid_y, grid_z)
+        y:         output ( dimension, grid_x, grid_y, grid_z)
 
         Euclidean distance: shape (M,N) where M=samples.grid_x*grid_y*grid_z, N=centers_p.grid_x*grid_y*grid_z
         phi: kernel_function(eps, Euclidean_distance); shape: (M,N)
@@ -60,15 +60,15 @@ class SRBF_interpolation():
         phi = self.kernel_function(self.eps, Euclidean_distance(samples_p, centers_p)) #(M,N)
         samples_y_reshape = gridData_reshape(samples_y) #(M, dimension)
         self.weight = torch.linalg.inv(phi) @ samples_y_reshape #(N,dimension)
-        self.N, self.dimension = self.weight.shape[0]
-        self.M = self.samples_y_reshape.shape[0]
+        self.N, self.dimension = self.weight.shape
+        self.M = samples_y_reshape.shape[0]
         return self.weight 
 
     def __call__(self, targets_p):
         phi = self.kernel_function(self.eps, Euclidean_distance(targets_p, self.centers_p))
         return phi@self.weight
 
-    def compute_gradient(self, targets_p, kernel_function_grad):
+    def compute_gradient(self, targets_p, kernel_function_grad=grad_Gaussian):
         '''
         Only work for |p|**2
         --------input------------

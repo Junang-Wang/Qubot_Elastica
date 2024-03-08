@@ -310,8 +310,8 @@ def train_part_GM(model,optimizer,train_loader,valid_loader, epochs = 1, learnin
             
         elif not verbose and (t == len(train_loader)-1):
           print(f'Epoch {epoch:d}, Iteration {tt:d}, loss = {loss.item():.4f}')
-          rmse_val,mse_val,Rsquare= check_rmse_CNN(valid_loader,model, grid_space, device,maxB=maxB,minB=minB)
-          rmse,mse_train,R_TEMP = check_rmse_CNN(train_loader,model, grid_space, device,maxB=maxB,minB=minB)
+          rmse_val,mse_val,Rsquare= check_rmse_CNN(valid_loader,model, grid_space, DF,device,maxB=maxB,minB=minB)
+          rmse,mse_train,R_TEMP = check_rmse_CNN(train_loader,model, grid_space, DF,device,maxB=maxB,minB=minB)
           rmse_val_history[epoch] = rmse_val
           rmse_history[epoch] = rmse 
           iter_history[epoch] = tt 
@@ -423,7 +423,7 @@ def get_mean_of_dataloader(dataloader,model,device):
     return b/num_samples
 
 
-def check_rmse_CNN(dataloader,model, grid_space, device, verbose=False,maxB=[],minB=[]):
+def check_rmse_CNN(dataloader,model, grid_space, device, verbose=False):
     mse_temp = 0
     R_temp=0
     Rsquare=0
@@ -442,7 +442,10 @@ def check_rmse_CNN(dataloader,model, grid_space, device, verbose=False,maxB=[],m
           x = x.to(device=device,dtype=torch.float)
           y = y.to(device=device,dtype=torch.float)
           num_samples += x.shape[0]
-          scores = model(x)
+          if DF:
+            scores = compute_discrete_curl(model(x))
+          else:
+            scores = model(x)
           # preds = torch.argmax(scores,dim=1)
           # num_correct += (preds == y).sum()
           mse_temp += F.mse_loss(scores*0.5*(maxB.expand_as(y)-minB.expand_as(y))+0.5*(minB.expand_as(y)+maxB.expand_as(y)), y*0.5*(maxB.expand_as(y)-minB.expand_as(y))+0.5*(minB.expand_as(y)+maxB.expand_as(y)) ,reduction='sum')
