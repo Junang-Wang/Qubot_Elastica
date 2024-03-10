@@ -22,3 +22,4 @@ Finite Element Method（FEM）:
   - Wisconsin University FEM Simulation of 3D Deformable Solids: https://dl.acm.org/doi/10.1145/2343483.2343501  https://viterbi-web.usc.edu/~jbarbic/femdefo/
   - SIGGRAPH Course 2020: Dynamic Deformables https://www.tkim.graphics/DYNAMIC_DEFORMABLES/
   - Real time physics course: https://dl.acm.org/doi/10.1145/1401132.1401245
+ 
