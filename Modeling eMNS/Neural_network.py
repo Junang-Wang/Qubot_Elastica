@@ -190,8 +190,9 @@ class BigBlock(nn.Module):
         NNstages = []
 
         if SB_args:
-            Cin, Cout, num_repeat = SB_args            
-            NNstages.append(SmallBlock(Cin,Cout,num_repeat))
+            Cin, Cout, num_repeat, num_block = SB_args
+            for _ in range(num_block):            
+                NNstages.append(SmallBlock(Cin,Cout,num_repeat))
             NNstages.append(UpsampleBlock(scale_factor))
         self.block = nn.Sequential(*NNstages)
     def forward(self,x):
@@ -267,7 +268,7 @@ class Generative_net(nn.Module):
         super().__init__()
         NNstages = []
         if SB_args and BB_args: # if SB_args and BB_args are not empty
-            Cin, Cout, SB_num_block = SB_args
+            Cin, Cout, SB_num_repeat, SB_num_block = SB_args
             scale_factor, BB_num_block = BB_args
             for _ in range(BB_num_block):
                 NNstages.append(BB_block(SB_args, SB_block, scale_factor))
