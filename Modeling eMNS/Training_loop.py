@@ -504,3 +504,56 @@ def grad_loss(preds, y):
       # accumulate grad loss for grad_x,y,z
       grad_loss += torch.mean(torch.abs(grad_y[i]-grad_preds[i]))/3
    return grad_loss
+
+def grad_loss_Jacobain(preds,y):
+  '''
+   preds, y shape: (batch, dimension, grid_x, grid_y, grid_z)
+   This function computes lamda_g*| nabla(y) - nabla(preds)| by Jacobian 
+   '''
+  Jaco_preds,_ = Jacobian3(preds)
+  Jaco_y    ,_ = Jacobian3(y)
+
+  grad_loss = torch.mean(torch.abs(Jaco_preds - Jaco_y))
+
+  return grad_loss
+
+
+def Jacobian3(x):
+  '''
+  Jacobian for 3D vector field
+  -------input----------
+  x shape: (batch, dimension,grid_x, grid_y, grid_z)
+  '''
+
+  dudx = x[:, 0, 1:, :, :] - x[:, 0, :-1, :, :]
+  dvdx = x[:, 1, 1:, :, :] - x[:, 1, :-1, :, :]
+  dwdx = x[:, 2, 1:, :, :] - x[:, 2, :-1, :, :]
+  
+  dudy = x[:, 0, :, 1:, :] - x[:, 0, :, :-1, :]
+  dvdy = x[:, 1, :, 1:, :] - x[:, 1, :, :-1, :]
+  dwdy = x[:, 2, :, 1:, :] - x[:, 2, :, :-1, :]
+
+  dudz = x[:, 0, :, :, 1:] - x[:, 0, :, :, :-1]
+  dvdz = x[:, 1, :, :, 1:] - x[:, 1, :, :, :-1]
+  dwdz = x[:, 2, :, :, 1:] - x[:, 2, :, :, :-1]
+
+  dudx = torch.cat((dudx, torch.unsqueeze(dudx[:,-1],dim=1)), dim=1)
+  dvdx = torch.cat((dvdx, torch.unsqueeze(dvdx[:,-1],dim=1)), dim=1)
+  dwdx = torch.cat((dwdx, torch.unsqueeze(dwdx[:,-1],dim=1)), dim=1)
+
+  dudy = torch.cat((dudy, torch.unsqueeze(dudy[:,:,-1],dim=2)), dim=2)
+  dvdy = torch.cat((dvdy, torch.unsqueeze(dvdy[:,:,-1],dim=2)), dim=2)
+  dwdy = torch.cat((dwdy, torch.unsqueeze(dwdy[:,:,-1],dim=2)), dim=2)
+
+  dudz = torch.cat((dudz, torch.unsqueeze(dudz[:,:,:,-1],dim=3)), dim=3)
+  dvdz = torch.cat((dvdz, torch.unsqueeze(dvdz[:,:,:,-1],dim=3)), dim=3)
+  dwdz = torch.cat((dwdz, torch.unsqueeze(dwdz[:,:,:,-1],dim=3)), dim=3)
+
+  u = dwdy - dvdz
+  v = dudz - dwdx
+  w = dvdx - dudy
+
+  j = torch.stack([dudx,dudy,dudz,dvdx,dvdy,dvdz,dwdx,dwdy,dwdz],axis=1)
+  c = torch.stack([u,v,w],axis=1) #vorticity
+
+  return j,c
