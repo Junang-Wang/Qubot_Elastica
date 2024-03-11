@@ -5,6 +5,7 @@ import torch
 import torch.nn.functional as F
 from early_stopping import EarlyStopping
 from utils import compute_discrete_curl
+import numpy as np
 
 def adjust_learning_rate_sch(optimizer, lrd, epoch, schedule):
     """
@@ -17,17 +18,18 @@ def adjust_learning_rate_sch(optimizer, lrd, epoch, schedule):
             print(f'lr decay from { param_group["lr"] } to {param_group["lr"]*lrd}')
             param_group['lr'] *= lrd 
 
-def adjust_learning_rate_cosine(optimizer, lr_schedule, epoch, schedule):
+def adjust_learning_rate_cosine(optimizer, lr_max, lr_min,max_epoch,tt,len_dataloader):
     """
     Multiply lrd to the learning rate if epoch in schedule
 
     Return: None, but learning rate (lr) might be updated
     """
-    if epoch in schedule:
-        index = schedule.index(epoch)
-        for param_group in optimizer.param_groups:
-            print(f'lr decay from { param_group["lr"] } to {lr_schedule[index]}')
-            param_group['lr'] = lr_schedule[index]
+
+    for param_group in optimizer.param_groups:
+       # print(f'lr decay from { param_group["lr"] } to {lr_schedule[index]}')
+        param_group['lr'] = lr_min+0.5*(lr_max-lr_min)*(1+np.cos(4*tt/(max_epoch*len_dataloader)*np.pi))
+
+
 def adjust_learning_rate(optimizer, lrd):
     """
     Multiply lrd to the learning rate
@@ -245,7 +247,7 @@ def train_part_v1(model,optimizer,train_loader,valid_loader, epochs = 1, learnin
     return rmse_history, rmse_val_history,loss_history, iter_history, loss_val_history,epoch_stop
 
 ######################################################################################################################################
-def train_part_GM(model,optimizer,train_loader,valid_loader, epochs = 1, learning_rate_decay =.1,weight_decay=1e-4, schedule=[], grid_space= 20*20*20, DF= False, verbose=True, device= 'cuda',maxB=[],minB=[]):
+def train_part_GM(model,optimizer,train_loader,valid_loader, epochs = 1, learning_rate_decay =.1,weight_decay=1e-4, schedule=[], grid_space= 20*20*20, DF= False, verbose=True, device= 'cuda',maxB=[],minB=[], lr_max=1e-4, lr_min=2.5e-6,max_epoch=200):
     """
     Train a model using torch API
 
@@ -304,7 +306,8 @@ def train_part_GM(model,optimizer,train_loader,valid_loader, epochs = 1, learnin
         optimizer.step() #update parameters
         
         tt = t + epoch*len(train_loader) +1
-
+        print(len(train_loader))
+        adjust_learning_rate_cosine(optimizer, lr_max, lr_min,max_epoch,tt,len(train_loader))
         ###########################################################
         # print loss during training 
         if verbose and (tt % print_every == 1 or (epoch == epochs -1 and t == len(train_loader) -1) ) :
