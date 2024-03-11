@@ -5,6 +5,7 @@ import torch
 import torch.nn.functional as F
 from early_stopping import EarlyStopping
 from utils import compute_discrete_curl
+import numpy as np
 
 def adjust_learning_rate_sch(optimizer, lrd, epoch, schedule):
     """
@@ -16,6 +17,19 @@ def adjust_learning_rate_sch(optimizer, lrd, epoch, schedule):
         for param_group in optimizer.param_groups:
             print(f'lr decay from { param_group["lr"] } to {param_group["lr"]*lrd}')
             param_group['lr'] *= lrd 
+
+def adjust_learning_rate_cosine(optimizer, lr_max, lr_min,max_epoch,tt,len_dataloader):
+    """
+    Multiply lrd to the learning rate if epoch in schedule
+
+    Return: None, but learning rate (lr) might be updated
+    """
+
+    for param_group in optimizer.param_groups:
+       # print(f'lr decay from { param_group["lr"] } to {lr_schedule[index]}')
+        param_group['lr'] = lr_min+0.5*(lr_max-lr_min)*(1+np.cos(4*tt/(max_epoch*len_dataloader)*np.pi))
+
+
 def adjust_learning_rate(optimizer, lrd):
     """
     Multiply lrd to the learning rate
@@ -233,7 +247,7 @@ def train_part_v1(model,optimizer,train_loader,valid_loader, epochs = 1, learnin
     return rmse_history, rmse_val_history,loss_history, iter_history, loss_val_history,epoch_stop
 
 ######################################################################################################################################
-def train_part_GM(model,optimizer,train_loader,valid_loader, epochs = 1, learning_rate_decay =.1,weight_decay=1e-4, schedule=[], grid_space= 20*20*20, DF= False, verbose=True, device= 'cuda'):
+def train_part_GM(model,optimizer,train_loader,valid_loader, epochs = 1, learning_rate_decay =.1,weight_decay=1e-4, schedule=[], grid_space= 20*20*20, DF= False, verbose=True, device= 'cuda',maxB=[],minB=[], lr_max=1e-4, lr_min=2.5e-6,max_epoch=200):
     """
     Train a model using torch API
 
@@ -292,13 +306,14 @@ def train_part_GM(model,optimizer,train_loader,valid_loader, epochs = 1, learnin
         optimizer.step() #update parameters
         
         tt = t + epoch*len(train_loader) +1
-
+        print(len(train_loader))
+        adjust_learning_rate_cosine(optimizer, lr_max, lr_min,max_epoch,tt,len(train_loader))
         ###########################################################
         # print loss during training 
         if verbose and (tt % print_every == 1 or (epoch == epochs -1 and t == len(train_loader) -1) ) :
           print(f'Epoch {epoch:d}, Iteration {tt:d}, loss = {loss.item():.4f}')
-          rmse_val,loss_val,Rsquare = check_rmse_CNN(valid_loader,model,grid_space, device)
-          rmse,loss_train,R_TEMP = check_rmse_CNN(train_loader,model, grid_space, device)
+          rmse_val,loss_val,Rsquare = check_rmse_CNN(valid_loader,model,grid_space, device, DF,maxB=maxB,minB=minB)
+          rmse,loss_train,R_TEMP = check_rmse_CNN(train_loader,model, grid_space, device, DF,maxB=maxB,minB=minB)
           rmse_val_history[tt//print_every] = rmse_val
           rmse_history[tt // print_every] = rmse 
           iter_history[tt // print_every] = tt 
@@ -310,8 +325,8 @@ def train_part_GM(model,optimizer,train_loader,valid_loader, epochs = 1, learnin
             
         elif not verbose and (t == len(train_loader)-1):
           print(f'Epoch {epoch:d}, Iteration {tt:d}, loss = {loss.item():.4f}')
-          rmse_val,mse_val,Rsquare= check_rmse_CNN(valid_loader,model, grid_space, DF, device)
-          rmse,mse_train,R_TEMP = check_rmse_CNN(train_loader,model, grid_space, DF, device)
+          rmse_val,mse_val,Rsquare= check_rmse_CNN(valid_loader,model, grid_space, device,DF,maxB=maxB,minB=minB)
+          rmse,mse_train,R_TEMP = check_rmse_CNN(train_loader,model, grid_space, device,DF,maxB=maxB,minB=minB)
           rmse_val_history[epoch] = rmse_val
           rmse_history[epoch] = rmse 
           iter_history[epoch] = tt 
@@ -321,25 +336,9 @@ def train_part_GM(model,optimizer,train_loader,valid_loader, epochs = 1, learnin
 
           print()
           adjust_epoch_count += 1
-          # if epoch > 6 and adjust_epoch_count > 3:
-          #   if loss_history[epoch-3:epoch+1].mean() >= 0.90*loss_history[epoch-7:epoch-3].mean():
-          #     adjust_learning_rate(optimizer=optimizer,lrd= learning_rate_decay)
-          #     print(f'{loss_history[epoch-3:epoch+1].mean():.2f} >= {0.95*loss_history[epoch-7:epoch-3].mean():.2f}')
-              # adjust learning rate if loss has not decrease in 3 epochs
-              # adjust_epoch_count = 0
-        #   if epoch > 10:    
-        #     if (rmse_val >= 0.995) and (loss_history[epoch-3:epoch+1].mean() >= 0.95*loss_history[epoch-10:epoch-3].mean()):
-        #       print('rmse_val reachs to 100%, end the training loop')
-              # return rmse_history, rmse_val_history,loss_history, iter_history
-      
-      #set early stop
-      #early_stopping(loss_history[epoch], model)
-    	# 若满足 early stopping 要求
-      # if early_stopping.early_stop:
+      adjust_learning_rate_sch(optimizer, learning_rate_decay, epoch, schedule)
       epoch_stop = epoch
-      #    print("Early stopping")
-		  #    #结束模型训练
-      #    break
+
     
 
     return rmse_history, rmse_val_history,loss_history, iter_history,mse_history, mse_val_history,epoch_stop,Rsquare
@@ -418,12 +417,12 @@ def get_mean_of_dataloader(dataloader,model,device):
         # use sum instead of mean, what do you think?
         y_sum = y.sum(dim=0,keepdim=True)
         num_samples += y.shape[0]
-        print(y.shape[0])
+        # print(y.shape[0])
         b =b+y_sum
     return b/num_samples
 
 
-def check_rmse_CNN(dataloader,model, grid_space, device, DF, verbose=False):
+def check_rmse_CNN(dataloader,model, grid_space, device, DF, verbose=False, maxB=[],minB=[]):
     mse_temp = 0
     R_temp=0
     Rsquare=0
@@ -448,8 +447,8 @@ def check_rmse_CNN(dataloader,model, grid_space, device, DF, verbose=False):
             scores = model(x)
           # preds = torch.argmax(scores,dim=1)
           # num_correct += (preds == y).sum()
-          mse_temp += F.mse_loss(scores, y, reduction='sum')
-          R_temp += F.mse_loss(Bfield_mean.expand_as(y), y, reduction='sum')
+          mse_temp += F.mse_loss(scores*0.5*(maxB.expand_as(y)-minB.expand_as(y))+0.5*(minB.expand_as(y)+maxB.expand_as(y)), y*0.5*(maxB.expand_as(y)-minB.expand_as(y))+0.5*(minB.expand_as(y)+maxB.expand_as(y)) ,reduction='sum')
+          R_temp += F.mse_loss(Bfield_mean.expand_as(y)*0.5*(maxB.expand_as(y)-minB.expand_as(y))+0.5*(minB.expand_as(y)+maxB.expand_as(y)), y*0.5*(maxB.expand_as(y)-minB.expand_as(y))+0.5*(minB.expand_as(y)+maxB.expand_as(y)), reduction='sum')
         #   num_samples += preds.size(0)
         # acc = float(num_correct) / num_samples 
         rmse = torch.sqrt(mse_temp/num_samples/grid_space)
