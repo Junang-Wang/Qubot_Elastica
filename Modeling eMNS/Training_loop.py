@@ -20,7 +20,7 @@ def adjust_learning_rate_sch(optimizer, lrd, epoch, schedule):
 
 def adjust_learning_rate_cosine(optimizer, lr_max, lr_min,max_epoch,tt,len_dataloader):
     """
-    Multiply lrd to the learning rate if epoch in schedule
+    Cosine decay to the learning rate every iternation
 
     Return: None, but learning rate (lr) might be updated
     """
@@ -39,6 +39,16 @@ def adjust_learning_rate(optimizer, lrd):
     for param_group in optimizer.param_groups:
       print(f'lr decay from { param_group["lr"] } to {param_group["lr"]*lrd}')
       param_group['lr'] *= lrd
+
+def adjust_learning_rate_linear(optimizer, linear_increment):
+    """
+    add linear_increment to the learning rate
+
+    Return: None, but learning rate (lr) might be updated
+    """
+    for param_group in optimizer.param_groups:
+      print(f'lr decay from { param_group["lr"] } to {param_group["lr"]+linear_increment}')
+      param_group['lr'] += linear_increment
 
 ######################################################################################################################################
 def train_part(model,optimizer,train_loader,valid_loader, epochs = 1, learning_rate_decay =.1,weight_decay=1e-4, schedule=[], verbose=True, device= 'cuda'):
@@ -247,7 +257,7 @@ def train_part_v1(model,optimizer,train_loader,valid_loader, epochs = 1, learnin
     return rmse_history, rmse_val_history,loss_history, iter_history, loss_val_history,epoch_stop
 
 ######################################################################################################################################
-def train_part_GM(model,optimizer,train_loader,valid_loader, epochs = 1, learning_rate_decay =.1,weight_decay=1e-4, schedule=[], grid_space= 20*20*20, DF= False, verbose=True, device= 'cuda',maxB=[],minB=[], lr_max=1e-4, lr_min=2.5e-6,max_epoch=200):
+def train_part_GM(model,optimizer,train_loader,valid_loader, epochs = 1, learning_rate_decay =.1,weight_decay=1e-4, schedule=[], grid_space= 20*20*20, DF= False, verbose=True, device= 'cuda',maxB=[],minB=[], lr_max=1e-4, lr_min=2.5e-6,max_epoch=200, linear_lr=False):
     """
     Train a model using torch API
 
@@ -300,14 +310,13 @@ def train_part_GM(model,optimizer,train_loader,valid_loader, epochs = 1, learnin
           preds = model(x)
         # loss function in the paper "Modeling Electromagnetic Navigation Systems" 
         # loss= lamda_b*|y-preds| + lamda_g*| nabla(y) - nabla(preds)|
-        loss = F.l1_loss(preds, y) + grad_loss(preds,y)
+        loss = F.l1_loss(preds, y) + grad_loss_Jacobain(preds,y)
         optimizer.zero_grad() #zero out all of gradient
         loss.backward() # compute gradient of loss
         optimizer.step() #update parameters
         
         tt = t + epoch*len(train_loader) +1
-        print(len(train_loader))
-        adjust_learning_rate_cosine(optimizer, lr_max, lr_min,max_epoch,tt,len(train_loader))
+        # adjust_learning_rate_cosine(optimizer, lr_max, lr_min,max_epoch,tt,len(train_loader))
         ###########################################################
         # print loss during training 
         if verbose and (tt % print_every == 1 or (epoch == epochs -1 and t == len(train_loader) -1) ) :
@@ -336,7 +345,10 @@ def train_part_GM(model,optimizer,train_loader,valid_loader, epochs = 1, learnin
 
           print()
           adjust_epoch_count += 1
-      adjust_learning_rate_sch(optimizer, learning_rate_decay, epoch, schedule)
+      if linear_lr:
+        adjust_learning_rate_linear(optimizer, linear_increment=1e-6)
+      else:
+        adjust_learning_rate_sch(optimizer, learning_rate_decay, epoch, schedule)
       epoch_stop = epoch
 
     
