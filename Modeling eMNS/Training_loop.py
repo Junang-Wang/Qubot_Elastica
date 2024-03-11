@@ -26,8 +26,9 @@ def adjust_learning_rate_cosine(optimizer, lr_max, lr_min,max_epoch,tt,len_datal
     """
 
     for param_group in optimizer.param_groups:
-       # print(f'lr decay from { param_group["lr"] } to {lr_schedule[index]}')
-        param_group['lr'] = lr_min+0.5*(lr_max-lr_min)*(1+np.cos(4*tt/(max_epoch*len_dataloader)*np.pi))
+        new_lr = lr_min+0.5*(lr_max-lr_min)*(1+np.cos(tt/(max_epoch*len_dataloader)*np.pi))
+        # print(f'lr decay from { param_group["lr"] } to {new_lr}')
+        param_group['lr'] = new_lr
 
 
 def adjust_learning_rate(optimizer, lrd):
@@ -316,7 +317,7 @@ def train_part_GM(model,optimizer,train_loader,valid_loader, epochs = 1, learnin
         optimizer.step() #update parameters
         
         tt = t + epoch*len(train_loader) +1
-        # adjust_learning_rate_cosine(optimizer, lr_max, lr_min,max_epoch,tt,len(train_loader))
+        adjust_learning_rate_cosine(optimizer, lr_max, lr_min,max_epoch,tt,len(train_loader))
         ###########################################################
         # print loss during training 
         if verbose and (tt % print_every == 1 or (epoch == epochs -1 and t == len(train_loader) -1) ) :
@@ -463,7 +464,7 @@ def check_rmse_CNN(dataloader,model, grid_space, device, DF, verbose=False, maxB
           R_temp += F.mse_loss(Bfield_mean.expand_as(y)*0.5*(maxB.expand_as(y)-minB.expand_as(y))+0.5*(minB.expand_as(y)+maxB.expand_as(y)), y*0.5*(maxB.expand_as(y)-minB.expand_as(y))+0.5*(minB.expand_as(y)+maxB.expand_as(y)), reduction='sum')
         #   num_samples += preds.size(0)
         # acc = float(num_correct) / num_samples 
-        rmse = torch.sqrt(mse_temp/num_samples/grid_space)
+        rmse = torch.sqrt(mse_temp/num_samples/grid_space/3)
 
         Rsquare=1-mse_temp/R_temp/num_samples
         print(f'Got rmse {rmse}')
@@ -564,7 +565,7 @@ def Jacobian3(x):
   v = dudz - dwdx
   w = dvdx - dudy
 
-  j = torch.stack([dudx,dudy,dudz,dvdx,dvdy,dvdz,dwdx,dwdy,dwdz],axis=1)
-  c = torch.stack([u,v,w],axis=1) #vorticity
+  j = torch.stack([dudx,dudy,dudz,dvdx,dvdy,dvdz,dwdx,dwdy,dwdz],axis=-1)
+  c = torch.stack([u,v,w],axis=-1) #vorticity
 
   return j,c
