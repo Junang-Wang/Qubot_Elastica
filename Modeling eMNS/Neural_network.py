@@ -148,6 +148,7 @@ class ResidualEMNSBlock_3d(nn.Module):
             nn.BatchNorm3d(Cin),
             nn.Conv3d(Cin,Cout,3,padding=1,bias=True),
             nn.LeakyReLU(),
+            # nn.Dropout3d(p=0.1)
         )
         for _ in range(num_repeat):
             NNstages.append(self.conv3d)
@@ -290,6 +291,7 @@ class Generative_net(nn.Module):
         self.total_net = nn.Sequential(
             self.proj,
             nn.Unflatten(1,(Cout, int(grid_x/2**q), int(grid_y/2**q),int( grid_z/2**q))),
+            # nn.Dropout3d(p=0.1),
             *NNstages,
             nn.BatchNorm3d(Cout),
             self.conv3d,
