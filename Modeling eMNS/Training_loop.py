@@ -4,7 +4,7 @@
 import torch
 import torch.nn.functional as F
 from early_stopping import EarlyStopping
-from utils import compute_discrete_curl
+from utils import compute_discrete_curl, denorm
 import numpy as np
 
 def adjust_learning_rate_sch(optimizer, lrd, epoch, schedule):
@@ -20,14 +20,16 @@ def adjust_learning_rate_sch(optimizer, lrd, epoch, schedule):
 
 def adjust_learning_rate_cosine(optimizer, lr_max, lr_min,max_epoch,tt,len_dataloader):
     """
-    Multiply lrd to the learning rate if epoch in schedule
+    Cosine decay to the learning rate every iternation
 
     Return: None, but learning rate (lr) might be updated
     """
 
     for param_group in optimizer.param_groups:
-       # print(f'lr decay from { param_group["lr"] } to {lr_schedule[index]}')
-        param_group['lr'] = lr_min+0.5*(lr_max-lr_min)*(1+np.cos(1*tt/(max_epoch*len_dataloader)*np.pi))
+        new_lr = lr_min+0.5*(lr_max-lr_min)*(1+np.cos(tt/(max_epoch*len_dataloader)*np.pi))
+        # print(f'lr decay from { param_group["lr"] } to {new_lr}')
+        param_group['lr'] = new_lr
+
 
 def adjust_learning_rate(optimizer, lrd):
     """
@@ -38,6 +40,16 @@ def adjust_learning_rate(optimizer, lrd):
     for param_group in optimizer.param_groups:
       print(f'lr decay from { param_group["lr"] } to {param_group["lr"]*lrd}')
       param_group['lr'] *= lrd
+
+def adjust_learning_rate_linear(optimizer, linear_increment):
+    """
+    add linear_increment to the learning rate
+
+    Return: None, but learning rate (lr) might be updated
+    """
+    for param_group in optimizer.param_groups:
+      print(f'lr decay from { param_group["lr"] } to {param_group["lr"]+linear_increment}')
+      param_group['lr'] += linear_increment
 
 ######################################################################################################################################
 def train_part(model,optimizer,train_loader,valid_loader, epochs = 1, learning_rate_decay =.1,weight_decay=1e-4, schedule=[], verbose=True, device= 'cuda'):
@@ -246,7 +258,7 @@ def train_part_v1(model,optimizer,train_loader,valid_loader, epochs = 1, learnin
     return rmse_history, rmse_val_history,loss_history, iter_history, loss_val_history,epoch_stop
 
 ######################################################################################################################################
-def train_part_GM(model,optimizer,train_loader,valid_loader, epochs = 1, learning_rate_decay =.1,weight_decay=1e-4, schedule=[], grid_space= 20*20*20, DF= False, verbose=True, device= 'cuda',maxB=[],minB=[], lr_max=1e-4, lr_min=2.5e-6,max_epoch=200):
+def train_part_GM(model,optimizer,train_loader,valid_loader, epochs = 1, learning_rate_decay =.1,weight_decay=1e-4, schedule=[], grid_space= 20*20*20, DF= False, verbose=True, device= 'cuda',maxB=[],minB=[], lr_max=1e-4, lr_min=2.5e-6,max_epoch=200, linear_lr=False):
     """
     Train a model using torch API
 
@@ -298,16 +310,13 @@ def train_part_GM(model,optimizer,train_loader,valid_loader, epochs = 1, learnin
           preds = model(x)
         # loss function in the paper "Modeling Electromagnetic Navigation Systems" 
         # loss= lamda_b*|y-preds| + lamda_g*| nabla(y) - nabla(preds)|
-        loss = F.l1_loss(preds, y) + grad_loss(preds,y)
+        loss = F.l1_loss(preds, y) + grad_loss_Jacobain(preds,y)
         optimizer.zero_grad() #zero out all of gradient
         loss.backward() # compute gradient of loss
         optimizer.step() #update parameters
         
         tt = t + epoch*len(train_loader) +1
-        # print(len(train_loader))
-        
-        # print(optimizer.state_dict()['param_groups'][0]['lr'])
-        # adjust_learning_rate_cosine(optimizer, lr_max, lr_min,max_epoch,tt,len(train_loader))
+        adjust_learning_rate_cosine(optimizer, lr_max, lr_min,max_epoch,tt,len(train_loader))
         ###########################################################
         # print loss during training 
         if verbose and (tt % print_every == 1 or (epoch == epochs -1 and t == len(train_loader) -1) ) :
@@ -336,8 +345,10 @@ def train_part_GM(model,optimizer,train_loader,valid_loader, epochs = 1, learnin
 
           print()
           adjust_epoch_count += 1
-      # adjust_learning_rate(optimizer, learning_rate_decay)    
-      adjust_learning_rate_sch(optimizer, learning_rate_decay, epoch, schedule)
+      if linear_lr:
+        adjust_learning_rate_linear(optimizer, linear_increment=1e-6)
+      else:
+        adjust_learning_rate_sch(optimizer, learning_rate_decay, epoch, schedule)
       epoch_stop = epoch
 
     
@@ -370,42 +381,7 @@ def check_rmse(dataloader,model,device,verbose=False):
           x = x.to(device=device)
           y = y.to(device=device)
           scores = model(x)
-          #preds = (torch.round(scores)).reshape(-1)
-          preds = torch.argmax(scores,dim=1)
-          num_correct += (preds == y).sum()
-          num_samples += preds.size(0)
-          num_c0 += ((preds ==y) * (preds == torch.zeros_like(y))).sum() 
-          num_c1 += ((preds ==y) * (preds == 2*torch.ones_like(y))).sum() 
-          num_0 += ((preds !=y) * (preds == torch.zeros_like(y))).sum() 
-          num_1 += ((preds !=y) * (preds == torch.ones_like(y))).sum() 
-          num_2 += ((preds !=y) * (preds == 2*torch.ones_like(y))).sum() 
-          num_3 += ((preds !=y) * (preds == 3*torch.ones_like(y))).sum() 
-          num_4 += ((preds !=y) * (preds == 4*torch.ones_like(y))).sum() 
-          num_5 += ((preds !=y) * (preds == 5*torch.ones_like(y))).sum() 
-          num_6 += ((preds !=y) * (preds == 6*torch.ones_like(y))).sum() 
-          num_7 += ((preds !=y) * (preds > 6*torch.ones_like(y))).sum() 
-        acc = float(num_correct) / num_samples 
-        acc_c0 = float(num_c0) / num_samples 
-        acc_c1 = float(num_c1) / num_samples 
-        acc_0 = float(num_0) / num_samples 
-        acc_1 = float(num_1) / num_samples 
-        acc_2 = float(num_2) / num_samples 
-        acc_3 = float(num_3) / num_samples 
-        acc_4 = float(num_4) / num_samples 
-        acc_5 = float(num_5) / num_samples 
-        acc_6 = float(num_6) / num_samples 
-        acc_7 = float(num_7) / num_samples 
-        print(f'Got {num_correct:d} / {num_samples:d} correct {acc:.2f}')
-        print(f'Got {num_c0:d} / {num_samples:d} correct {acc_c0:.2f} preds as 0')
-        print(f'Got {num_c1:d} / {num_samples:d} correct {acc_c1:.2f} preds as 2')
-        print(f'Got {num_0:d} / {num_samples:d} wrong {acc_0:.2f} preds as 0')
-        print(f'Got {num_1:d} / {num_samples:d} wrong {acc_1:.2f} preds as 1')
-        print(f'Got {num_2:d} / {num_samples:d} wrong {acc_2:.2f} preds as 2')
-        print(f'Got {num_3:d} / {num_samples:d} wrong {acc_3:.2f} preds as 3')
-        print(f'Got {num_4:d} / {num_samples:d} wrong {acc_4:.2f} preds as 4')
-        print(f'Got {num_5:d} / {num_samples:d} wrong {acc_5:.2f} preds as 5')
-        print(f'Got {num_6:d} / {num_samples:d} wrong {acc_6:.2f} preds as 6')
-        print(f'Got {num_7:d} / {num_samples:d} wrong {acc_7:.2f} preds as larger than 6')
+          
            
     return rmse , mse/len(dataloader)
 
@@ -423,7 +399,10 @@ def get_mean_of_dataloader(dataloader,model,device):
     return b/num_samples
 
 
-def  check_rmse_CNN(dataloader,model, grid_space, device, DF, verbose=False, maxB=[],minB=[]):
+def check_rmse_CNN(dataloader,model, grid_space, device, DF, verbose=False, maxB=[],minB=[]):
+    '''
+    Check RMSE of CNN
+    '''
     mse_temp = 0
     R_temp=0
     Rsquare=0
@@ -446,17 +425,12 @@ def  check_rmse_CNN(dataloader,model, grid_space, device, DF, verbose=False, max
             scores = compute_discrete_curl(model(x))
           else:
             scores = model(x)
-          # preds = torch.argmax(scores,dim=1)
-          # num_correct += (preds == y).sum()
-          print('maxB SHAPE',maxB.shape) 
-          print('y SHAPE',y.shape) 
-          # print('Y SHAPE',maxB.expand_as(y)[]) 
+          
+          # compute mse and R2 by de-normalize data
+          mse_temp += F.mse_loss(denorm(scores,maxB,minB), denorm(y,maxB,minB) ,reduction='sum')
+          R_temp += F.mse_loss(denorm(Bfield_mean.expand_as(y),maxB,minB), denorm(y,maxB,minB), reduction='sum')
 
-          mse_temp += F.mse_loss(scores*0.5*(maxB.expand_as(y)-minB.expand_as(y))+0.5*(minB.expand_as(y)+maxB.expand_as(y)), y*0.5*(maxB.expand_as(y)-minB.expand_as(y))+0.5*(minB.expand_as(y)+maxB.expand_as(y)) ,reduction='sum')
-          R_temp += F.mse_loss(Bfield_mean.expand_as(y)*0.5*(maxB.expand_as(y)-minB.expand_as(y))+0.5*(minB.expand_as(y)+maxB.expand_as(y)), y*0.5*(maxB.expand_as(y)-minB.expand_as(y))+0.5*(minB.expand_as(y)+maxB.expand_as(y)), reduction='sum')
-        #   num_samples += preds.size(0)
-        # acc = float(num_correct) / num_samples 
-        rmse = torch.sqrt(mse_temp/num_samples/grid_space)
+        rmse = torch.sqrt(mse_temp/num_samples/grid_space/3)
 
         Rsquare=1-mse_temp/R_temp/num_samples
         print(f'Got rmse {rmse}')
@@ -474,27 +448,6 @@ def  check_rmse_CNN(dataloader,model, grid_space, device, DF, verbose=False, max
            
     return rmse, mse_temp/num_samples/grid_space,Rsquare
 
-def check_accuary_density(dataloader,model,bins,range):
-  num_correct = 0
-  num_samples = 0
-  density = torch.zeros(bins)
-  correct_density = torch.zeros(bins)
-  with torch.no_grad():
-    for x,y,z in dataloader:
-      x = x.to(device)
-      y = y.to(device)
-      z = z.to(device)
-      preds = torch.argmax(model(x),dim=1)
-      num_correct += (preds == y).sum()
-      num_samples += preds.size(0)
-      density = density + torch.histogram(z.cpu().double(),bins=bins,range = range)[0]
-      z[preds!=y] = -100
-      correct_density = correct_density + torch.histogram(z.cpu().double(),bins=bins,range = range)[0]
-
-    acc = float(num_correct) / num_samples  
-    acc_density = correct_density/density
-    print(f'Got {num_correct:d} / {num_samples:d} correct {acc:.2f}')
-  return (acc,acc_density)
 
 def grad_loss(preds, y):
    '''
@@ -508,3 +461,56 @@ def grad_loss(preds, y):
       # accumulate grad loss for grad_x,y,z
       grad_loss += torch.mean(torch.abs(grad_y[i]-grad_preds[i]))/3
    return grad_loss
+
+def grad_loss_Jacobain(preds,y):
+  '''
+   preds, y shape: (batch, dimension, grid_x, grid_y, grid_z)
+   This function computes lamda_g*| nabla(y) - nabla(preds)| by Jacobian 
+   '''
+  Jaco_preds,_ = Jacobian3(preds)
+  Jaco_y    ,_ = Jacobian3(y)
+
+  grad_loss = torch.mean(torch.abs(Jaco_preds - Jaco_y))
+
+  return grad_loss
+
+
+def Jacobian3(x):
+  '''
+  Jacobian for 3D vector field
+  -------input----------
+  x shape: (batch, dimension,grid_x, grid_y, grid_z)
+  '''
+
+  dudx = x[:, 0, 1:, :, :] - x[:, 0, :-1, :, :]
+  dvdx = x[:, 1, 1:, :, :] - x[:, 1, :-1, :, :]
+  dwdx = x[:, 2, 1:, :, :] - x[:, 2, :-1, :, :]
+  
+  dudy = x[:, 0, :, 1:, :] - x[:, 0, :, :-1, :]
+  dvdy = x[:, 1, :, 1:, :] - x[:, 1, :, :-1, :]
+  dwdy = x[:, 2, :, 1:, :] - x[:, 2, :, :-1, :]
+
+  dudz = x[:, 0, :, :, 1:] - x[:, 0, :, :, :-1]
+  dvdz = x[:, 1, :, :, 1:] - x[:, 1, :, :, :-1]
+  dwdz = x[:, 2, :, :, 1:] - x[:, 2, :, :, :-1]
+
+  dudx = torch.cat((dudx, torch.unsqueeze(dudx[:,-1],dim=1)), dim=1)
+  dvdx = torch.cat((dvdx, torch.unsqueeze(dvdx[:,-1],dim=1)), dim=1)
+  dwdx = torch.cat((dwdx, torch.unsqueeze(dwdx[:,-1],dim=1)), dim=1)
+
+  dudy = torch.cat((dudy, torch.unsqueeze(dudy[:,:,-1],dim=2)), dim=2)
+  dvdy = torch.cat((dvdy, torch.unsqueeze(dvdy[:,:,-1],dim=2)), dim=2)
+  dwdy = torch.cat((dwdy, torch.unsqueeze(dwdy[:,:,-1],dim=2)), dim=2)
+
+  dudz = torch.cat((dudz, torch.unsqueeze(dudz[:,:,:,-1],dim=3)), dim=3)
+  dvdz = torch.cat((dvdz, torch.unsqueeze(dvdz[:,:,:,-1],dim=3)), dim=3)
+  dwdz = torch.cat((dwdz, torch.unsqueeze(dwdz[:,:,:,-1],dim=3)), dim=3)
+
+  u = dwdy - dvdz
+  v = dudz - dwdx
+  w = dvdx - dudy
+
+  j = torch.stack([dudx,dudy,dudz,dvdx,dvdy,dvdz,dwdx,dwdy,dwdz],axis=-1)
+  c = torch.stack([u,v,w],axis=-1) #vorticity
+
+  return j,c

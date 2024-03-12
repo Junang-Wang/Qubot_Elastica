@@ -53,6 +53,12 @@ def plot_3D_vector_field(position, vectorField, figsize=(5,5), length=1):
     ax.quiver(p[:,0], p[:,1], p[:,2], vector[:,0], vector[:,1], vector[:,2], length=length)
     plt.show()
 
-
+def denorm(x, Bmax, Bmin):
+    '''
+    This function de-normalize the max-min normalization
+    x = 0.5*(x_norm+1)*(Bmax-Bmin) - Bmin
+    '''
+    x_norm = 0.5*(x+1)*(Bmax.expand_as(x)-Bmin.expand_as(x)) - Bmin.expand_as(x)
+    return x_norm
 
 
