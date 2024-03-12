@@ -428,8 +428,8 @@ def check_rmse_CNN(dataloader,model, grid_space, device, DF, verbose=False, maxB
             scores = model(x)
           
           # compute mse and R2 by de-normalize data
-          mse_temp += F.mse_loss(denorm(scores), denorm(y) ,reduction='sum')
-          R_temp += F.mse_loss(denorm(Bfield_mean), denorm(y), reduction='sum')
+          mse_temp += F.mse_loss(denorm(scores,maxB,minB), denorm(y,maxB,minB) ,reduction='sum')
+          R_temp += F.mse_loss(denorm(Bfield_mean.expand_as(y),maxB,minB), denorm(y,maxB,minB), reduction='sum')
 
         rmse = torch.sqrt(mse_temp/num_samples/grid_space/3)
 
