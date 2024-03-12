@@ -2,6 +2,7 @@ import torch
 import glob
 import pandas as pd
 import numpy as np
+import h5py
 dataFile = 'Modeling eMNS/Data/MagneticField0.txt'
 def ReadData(filename):
     data = torch.tensor(pd.read_table(filename, sep='\\s+', skiprows=1).values)
@@ -80,3 +81,37 @@ def ReadCurrentAndField_CNN(foldername, filepattern, filenum):
     Current =  np.array(Current)[0:filenum,:]
     
     return torch.tensor(Current),data
+
+def ReadETHFolder(foldername, filenum, data_shape):
+
+    f_num = 0
+    data = np.zeros((filenum, *data_shape))
+
+    for i in range(filenum):
+        f_num += 1
+        filename = foldername + str(f_num).zfill(4) + ".h5"
+        with h5py.File(filename, "r") as f:
+            # get first object name/key; may or may NOT be a group
+            a_group_key = list(f.keys())[0]
+
+
+            # If a_group_key is a dataset name, 
+            # this gets the dataset values and returns as a list
+            data[i] = np.array(f[a_group_key])
+
+    return data
+
+def ReadETHFile(filename):
+
+
+
+    with h5py.File(filename, "r") as f:
+        # get first object name/key; may or may NOT be a group
+        a_group_key = list(f.keys())[0]
+
+
+        # If a_group_key is a dataset name, 
+        # this gets the dataset values and returns as a list
+        data = np.array(f[a_group_key])
+
+    return data
