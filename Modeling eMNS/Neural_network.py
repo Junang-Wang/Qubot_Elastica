@@ -144,14 +144,21 @@ class ResidualEMNSBlock_3d(nn.Module):
     def __init__(self,Cin,Cout, num_repeat):
         super().__init__()
         NNstages = []
-        self.conv3d = nn.Sequential(
-            nn.BatchNorm3d(Cin),
-            nn.Conv3d(Cin,Cout,3,padding=1,bias=True),
-            nn.LeakyReLU(),
-            # nn.Dropout3d(p=0.1)
-        )
+        # self.conv3d = nn.Sequential(
+        #     nn.BatchNorm3d(Cin),
+        #     nn.Conv3d(Cin,Cout,3,padding=1,bias=True),
+        #     nn.LeakyReLU(),
+        #     # nn.Dropout3d(p=0.1)
+        # )
         for _ in range(num_repeat):
-            NNstages.append(self.conv3d)
+            NNstages.append(
+                nn.Sequential(
+                    nn.BatchNorm3d(Cin),
+                    nn.Conv3d(Cin,Cout,3,padding=1,bias=True),
+                    nn.LeakyReLU(),
+                    # nn.Dropout3d(p=0.1)
+                )
+            )
         self.block = nn.Sequential(*NNstages)
 
         if Cin == Cout:
