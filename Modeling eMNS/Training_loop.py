@@ -4,7 +4,7 @@
 import torch
 import torch.nn.functional as F
 from early_stopping import EarlyStopping
-from utils import compute_discrete_curl
+from utils import compute_discrete_curl, denorm
 import numpy as np
 
 def adjust_learning_rate_sch(optimizer, lrd, epoch, schedule):
@@ -382,42 +382,7 @@ def check_rmse(dataloader,model,device,verbose=False):
           x = x.to(device=device)
           y = y.to(device=device)
           scores = model(x)
-          #preds = (torch.round(scores)).reshape(-1)
-          preds = torch.argmax(scores,dim=1)
-          num_correct += (preds == y).sum()
-          num_samples += preds.size(0)
-          num_c0 += ((preds ==y) * (preds == torch.zeros_like(y))).sum() 
-          num_c1 += ((preds ==y) * (preds == 2*torch.ones_like(y))).sum() 
-          num_0 += ((preds !=y) * (preds == torch.zeros_like(y))).sum() 
-          num_1 += ((preds !=y) * (preds == torch.ones_like(y))).sum() 
-          num_2 += ((preds !=y) * (preds == 2*torch.ones_like(y))).sum() 
-          num_3 += ((preds !=y) * (preds == 3*torch.ones_like(y))).sum() 
-          num_4 += ((preds !=y) * (preds == 4*torch.ones_like(y))).sum() 
-          num_5 += ((preds !=y) * (preds == 5*torch.ones_like(y))).sum() 
-          num_6 += ((preds !=y) * (preds == 6*torch.ones_like(y))).sum() 
-          num_7 += ((preds !=y) * (preds > 6*torch.ones_like(y))).sum() 
-        acc = float(num_correct) / num_samples 
-        acc_c0 = float(num_c0) / num_samples 
-        acc_c1 = float(num_c1) / num_samples 
-        acc_0 = float(num_0) / num_samples 
-        acc_1 = float(num_1) / num_samples 
-        acc_2 = float(num_2) / num_samples 
-        acc_3 = float(num_3) / num_samples 
-        acc_4 = float(num_4) / num_samples 
-        acc_5 = float(num_5) / num_samples 
-        acc_6 = float(num_6) / num_samples 
-        acc_7 = float(num_7) / num_samples 
-        print(f'Got {num_correct:d} / {num_samples:d} correct {acc:.2f}')
-        print(f'Got {num_c0:d} / {num_samples:d} correct {acc_c0:.2f} preds as 0')
-        print(f'Got {num_c1:d} / {num_samples:d} correct {acc_c1:.2f} preds as 2')
-        print(f'Got {num_0:d} / {num_samples:d} wrong {acc_0:.2f} preds as 0')
-        print(f'Got {num_1:d} / {num_samples:d} wrong {acc_1:.2f} preds as 1')
-        print(f'Got {num_2:d} / {num_samples:d} wrong {acc_2:.2f} preds as 2')
-        print(f'Got {num_3:d} / {num_samples:d} wrong {acc_3:.2f} preds as 3')
-        print(f'Got {num_4:d} / {num_samples:d} wrong {acc_4:.2f} preds as 4')
-        print(f'Got {num_5:d} / {num_samples:d} wrong {acc_5:.2f} preds as 5')
-        print(f'Got {num_6:d} / {num_samples:d} wrong {acc_6:.2f} preds as 6')
-        print(f'Got {num_7:d} / {num_samples:d} wrong {acc_7:.2f} preds as larger than 6')
+          
            
     return rmse , mse/len(dataloader)
 
@@ -436,6 +401,9 @@ def get_mean_of_dataloader(dataloader,model,device):
 
 
 def check_rmse_CNN(dataloader,model, grid_space, device, DF, verbose=False, maxB=[],minB=[]):
+    '''
+    Check RMSE of CNN
+    '''
     mse_temp = 0
     R_temp=0
     Rsquare=0
@@ -458,12 +426,11 @@ def check_rmse_CNN(dataloader,model, grid_space, device, DF, verbose=False, maxB
             scores = compute_discrete_curl(model(x))
           else:
             scores = model(x)
-          # preds = torch.argmax(scores,dim=1)
-          # num_correct += (preds == y).sum()
-          mse_temp += F.mse_loss(scores*0.5*(maxB.expand_as(y)-minB.expand_as(y))+0.5*(minB.expand_as(y)+maxB.expand_as(y)), y*0.5*(maxB.expand_as(y)-minB.expand_as(y))+0.5*(minB.expand_as(y)+maxB.expand_as(y)) ,reduction='sum')
-          R_temp += F.mse_loss(Bfield_mean.expand_as(y)*0.5*(maxB.expand_as(y)-minB.expand_as(y))+0.5*(minB.expand_as(y)+maxB.expand_as(y)), y*0.5*(maxB.expand_as(y)-minB.expand_as(y))+0.5*(minB.expand_as(y)+maxB.expand_as(y)), reduction='sum')
-        #   num_samples += preds.size(0)
-        # acc = float(num_correct) / num_samples 
+          
+          # compute mse and R2 by de-normalize data
+          mse_temp += F.mse_loss(denorm(scores), denorm(y) ,reduction='sum')
+          R_temp += F.mse_loss(denorm(Bfield_mean), denorm(y), reduction='sum')
+
         rmse = torch.sqrt(mse_temp/num_samples/grid_space/3)
 
         Rsquare=1-mse_temp/R_temp/num_samples
@@ -482,27 +449,6 @@ def check_rmse_CNN(dataloader,model, grid_space, device, DF, verbose=False, maxB
            
     return rmse, mse_temp/num_samples/grid_space,Rsquare
 
-def check_accuary_density(dataloader,model,bins,range):
-  num_correct = 0
-  num_samples = 0
-  density = torch.zeros(bins)
-  correct_density = torch.zeros(bins)
-  with torch.no_grad():
-    for x,y,z in dataloader:
-      x = x.to(device)
-      y = y.to(device)
-      z = z.to(device)
-      preds = torch.argmax(model(x),dim=1)
-      num_correct += (preds == y).sum()
-      num_samples += preds.size(0)
-      density = density + torch.histogram(z.cpu().double(),bins=bins,range = range)[0]
-      z[preds!=y] = -100
-      correct_density = correct_density + torch.histogram(z.cpu().double(),bins=bins,range = range)[0]
-
-    acc = float(num_correct) / num_samples  
-    acc_density = correct_density/density
-    print(f'Got {num_correct:d} / {num_samples:d} correct {acc:.2f}')
-  return (acc,acc_density)
 
 def grad_loss(preds, y):
    '''

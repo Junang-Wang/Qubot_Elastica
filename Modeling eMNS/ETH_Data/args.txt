@@ -1,0 +1,7 @@
+num_param: 8
+min_c: -35
+max_c: 35
+min_b: -0.490249
+max_b: 0.459071
+res: 16
+sampling: 1
