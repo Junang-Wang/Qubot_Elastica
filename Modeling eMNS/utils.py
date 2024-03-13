@@ -58,7 +58,7 @@ def denorm(x, Bmax, Bmin):
     This function de-normalize the max-min normalization
     x = 0.5*(x_norm+1)*(Bmax-Bmin) - Bmin
     '''
-    x_norm = 0.5*(x+1)*(Bmax.expand_as(x_norm)-Bmin.expand_as(x_norm)) - Bmin.expand_as(x_norm)
+    x_norm = 0.5*(x+1)*(Bmax.expand_as(x)-Bmin.expand_as(x)) + Bmin.expand_as(x)
     return x_norm
 
 

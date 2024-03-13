@@ -3,7 +3,7 @@
 #############################################################################
 import torch
 import torch.nn.functional as F
-from early_stopping import EarlyStopping
+from early_stopping import EarlyStopping, EarlyDecay
 from utils import compute_discrete_curl, denorm
 import numpy as np
 
@@ -286,9 +286,9 @@ def train_part_GM(model,optimizer,train_loader,valid_loader, epochs = 1, learnin
     mse_history= torch.zeros(num_prints,dtype = torch.float)
     mse_val_history= torch.zeros(num_prints,dtype = torch.float)
 
-
     patience = 20	# 当验证集损失在连5次训练周期中都没有得到降低时，停止模型训练，以防止模型过拟合
     early_stopping = EarlyStopping(patience, verbose=True)     
+    early_decay = EarlyDecay(patience, delta=0.005, lr_min=lr_min)
     epoch_stop = 0
 
     ###########################################################
@@ -318,12 +318,13 @@ def train_part_GM(model,optimizer,train_loader,valid_loader, epochs = 1, learnin
         
         tt = t + epoch*len(train_loader) +1
         adjust_learning_rate_cosine(optimizer, lr_max, lr_min,max_epoch,tt,len(train_loader))
+        # early_decay(loss, optimizer, learning_rate_decay)
         ###########################################################
         # print loss during training 
         if verbose and (tt % print_every == 1 or (epoch == epochs -1 and t == len(train_loader) -1) ) :
           print(f'Epoch {epoch:d}, Iteration {tt:d}, loss = {loss.item():.4f}')
-          rmse_val,loss_val,Rsquare = check_rmse_CNN(valid_loader,model,grid_space, device, DF,maxB=maxB,minB=minB)
-          rmse,loss_train,R_TEMP = check_rmse_CNN(train_loader,model, grid_space, device, DF,maxB=maxB,minB=minB)
+          rmse_val,mse_val,Rsquare = check_rmse_CNN(valid_loader,model,grid_space, device, DF,maxB=maxB,minB=minB)
+          rmse,mse_train,R_TEMP = check_rmse_CNN(train_loader,model, grid_space, device, DF,maxB=maxB,minB=minB)
           rmse_val_history[tt//print_every] = rmse_val
           rmse_history[tt // print_every] = rmse 
           iter_history[tt // print_every] = tt 
@@ -428,8 +429,9 @@ def check_rmse_CNN(dataloader,model, grid_space, device, DF, verbose=False, maxB
             scores = model(x)
           
           # compute mse and R2 by de-normalize data
-          mse_temp += F.mse_loss(denorm(scores), denorm(y) ,reduction='sum')
-          R_temp += F.mse_loss(denorm(Bfield_mean), denorm(y), reduction='sum')
+          mse_temp += F.mse_loss(1e3*denorm(scores,maxB,minB), 1e3*denorm(y,maxB,minB) ,reduction='sum')
+          R_temp += F.mse_loss(1e3*denorm(Bfield_mean.expand_as(y),maxB,minB), 1e3*denorm(y,maxB,minB), reduction='sum')
+
 
         rmse = torch.sqrt(mse_temp/num_samples/grid_space/3)
 
