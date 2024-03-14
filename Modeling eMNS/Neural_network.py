@@ -139,7 +139,92 @@ class ResidualBasicBlock_3d(nn.Module):
     
     def forward(self,x):
         return self.block(x) + self.shortcut(x)
-    
+class Generative_net_test(nn.Module):   
+    '''
+    A catchy class to generate simple generative neural networks, refer to "Modeling Electromagnetic Navigation Systems" by import 
+    SB_args = (Cin,Cout,num_block)
+    BB_args = (scale_factor,num_block)
+    SB_block: custom designed small block
+    BB_block: custom designed Big block
+    output_shape: shape of output (dimensions, grid_x, grid_y, grid_z)
+    num_input: int
+    '''
+    def __init__(self,SB_args,BB_args,SB_block,BB_block, num_input, output_shape):
+        super().__init__()
+        NNstages = []
+        if SB_args and BB_args: # if SB_args and BB_args are not empty
+            Cin, Cout, SB_num_repeat, SB_num_block = SB_args
+            scale_factor, BB_num_block = BB_args
+        
+        D, grid_x, grid_y, grid_z = output_shape
+        # d_max = max(output_shape[1:])
+        # q = np.log2(d_max) - 3
+        q = BB_num_block-1
+        Nout = int(grid_x * grid_y * grid_z * Cout / (2**(3*q)))
+        # projection layer
+        self.proj = nn.Linear(num_input, Nout,bias=True)
+
+        # Unflatten layer
+        self.unflatten_shape = (Cin, int(grid_x/2**q), int(grid_y/2**q),int( grid_z/2**q))
+
+        # conv in hidden layer
+        self.conv1 = nn.Conv3d(Cin, Cout, 3, padding='same')
+        self.conv2 = nn.Conv3d(Cin, Cout, 3, padding='same')
+        self.conv3 = nn.Conv3d(Cin, Cout, 3, padding='same')
+        self.conv4 = nn.Conv3d(Cin, Cout, 3, padding='same')
+        self.conv5 = nn.Conv3d(Cin, Cout, 3, padding='same')
+        self.conv6 = nn.Conv3d(Cin, Cout, 3, padding='same')
+        self.conv7 = nn.Conv3d(Cin, Cout, 3, padding='same')
+        self.conv8 = nn.Conv3d(Cin, Cout, 3, padding='same')
+        self.conv9 = nn.Conv3d(Cin, Cout, 3, padding='same')
+        self.conv10 = nn.Conv3d(Cin, Cout, 3, padding='same')
+        self.conv11 = nn.Conv3d(Cin, Cout, 3, padding='same')
+        self.conv12 = nn.Conv3d(Cin, Cout, 3, padding='same')
+        # upsampling layer
+        self.upsample1 = nn.Upsample(scale_factor=scale_factor, mode='nearest')
+        self.upsample2 = nn.Upsample(scale_factor=scale_factor, mode='nearest')
+        # Output Conv3d layer
+        self.convout = nn.Conv3d(Cout,D, 3, padding='same')
+
+    def forward(self,x):
+        # x = torch.unflatten(self.proj(x), dim=1, sizes=self.unflatten_shape)
+        x = self.proj(x).reshape( (-1, *self.unflatten_shape) )
+        # First Big block
+        x0 = x 
+        x = F.leaky_relu(self.conv1(x))
+
+        x = F.leaky_relu(self.conv2(x))
+
+        x = F.leaky_relu(self.conv3(x))
+
+        x = F.leaky_relu(self.conv4(x))
+        x += x0 
+
+        x = self.upsample1(x)
+        #Second Big block
+        x0 = x 
+        x = F.leaky_relu(self.conv5(x))
+
+        x = F.leaky_relu(self.conv6(x))
+
+        x = F.leaky_relu(self.conv7(x))
+
+        x = F.leaky_relu(self.conv8(x))
+        x += x0 
+        x = self.upsample2(x)
+        #Third Big block
+        x0 = x 
+        x = F.leaky_relu(self.conv9(x))
+
+        x = F.leaky_relu(self.conv10(x))
+
+        x = F.leaky_relu(self.conv11(x))
+
+        x = F.leaky_relu(self.conv12(x))
+        x += x0 
+
+        x = self.convout(x)
+        return  x
 class ResidualEMNSBlock_3d(nn.Module):
     def __init__(self,Cin,Cout, num_repeat):
         super().__init__()
@@ -300,6 +385,7 @@ class Generative_net(nn.Module):
             nn.Unflatten(1,(Cout, int(grid_x/2**q), int(grid_y/2**q),int( grid_z/2**q))),
             # nn.Dropout3d(p=0.1),
             *NNstages,
+            SB_block(Cout, Cout, SB_num_repeat),
             nn.BatchNorm3d(Cout),
             self.conv3d,
             )

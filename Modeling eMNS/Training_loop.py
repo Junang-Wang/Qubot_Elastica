@@ -30,6 +30,18 @@ def adjust_learning_rate_cosine(optimizer, lr_max, lr_min,max_epoch,tt,len_datal
         # print(f'lr decay from { param_group["lr"] } to {new_lr}')
         param_group['lr'] = new_lr
 
+def adjust_learning_rate_cosine_v2(optimizer, lr_max, lr_min,max_epoch,tt,len_dataloader):
+    """
+    Cosine decay to the learning rate every iternation
+
+    Return: None, but learning rate (lr) might be updated
+    """
+    phi = (5*tt)/(max_epoch*len_dataloader)
+    decay_lr_max = 0.5**int(phi)
+    for param_group in optimizer.param_groups:
+        new_lr = lr_min+0.5*(decay_lr_max*lr_max-lr_min)*(1+np.cos(phi*np.pi))
+        # print(f'lr decay from { param_group["lr"] } to {new_lr}')
+        param_group['lr'] = new_lr
 
 def adjust_learning_rate(optimizer, lrd):
     """
@@ -317,7 +329,7 @@ def train_part_GM(model,optimizer,train_loader,valid_loader, epochs = 1, learnin
         optimizer.step() #update parameters
         
         tt = t + epoch*len(train_loader) +1
-        adjust_learning_rate_cosine(optimizer, lr_max, lr_min,max_epoch,tt,len(train_loader))
+        adjust_learning_rate_cosine_v2(optimizer, lr_max, lr_min,max_epoch,tt,len(train_loader))
         # early_decay(loss, optimizer, learning_rate_decay)
         ###########################################################
         # print loss during training 
