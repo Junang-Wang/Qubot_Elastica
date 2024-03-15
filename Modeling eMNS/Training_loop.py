@@ -317,14 +317,14 @@ def train_part_GM(model,optimizer,train_loader,valid_loader, epochs = 1, learnin
         x = x.to(device=device,dtype=torch.float)
         y = y.to(device=device,dtype=torch.float)
 
+        optimizer.zero_grad() #zero out all of gradient
         if DF: 
           preds = compute_discrete_curl(model(x),device=device)
         else:
           preds = model(x)
         # loss function in the paper "Modeling Electromagnetic Navigation Systems" 
         # loss= lamda_b*|y-preds| + lamda_g*| nabla(y) - nabla(preds)|
-        optimizer.zero_grad() #zero out all of gradient
-        loss = F.l1_loss(preds, y) + grad_loss_Jacobain(preds,y)
+        loss = F.l1_loss(preds, y) + grad_loss_Jacobain(preds,y) + F.mse_loss(preds, y)
         loss.backward() # compute gradient of loss
         optimizer.step() #update parameters
         

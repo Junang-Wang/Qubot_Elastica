@@ -252,7 +252,7 @@ class ResidualEMNSBlock_3d(nn.Module):
             self.shortcut = nn.Conv3d(Cin,Cout,1)
     
     def forward(self,x):
-        return self.block(x) + self.shortcut(x)
+        return self.block(x)  + self.shortcut(x)
 
 ######################################################################
 # upsample block
@@ -382,6 +382,7 @@ class Generative_net(nn.Module):
 
         self.total_net = nn.Sequential(
             self.proj,
+            # nn.ReLU(),
             nn.Unflatten(1,(Cout, int(grid_x/2**q), int(grid_y/2**q),int( grid_z/2**q))),
             # nn.Dropout3d(p=0.1),
             *NNstages,
@@ -546,13 +547,13 @@ class Two_Branches_Fully_Entangled_Early_NN_net(nn.Module):
 def weight_init(m):
     #print(m)
     #print('Initiating weight and bias...')
-    if type(m) == nn.Linear or type(m) == nn.Conv2d:
+    if type(m) == nn.Linear or type(m) == nn.Conv2d or type(m) == nn.Conv3d:
         #torch.nn.init.normal_(m.weight,0,1)
         torch.nn.init.kaiming_normal_(m.weight)
         #torch.nn.init.ones_(m.weight)
         torch.nn.init.zeros_(m.bias)
         #print(m.weight)
-    elif type(m) == nn.BatchNorm2d:
+    elif type(m) == nn.BatchNorm2d or type(m) == nn.BatchNorm3d:
         torch.nn.init.normal_(m.weight,1,1)
         #torch.nn.init.kaiming_normal_(m.weight)
         torch.nn.init.zeros_(m.bias)
