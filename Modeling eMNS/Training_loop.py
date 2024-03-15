@@ -323,8 +323,8 @@ def train_part_GM(model,optimizer,train_loader,valid_loader, epochs = 1, learnin
           preds = model(x)
         # loss function in the paper "Modeling Electromagnetic Navigation Systems" 
         # loss= lamda_b*|y-preds| + lamda_g*| nabla(y) - nabla(preds)|
-        loss = F.l1_loss(preds, y) + grad_loss_Jacobain(preds,y)
         optimizer.zero_grad() #zero out all of gradient
+        loss = F.l1_loss(preds, y) + grad_loss_Jacobain(preds,y)
         loss.backward() # compute gradient of loss
         optimizer.step() #update parameters
         
