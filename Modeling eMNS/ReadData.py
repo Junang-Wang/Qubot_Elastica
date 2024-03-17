@@ -88,7 +88,6 @@ def ReadETHFolder(foldername, filenum, data_shape):
     data = np.zeros((filenum, *data_shape))
 
     for i in range(filenum):
-        f_num += 1
         filename = foldername + str(f_num).zfill(4) + ".h5"
         with h5py.File(filename, "r") as f:
             # get first object name/key; may or may NOT be a group
@@ -98,6 +97,8 @@ def ReadETHFolder(foldername, filenum, data_shape):
             # If a_group_key is a dataset name, 
             # this gets the dataset values and returns as a list
             data[i] = np.array(f[a_group_key])
+
+        f_num += 1
 
     return data
 

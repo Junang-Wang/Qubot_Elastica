@@ -17,6 +17,39 @@ class eMNS_Dataset(torch.utils.data.Dataset):
     
     def __len__(self):
         return self.n_samples
+    
+    def total_norm(self):
+        """
+        Apply min-max normalization to the given tensor.
+        
+        :param tensor: A PyTorch tensor to be normalized.
+        :return: the max value and the min value.
+        """
+        min_x = self.x.min()
+        max_x = self.x.max()
+        min_y = self.y.min()
+        max_y = self.y.max()
+        self.x = 2*(self.x - min_x) / (max_x - min_x) - 1
+        self.y = 2*(self.y - min_y) / (max_y - min_y) - 1
+        return (max_x, min_x, max_y, min_y)
+    
+    def train_norm(self, train_indices):
+        """
+        Apply min-max normalization to the given train tensor.
+        
+        :param tensor: A PyTorch tensor to be normalized to range [-1,1].
+        :return: max and min value.
+        """
+        min_x = self.x[train_indices].min()
+        max_x = self.x[train_indices].max()
+        min_y = self.y[train_indices].min()
+        max_y = self.y[train_indices].max()
+
+        self.x = 2*(self.x - min_x) / (max_x - min_x) - 1
+        self.y = 2*(self.y - min_y) / (max_y - min_y) - 1
+        return (max_x, min_x, max_y, min_y)
+
+
 
 ###############################################################################
 # plain 1D Conv network block
@@ -159,14 +192,13 @@ class Generative_net_test(nn.Module):
         D, grid_x, grid_y, grid_z = output_shape
         # d_max = max(output_shape[1:])
         # q = np.log2(d_max) - 3
-        q = BB_num_block-1
+        q = BB_num_block
         Nout = int(grid_x * grid_y * grid_z * Cout / (2**(3*q)))
         # projection layer
         self.proj = nn.Linear(num_input, Nout,bias=True)
 
         # Unflatten layer
         self.unflatten_shape = (Cin, int(grid_x/2**q), int(grid_y/2**q),int( grid_z/2**q))
-
         # conv in hidden layer
         self.conv1 = nn.Conv3d(Cin, Cout, 3, padding='same')
         self.conv2 = nn.Conv3d(Cin, Cout, 3, padding='same')
@@ -238,7 +270,7 @@ class ResidualEMNSBlock_3d(nn.Module):
         for _ in range(num_repeat):
             NNstages.append(
                 nn.Sequential(
-                    nn.BatchNorm3d(Cin),
+                    # nn.BatchNorm3d(Cin),
                     nn.Conv3d(Cin,Cout,3,padding=1,bias=True),
                     nn.LeakyReLU(),
                     # nn.Dropout3d(p=0.1)
@@ -373,8 +405,6 @@ class Generative_net(nn.Module):
         Nout = int(grid_x * grid_y * grid_z * Cout / (2**(3*q)))
         # projection layer
         self.proj = nn.Linear(num_input, Nout,bias=True)
-        nn.init.kaiming_normal_(self.proj.weight)
-        nn.init.zeros_(self.proj.bias)
 
         # Output Conv3d layer
         self.conv3d = nn.Conv3d(Cout,D, 3, padding=1)
@@ -386,8 +416,8 @@ class Generative_net(nn.Module):
             nn.Unflatten(1,(Cout, int(grid_x/2**q), int(grid_y/2**q),int( grid_z/2**q))),
             # nn.Dropout3d(p=0.1),
             *NNstages,
-            SB_block(Cout, Cout, SB_num_repeat),
-            nn.BatchNorm3d(Cout),
+            # SB_block(Cout, Cout, SB_num_repeat),
+            # nn.BatchNorm3d(Cout),
             self.conv3d,
             )
     def forward(self,x):

@@ -4,7 +4,7 @@
 import torch
 import torch.nn.functional as F
 from early_stopping import EarlyStopping, EarlyDecay
-from utils import compute_discrete_curl, denorm
+from utils import compute_discrete_curl, denorm, max_min_norm
 import numpy as np
 
 def adjust_learning_rate_sch(optimizer, lrd, epoch, schedule):
@@ -317,6 +317,8 @@ def train_part_GM(model,optimizer,train_loader,valid_loader, epochs = 1, learnin
         x = x.to(device=device,dtype=torch.float)
         y = y.to(device=device,dtype=torch.float)
 
+        # x,_,_ = max_min_norm(x,device)
+        # y,_,_ = max_min_norm(y,device)
         optimizer.zero_grad() #zero out all of gradient
         if DF: 
           preds = compute_discrete_curl(model(x),device=device)
@@ -324,17 +326,19 @@ def train_part_GM(model,optimizer,train_loader,valid_loader, epochs = 1, learnin
           preds = model(x)
         # loss function in the paper "Modeling Electromagnetic Navigation Systems" 
         # loss= lamda_b*|y-preds| + lamda_g*| nabla(y) - nabla(preds)|
-        loss = F.l1_loss(preds, y) + grad_loss_Jacobain(preds,y) + F.mse_loss(preds, y)
+        l1_loss = F.l1_loss(preds,y)
+        Grad_loss = grad_loss_Jacobain(preds,y)
+        loss = l1_loss + Grad_loss
         loss.backward() # compute gradient of loss
         optimizer.step() #update parameters
         
         tt = t + epoch*len(train_loader) +1
-        adjust_learning_rate_cosine_v2(optimizer, lr_max, lr_min,max_epoch,tt,len(train_loader))
+        adjust_learning_rate_cosine(optimizer, lr_max, lr_min,max_epoch,tt,len(train_loader))
         # early_decay(loss, optimizer, learning_rate_decay)
         ###########################################################
         # print loss during training 
         if verbose and (tt % print_every == 1 or (epoch == epochs -1 and t == len(train_loader) -1) ) :
-          print(f'Epoch {epoch:d}, Iteration {tt:d}, loss = {loss.item():.4f}')
+          print(f'Epoch {epoch:d}, Iteration {tt:d}, loss = {loss.item():.4f}, l1 loss={l1_loss.item():.4f}, grad loss={Grad_loss.item():.4f}')
           rmse_val,mse_val,Rsquare = check_rmse_CNN(valid_loader,model,grid_space, device, DF,maxB=maxB,minB=minB)
           rmse,mse_train,R_TEMP = check_rmse_CNN(train_loader,model, grid_space, device, DF,maxB=maxB,minB=minB)
           rmse_val_history[tt//print_every] = rmse_val
@@ -347,7 +351,7 @@ def train_part_GM(model,optimizer,train_loader,valid_loader, epochs = 1, learnin
         #     return rmse_history, rmse_val_history,loss_history, iter_history
             
         elif not verbose and (t == len(train_loader)-1):
-          print(f'Epoch {epoch:d}, Iteration {tt:d}, loss = {loss.item():.4f}')
+          print(f'Epoch {epoch:d}, Iteration {tt:d}, loss = {loss.item():.4f}, l1 loss={l1_loss.item():.4f}, grad loss={Grad_loss.item():.4f}')
           rmse_val,mse_val,Rsquare= check_rmse_CNN(valid_loader,model, grid_space, device,DF,maxB=maxB,minB=minB)
           rmse,mse_train,R_TEMP = check_rmse_CNN(train_loader,model, grid_space, device,DF,maxB=maxB,minB=minB)
           rmse_val_history[epoch] = rmse_val
@@ -434,6 +438,8 @@ def check_rmse_CNN(dataloader,model, grid_space, device, DF, verbose=False, maxB
         for x,y in dataloader:
           x = x.to(device=device,dtype=torch.float)
           y = y.to(device=device,dtype=torch.float)
+          # x,_,_ = max_min_norm(x,device)
+          # y,maxB,minB = max_min_norm(y,device)
           num_samples += x.shape[0]
           if DF:
             scores = compute_discrete_curl(model(x))
@@ -441,8 +447,8 @@ def check_rmse_CNN(dataloader,model, grid_space, device, DF, verbose=False, maxB
             scores = model(x)
           
           # compute mse and R2 by de-normalize data
-          mse_temp += F.mse_loss(1e3*denorm(scores,maxB,minB), 1e3*denorm(y,maxB,minB) ,reduction='sum')
-          R_temp += F.mse_loss(1e3*denorm(Bfield_mean.expand_as(y),maxB,minB), 1e3*denorm(y,maxB,minB), reduction='sum')
+          mse_temp += F.mse_loss(1e3*denorm(scores,maxB,minB,device), 1e3*denorm(y,maxB,minB, device) ,reduction='sum')
+          R_temp += F.mse_loss(1e3*denorm(Bfield_mean.expand_as(y),maxB,minB,device), 1e3*denorm(y,maxB,minB,device), reduction='sum')
 
 
         rmse = torch.sqrt(mse_temp/num_samples/grid_space/3)

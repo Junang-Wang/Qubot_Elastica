@@ -53,12 +53,23 @@ def plot_3D_vector_field(position, vectorField, figsize=(5,5), length=1):
     ax.quiver(p[:,0], p[:,1], p[:,2], vector[:,0], vector[:,1], vector[:,2], length=length)
     plt.show()
 
-def denorm(x, Bmax, Bmin):
+def denorm(x_norm, Bmax, Bmin, device):
     '''
     This function de-normalize the max-min normalization
     x = 0.5*(x_norm+1)*(Bmax-Bmin) - Bmin
     '''
-    x_norm = 0.5*(x+1)*(Bmax.expand_as(x)-Bmin.expand_as(x)) + Bmin.expand_as(x)
-    return x_norm
+    x = 0.5*(x_norm+1)*(Bmax.expand_as(x_norm).to(device)-Bmin.expand_as(x_norm).to(device)) + Bmin.expand_as(x_norm).to(device)
+    return x
 
 
+def max_min_norm(x,device):
+    """
+    Apply min-max normalization to the given tensor.
+    
+    :param tensor: A PyTorch tensor to be normalized.
+    :return: A tensor with values scaled to the range [-1, 1], the max value and the min value.
+    """
+    min_val,_ = torch.min(x, dim=1, keepdim=True)
+    max_val,_ = torch.max(x, dim=1 ,keepdim=True)
+    normalized_x = 2*(x - min_val) / (max_val - min_val) - 1
+    return normalized_x, max_val, min_val
