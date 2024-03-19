@@ -62,6 +62,14 @@ def denorm(x_norm, Bmax, Bmin, device):
     x = 0.5*(x_norm+1)*(Bmax.expand_as(x_norm).to(device)-Bmin.expand_as(x_norm).to(device)) + Bmin.expand_as(x_norm).to(device)
     return x
 
+def denorm_ray(x_norm, Bmax, Bmin):
+    '''
+    This function de-normalize the max-min normalization
+    x = 0.5*(x_norm+1)*(Bmax-Bmin) - Bmin
+    '''
+    x = 0.5*(x_norm+1)*(Bmax.expand_as(x_norm)-Bmin.expand_as(x_norm)) + Bmin.expand_as(x_norm)
+    return x
+
 
 def max_min_norm(x,device):
     """
