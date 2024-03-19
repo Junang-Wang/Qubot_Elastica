@@ -2,6 +2,7 @@
 # Training loop
 #############################################################################
 import torch
+from torch.nn.parallel import DistributedDataParallel
 import torch.nn.functional as F
 from early_stopping import EarlyStopping, EarlyDecay
 from utils import compute_discrete_curl, denorm, max_min_norm
@@ -9,6 +10,7 @@ from Neural_network import ResidualEMNSBlock_3d, BigBlock, Generative_net
 import numpy as np
 from ray import train, tune
 from ray.train import Checkpoint
+import tempfile, os
 def adjust_learning_rate_sch(optimizer, lrd, epoch, schedule):
     """
     Multiply lrd to the learning rate if epoch in schedule
@@ -68,7 +70,7 @@ def adjust_learning_rate_linear(optimizer, linear_increment):
 
 ######################################################################################################################################
 # def train_part_GM(model,optimizer,train_loader,valid_loader, epochs = 1, learning_rate_decay =.1,weight_decay=1e-4, schedule=[], grid_space= 20*20*20, DF= False, verbose=True, device= 'cuda',maxB=[],minB=[], lr_max=1e-4, lr_min=2.5e-6,max_epoch=200, linear_lr=False):
-def train_GM(train_set,valid_set, device, config):
+def train_GM(config):
     """
     Train a model using torch API
 
@@ -81,6 +83,7 @@ def train_GM(train_set,valid_set, device, config):
     """
     #---------------unpack config---------------------
     # print(config)
+    batch_size = config['batch_size']
     epochs = config["epochs"]
     verbose = config['verbose']
     lr_max = config['lr_max']
@@ -94,6 +97,9 @@ def train_GM(train_set,valid_set, device, config):
     skip_spacing = config['skip_spacing']
     num_repeat = config['num_repeat']
     num_block = config['num_block']
+    device = config['device']
+    train_set = config['train_set']
+    valid_set = config['valid_set']
 
     ####################################################
     #--------------model construction------------------
@@ -108,11 +114,13 @@ def train_GM(train_set,valid_set, device, config):
 
     model = Generative_net(SB_args, BB_args, SB_block, BB_block, num_input=num_input, output_shape= output_shape)
     model = model.to(device=device)
+    # prepare model for training
+    # model = train.torch.prepare_model(model)
 
     #####################################################
     #-------------------data loader----------------------
     #####################################################
-    #Using Dataloader for batch train
+
     train_loader = torch.utils.data.DataLoader(dataset=train_set,batch_size=config['batch_size'],shuffle=True)
     valid_loader = torch.utils.data.DataLoader(dataset=valid_set,batch_size=config['batch_size'],shuffle=True)
 
@@ -166,7 +174,7 @@ def train_GM(train_set,valid_set, device, config):
             # y,_,_ = max_min_norm(y,device)
             optimizer.zero_grad() #zero out all of gradient
             if DF: 
-                preds = compute_discrete_curl(model(x),device=device)
+                _, preds = Jacobian3(model(x))
             else:
                 preds = model(x)
             # loss function in the paper "Modeling Electromagnetic Navigation Systems" 
@@ -206,15 +214,20 @@ def train_GM(train_set,valid_set, device, config):
         print()
         adjust_epoch_count += 1
 
+        # create checkpoint
+        base_model = (model.module
+            if isinstance(model, DistributedDataParallel) else model)
+        checkpoint_dir = tempfile.mkdtemp()
         # load back training state
         checkpoint_data = {
             "epoch": epoch,
-            "net_state_dict": model.state_dict(),
+            "net_state_dict": base_model.state_dict(),
             "optimizer_state_dict": optimizer.state_dict(),
         }
-        checkpoint = Checkpoint.from_directory(checkpoint_data)
+        torch.save(checkpoint_data, os.path.join(checkpoint_dir, "model.pt"))
+        checkpoint = Checkpoint.from_directory(checkpoint_dir)
         #Send the current training result back to Tune
-        train.report({'rmse_val':rmse_val.item(), 'rmse_train': rmse.item(), 'loss':loss.item()})
+        train.report({'rmse_val':rmse_val.item(), 'rmse_train': rmse.item(), 'loss':loss.item()}, checkpoint=checkpoint)
 
         
 
@@ -263,7 +276,7 @@ def check_rmse_CNN(dataloader,model, grid_space, device, DF, maxB=[],minB=[]):
             y = y.to(device=device,dtype=torch.float)
             num_samples += x.shape[0]
             if DF:
-                scores = compute_discrete_curl(model(x))
+                _, scores = Jacobian3(model(x))
             else:
                 scores = model(x)
             
@@ -344,7 +357,7 @@ def Jacobian3(x):
   v = dudz - dwdx
   w = dvdx - dudy
 
-  j = torch.stack([dudx,dudy,dudz,dvdx,dvdy,dvdz,dwdx,dwdy,dwdz],axis=-1)
-  c = torch.stack([u,v,w],axis=-1) #vorticity
+  j = torch.stack([dudx,dudy,dudz,dvdx,dvdy,dvdz,dwdx,dwdy,dwdz],axis=1)
+  c = torch.stack([u,v,w],axis=1) #vorticity
 
   return j,c

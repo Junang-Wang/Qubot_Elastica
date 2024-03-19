@@ -1,5 +1,6 @@
 import torch
 import matplotlib.pyplot as plt
+from collections.abc import Iterable
 def compute_discrete_curl(A_field, device):
     '''
     A_field: (batch, Dimensions, grid_x, grid_y, grid_z)
@@ -73,3 +74,19 @@ def max_min_norm(x,device):
     max_val,_ = torch.max(x, dim=1 ,keepdim=True)
     normalized_x = 2*(x - min_val) / (max_val - min_val) - 1
     return normalized_x, max_val, min_val
+
+def plot_ray_results(results, metrics_names):
+    
+    # result_metrics = results.metrics
+    # num_plot = 0
+    # check if multi-result or a single result
+    if isinstance(results, Iterable):
+        dfs = {result.path: result.metrics_dataframe for result in results}
+    else:
+        dfs = {results.path: results.metrics_dataframe}
+
+    for metrics_name in metrics_names:
+        
+        ax = None 
+        for data in dfs.values():
+            ax = data[metrics_name].plot(ax=ax)
