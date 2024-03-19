@@ -214,20 +214,20 @@ def train_GM(config):
         print()
         adjust_epoch_count += 1
 
-        # create checkpoint
-        base_model = (model.module
-            if isinstance(model, DistributedDataParallel) else model)
-        checkpoint_dir = tempfile.mkdtemp()
-        # load back training state
-        checkpoint_data = {
-            "epoch": epoch,
-            "net_state_dict": base_model.state_dict(),
-            "optimizer_state_dict": optimizer.state_dict(),
-        }
-        torch.save(checkpoint_data, os.path.join(checkpoint_dir, "model.pt"))
-        checkpoint = Checkpoint.from_directory(checkpoint_dir)
+        # # create checkpoint
+        # base_model = (model.module
+        #     if isinstance(model, DistributedDataParallel) else model)
+        # checkpoint_dir = tempfile.mkdtemp()
+        # # load back training state
+        # checkpoint_data = {
+        #     "epoch": epoch,
+        #     "net_state_dict": base_model.state_dict(),
+        #     "optimizer_state_dict": optimizer.state_dict(),
+        # }
+        # torch.save(checkpoint_data, os.path.join(checkpoint_dir, "model.pt"))
+        # checkpoint = Checkpoint.from_directory(checkpoint_dir)
         #Send the current training result back to Tune
-        train.report({'rmse_val':rmse_val.item(), 'rmse_train': rmse.item(), 'loss':loss.item()}, checkpoint=checkpoint)
+        train.report({'rmse_val':rmse_val.item(), 'rmse_train': rmse.item(), 'loss':loss.item()})
 
         
 
