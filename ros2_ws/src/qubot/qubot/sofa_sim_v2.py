@@ -39,9 +39,9 @@ class MagSubscriberNode(Node):
     def mag_callback(self,msg:MagneticSpherical):
         self.get_logger().info('subscribe mag msg')
         self.get_logger().info(str(msg.magnetic_field_spherical))
-        self.magnetic_field_spherical[0] = msg.magnetic_field_spherical[0]
-        self.magnetic_field_spherical[1] = msg.magnetic_field_spherical[1]
-        self.magnetic_field_spherical[2] = msg.magnetic_field_spherical[2]
+        self.magnetic_field_spherical[0] = msg.magnetic_field_spherical[0] # amplitude   
+        self.magnetic_field_spherical[1] = msg.magnetic_field_spherical[1] # theta
+        self.magnetic_field_spherical[2] = msg.magnetic_field_spherical[2] # phi
 
         
 

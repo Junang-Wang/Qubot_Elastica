@@ -11,3 +11,8 @@
 //Camera.minBBox = -297.071 -25.5 -16
 //Camera.zFar = 550
 //Camera.maxBBox = 640 259.5 0.951057
+
+--- NEW SESSION: 20/03/2024 15:13:57 ---
+/PhysicsModel/CollectorMagneticForceField.forces = 0 0 0 0 -3.79641e-09 6.2e+07 0 0 0 0 -3.79641e-09 6.2e+07 0 0 0 0 -3.79641e-09 6.2e+07 0 0 0 0 -3.79641e-09 6.2e+07 0 0 0 0 -3.79641e-09 6.2e+07 0 0 0 0 -3.79641e-09 6.2e+07 0 0 0 0 -3.79641e-09 6.2e+07 0 0 0 0 -3.79641e-09 6.2e+07 0 0 0 0 -3.79641e-09 6.2e+07 0 0 0 0 -3.79641e-09 6.2e+07
+/PhysicsModel/CollectorMagneticForceField.totalForce = 0 0 0 0 -3.79641e-08 6.2e+08
+/PhysicsModel/CollectorMagneticForceField.showColor = 1 0 0 1
