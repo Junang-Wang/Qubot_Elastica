@@ -1,0 +1,7 @@
+###### Requirements to run the code##########
+torch >= 2.0
+numpy
+pandas
+ray >= 2.9.3
+matplotlib
+h5py
