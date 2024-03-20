@@ -297,6 +297,8 @@ def train_part_GM(model,optimizer,train_loader,valid_loader, epochs = 1, learnin
     loss_history = torch.zeros(num_prints,dtype = torch.float)
     mse_history= torch.zeros(num_prints,dtype = torch.float)
     mse_val_history= torch.zeros(num_prints,dtype = torch.float)
+    loss_val = torch.zeros(num_prints,dtype = torch.float)
+    loss_train= torch.zeros(num_prints,dtype = torch.float)
 
     patience = 20	# 当验证集损失在连5次训练周期中都没有得到降低时，停止模型训练，以防止模型过拟合
     early_stopping = EarlyStopping(patience, verbose=True)     
@@ -312,6 +314,7 @@ def train_part_GM(model,optimizer,train_loader,valid_loader, epochs = 1, learnin
     # step 5: compute gradient of loss, update parameters
     ###########################################################
     for epoch in range(epochs):
+      print("epoch=================================================",epoch)
       for t, (x,y) in enumerate(train_loader):
         model.train()
         x = x.to(device=device,dtype=torch.float)
@@ -330,8 +333,18 @@ def train_part_GM(model,optimizer,train_loader,valid_loader, epochs = 1, learnin
         Grad_loss = grad_loss_Jacobain(preds,y)
         loss = l1_loss + Grad_loss
         loss.backward() # compute gradient of loss
+
+        # print("loss grad=",loss.grad)
         optimizer.step() #update parameters
-        
+        # if t == len(train_loader)-1:
+        #   for name, param in model.named_parameters():
+        #     if param.requires_grad:
+        #       if param.grad is not None:
+        #         print('epoch====================================================================================================',epoch)  
+        #         print("{}, value:{},gradient: {}".format(name,param, param.grad.mean()))
+        #       else:
+        #         print("{} has not gradient".format(name))
+
         tt = t + epoch*len(train_loader) +1
         adjust_learning_rate_cosine(optimizer, lr_max, lr_min,max_epoch,tt,len(train_loader))
         # early_decay(loss, optimizer, learning_rate_decay)
@@ -351,7 +364,7 @@ def train_part_GM(model,optimizer,train_loader,valid_loader, epochs = 1, learnin
         #     return rmse_history, rmse_val_history,loss_history, iter_history
             
         elif not verbose and (t == len(train_loader)-1):
-          print(f'Epoch {epoch:d}, Iteration {tt:d}, loss = {loss.item():.4f}, l1 loss={l1_loss.item():.4f}, grad loss={Grad_loss.item():.4f}')
+          print(f'Epoch {epoch:d}, Iteration {tt:d}, loss = {loss.item():.4f}')
           rmse_val,mse_val,Rsquare= check_rmse_CNN(valid_loader,model, grid_space, device,DF,maxB=maxB,minB=minB)
           rmse,mse_train,R_TEMP = check_rmse_CNN(train_loader,model, grid_space, device,DF,maxB=maxB,minB=minB)
           rmse_val_history[epoch] = rmse_val
@@ -360,6 +373,8 @@ def train_part_GM(model,optimizer,train_loader,valid_loader, epochs = 1, learnin
           loss_history[epoch] = loss.item()
           mse_history[epoch] = mse_train
           mse_val_history[epoch] = mse_val
+          loss_train[epoch] = loss_train_temp
+          loss_val[epoch] = loss_val_temp
 
           print()
           adjust_epoch_count += 1
@@ -371,7 +386,7 @@ def train_part_GM(model,optimizer,train_loader,valid_loader, epochs = 1, learnin
 
     
 
-    return rmse_history, rmse_val_history,loss_history, iter_history,mse_history, mse_val_history,epoch_stop,Rsquare
+    return rmse_history, rmse_val_history,loss_history, iter_history,mse_history, mse_val_history,epoch_stop,Rsquare,loss_train,loss_val
 
 # TODO update Root mean squared error
 def check_rmse(dataloader,model,device,verbose=False):
@@ -425,6 +440,7 @@ def check_rmse_CNN(dataloader,model, grid_space, device, DF, verbose=False, maxB
     R_temp=0
     Rsquare=0
     num_samples = 0
+    loss_temp = 0
     # print(Bfield_mean)
 
     data = next(iter(dataloader))
@@ -447,13 +463,13 @@ def check_rmse_CNN(dataloader,model, grid_space, device, DF, verbose=False, maxB
             scores = model(x)
           
           # compute mse and R2 by de-normalize data
-          mse_temp += F.mse_loss(1e3*denorm(scores,maxB,minB,device), 1e3*denorm(y,maxB,minB, device) ,reduction='sum')
-          R_temp += F.mse_loss(1e3*denorm(Bfield_mean.expand_as(y),maxB,minB,device), 1e3*denorm(y,maxB,minB,device), reduction='sum')
+          mse_temp += F.mse_loss(1e3*denorm(scores,maxB,minB), 1e3*denorm(y,maxB,minB) ,reduction='sum')
+          R_temp += F.mse_loss(1e3*denorm(Bfield_mean.expand_as(y),maxB,minB), 1e3*denorm(y,maxB,minB), reduction='sum')
 
 
         rmse = torch.sqrt(mse_temp/num_samples/grid_space/3)
 
-        Rsquare=1-mse_temp/R_temp/num_samples
+        Rsquare=1-mse_temp/R_temp
         print(f'Got rmse {rmse}')
 
         
@@ -467,7 +483,7 @@ def check_rmse_CNN(dataloader,model, grid_space, device, DF, verbose=False, maxB
           #preds = (torch.round(scores)).reshape(-1)
           preds = torch.argmax(scores,dim=1)
            
-    return rmse, mse_temp/num_samples/grid_space,Rsquare
+    return rmse, mse_temp/num_samples/grid_space,Rsquare,loss_temp/num_samples
 
 
 def grad_loss(preds, y):
