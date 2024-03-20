@@ -3,6 +3,8 @@ import glob
 import pandas as pd
 import numpy as np
 import h5py
+import re
+
 dataFile = 'Modeling eMNS/Data/MagneticField0.txt'
 def ReadData(filename):
     data = torch.tensor(pd.read_table(filename, sep='\\s+', skiprows=1).values)
@@ -23,8 +25,6 @@ def ReadFolder(foldername, filepattern):
             data[i] = ReadData(filename=fileList[i])
     
     return data
-
-
 
 def ReadCurrentAndField(foldername, filepattern):
 
@@ -54,6 +54,19 @@ def ReadCurrentAndField(foldername, filepattern):
             data[i] = torch.tensor(data_temp)
     
     return data
+
+
+
+def natural_sort_key(s):
+    """
+    按文件名中的自然数排序
+    """
+    # 将字符串按照数字和非数字部分分割，返回分割后的子串列表
+    sub_strings = re.split(r'(\d+)', s)
+    # 如果当前子串由数字组成，则将它转换为整数；否则将其替换成空字符串
+    sub_strings = [int(c) if c.isdigit() else '' for c in sub_strings]
+    # 返回子串列表
+    return sub_strings
             
 def ReadCurrentAndField_CNN(foldername, filepattern, filenum):
 
@@ -61,6 +74,8 @@ def ReadCurrentAndField_CNN(foldername, filepattern, filenum):
     Current = pd.read_table('./Data/SampleCurrent.txt',skiprows=0,sep='\\s+',index_col=None,header=None) 
     # print(Current)
     fileList = glob.glob(foldername+filepattern)
+    # fileList = sorted(fileList,key = fileList)
+    fileList=sorted(fileList, key=natural_sort_key)
     fileCounter = len(fileList)
     
     for i in range(filenum):
@@ -88,6 +103,7 @@ def ReadETHFolder(foldername, filenum, data_shape):
     data = np.zeros((filenum, *data_shape))
 
     for i in range(filenum):
+
         filename = foldername + str(f_num).zfill(4) + ".h5"
         with h5py.File(filename, "r") as f:
             # get first object name/key; may or may NOT be a group
@@ -97,6 +113,9 @@ def ReadETHFolder(foldername, filenum, data_shape):
             # If a_group_key is a dataset name, 
             # this gets the dataset values and returns as a list
             data[i] = np.array(f[a_group_key])
+        f_num += 1
+
+
 
         f_num += 1
 

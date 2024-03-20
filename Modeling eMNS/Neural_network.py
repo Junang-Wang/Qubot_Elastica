@@ -221,6 +221,7 @@ class Generative_net_test(nn.Module):
     def forward(self,x):
         # x = torch.unflatten(self.proj(x), dim=1, sizes=self.unflatten_shape)
         x = self.proj(x).reshape( (-1, *self.unflatten_shape) )
+        # x = nn.Dropout1d(p=0.5)
         # First Big block
         x0 = x 
         x = F.leaky_relu(self.conv1(x))
@@ -244,16 +245,16 @@ class Generative_net_test(nn.Module):
         x = F.leaky_relu(self.conv8(x))
         x += x0 
         x = self.upsample2(x)
-        #Third Big block
-        x0 = x 
-        x = F.leaky_relu(self.conv9(x))
+        # #Third Big block
+        # x0 = x 
+        # x = F.leaky_relu(self.conv9(x))
 
-        x = F.leaky_relu(self.conv10(x))
+        # x = F.leaky_relu(self.conv10(x))
 
-        x = F.leaky_relu(self.conv11(x))
+        # x = F.leaky_relu(self.conv11(x))
 
-        x = F.leaky_relu(self.conv12(x))
-        x += x0 
+        # x = F.leaky_relu(self.conv12(x))
+        # x += x0 
 
         x = self.convout(x)
         return  x
