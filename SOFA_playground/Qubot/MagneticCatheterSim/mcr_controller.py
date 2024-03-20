@@ -88,5 +88,5 @@ class catheterController(Sofa.Core.Controller):
         # apply magnetic field visualization
         self.PhysicsModel.MagneticFieldVisual.forces = magnetic_field_visu.tolist()
         # print(magnetic_field_visu.tolist())
-        # print(self.PhysicsModel.CollectorMagneticForceField.forces[:])
+        # print('forces:',self.PhysicsModel.CollectorMagneticForceField.forces[:])
         self.PhysicsModel.VisualCatheter.VisuOgl.OglLabel.label =f'{self.magnetic_field_spherical[0]:.0f} mT'
