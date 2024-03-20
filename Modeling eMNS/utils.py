@@ -1,4 +1,4 @@
-import torch
+import torch,ray
 import matplotlib.pyplot as plt
 def compute_discrete_curl(A_field, device):
     '''
@@ -58,8 +58,8 @@ def denorm(x_norm, Bmax, Bmin, device):
     This function de-normalize the max-min normalization
     x = 0.5*(x_norm+1)*(Bmax-Bmin) - Bmin
     '''
-    x_norm = 0.5*(x+1)*(Bmax.expand_as(x)-Bmin.expand_as(x)) + Bmin.expand_as(x)
-    return x_norm
+    x = 0.5*(x_norm+1)*(Bmax.expand_as(x_norm).to(device)-Bmin.expand_as(x_norm).to(device)) + Bmin.expand_as(x_norm).to(device)
+    return x
 
 def denorm_ray(x_norm, Bmax, Bmin):
     '''
@@ -70,3 +70,30 @@ def denorm_ray(x_norm, Bmax, Bmin):
     return x
 
 
+def max_min_norm(x,device):
+    """
+    Apply min-max normalization to the given tensor.
+    
+    :param tensor: A PyTorch tensor to be normalized.
+    :return: A tensor with values scaled to the range [-1, 1], the max value and the min value.
+    """
+    min_val,_ = torch.min(x, dim=1, keepdim=True)
+    max_val,_ = torch.max(x, dim=1 ,keepdim=True)
+    normalized_x = 2*(x - min_val) / (max_val - min_val) - 1
+    return normalized_x, max_val, min_val
+
+def plot_ray_results(results, metrics_names,legend=False, ylim=None, xlim=None):
+
+    # result_metrics = results.metrics
+    # num_plot = 0
+    # check if multi-result or a single result
+    if type(results)==ray.tune.result_grid.ResultGrid:
+        dfs = {result.path: result.metrics_dataframe for result in results}
+    else:
+        dfs = {results.path: results.metrics_dataframe}
+
+    for metrics_name in metrics_names:
+
+        ax = None 
+        for data in dfs.values():
+            ax = data[metrics_name].plot(ax=ax, legend=legend, ylim=ylim, xlim=xlim)

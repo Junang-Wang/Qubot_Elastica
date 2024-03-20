@@ -105,7 +105,7 @@ def train_GM(config):
     ####################################################
     #--------------model construction------------------
     ####################################################
-    num_input = 8
+    num_input = 12
     output_shape = (3,16,16,16)
     SB_args = (64,64,skip_spacing,num_repeat) # (Cin, Cout, skip_spacing, num_repeat)
     BB_args = (2,num_block) # (scale_factor, num_block)
