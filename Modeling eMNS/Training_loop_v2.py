@@ -8,6 +8,7 @@ from early_stopping import EarlyStopping, EarlyDecay
 from utils import compute_discrete_curl, denorm, max_min_norm, denorm_ray
 from Neural_network import ResidualEMNSBlock_3d, BigBlock, Generative_net
 import numpy as np
+import ray
 from ray import train, tune
 from ray.train import Checkpoint
 import tempfile, os
@@ -121,10 +122,11 @@ def train_GM(config):
     # ####################################################
     if torch.cuda.device_count() > 1:
         model = torch.nn.DataParallel(model)
-    if device == 'cuda':
-        device = 'cuda:'+str(torch.cuda.current_device())
+        print(f'we are using {torch.cuda.device_count()} GPU')
+    # if device == 'cuda':
+    #     # device = 'cuda:'+str(torch.cuda.current_device())
+    #     device = ray.train.torch.get_device()
     model.to(device)
-    print(device)
     # # prepare model for training
     # model = train.torch.prepare_model(model)
     #####################################################
@@ -179,7 +181,7 @@ def train_GM(config):
             model.train()
             x = x.to(device=device,dtype=torch.float)
             y = y.to(device=device,dtype=torch.float)
-
+            # print(f"Outside: input size {x.size()}")
             # x,_,_ = max_min_norm(x,device)
             # y,_,_ = max_min_norm(y,device)
             optimizer.zero_grad() #zero out all of gradient

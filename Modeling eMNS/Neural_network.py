@@ -421,6 +421,7 @@ class Generative_net(nn.Module):
             self.conv3d,
             )
     def forward(self,x):
+        # print('In model')
         return  self.total_net(x)
     
 class Two_Branches_NN_net(nn.Module):
