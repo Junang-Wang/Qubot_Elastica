@@ -80,7 +80,6 @@ def ReadCurrentAndField_CNN(foldername, filepattern, filenum):
     fileCounter = len(fileList)
     
     for i in range(filenum):
-        print(i)
         if i == 0:
             #read position + field data
             data_temp = ReadData(filename=fileList[i])
@@ -104,7 +103,7 @@ def ReadETHFolder(foldername, filenum, data_shape):
     data = np.zeros((filenum, *data_shape))
 
     for i in range(filenum):
-  
+
         filename = foldername + str(f_num).zfill(4) + ".h5"
         with h5py.File(filename, "r") as f:
             # get first object name/key; may or may NOT be a group
@@ -117,6 +116,8 @@ def ReadETHFolder(foldername, filenum, data_shape):
         f_num += 1
 
 
+
+        f_num += 1
 
     return data
 

@@ -364,9 +364,9 @@ def train_part_GM(model,optimizer,train_loader,valid_loader, epochs = 1, learnin
         #     return rmse_history, rmse_val_history,loss_history, iter_history
             
         elif not verbose and (t == len(train_loader)-1):
-          print(f'Epoch {epoch:d}, Iteration {tt:d}, loss = {loss.item():.4f}, l1 loss={l1_loss.item():.4f}, grad loss={Grad_loss.item():.4f}')
-          rmse_val,mse_val,Rsquare,loss_val_temp= check_rmse_CNN(valid_loader,model, grid_space, device,DF,maxB=maxB,minB=minB)
-          rmse,mse_train,R_TEMP,loss_train_temp = check_rmse_CNN(train_loader,model, grid_space, device,DF,maxB=maxB,minB=minB)
+          print(f'Epoch {epoch:d}, Iteration {tt:d}, loss = {loss.item():.4f}')
+          rmse_val,mse_val,Rsquare= check_rmse_CNN(valid_loader,model, grid_space, device,DF,maxB=maxB,minB=minB)
+          rmse,mse_train,R_TEMP = check_rmse_CNN(train_loader,model, grid_space, device,DF,maxB=maxB,minB=minB)
           rmse_val_history[epoch] = rmse_val
           rmse_history[epoch] = rmse 
           iter_history[epoch] = tt 
@@ -463,9 +463,9 @@ def check_rmse_CNN(dataloader,model, grid_space, device, DF, verbose=False, maxB
             scores = model(x)
           
           # compute mse and R2 by de-normalize data
-          mse_temp += F.mse_loss(1e3*denorm(scores,maxB,minB,device), 1e3*denorm(y,maxB,minB, device) ,reduction='sum')
-          R_temp += F.mse_loss(1e3*denorm(Bfield_mean.expand_as(y),maxB,minB,device), 1e3*denorm(y,maxB,minB,device), reduction='sum')
-          loss_temp += F.l1_loss(scores, y) + grad_loss_Jacobain(scores,y)
+          mse_temp += F.mse_loss(1e3*denorm(scores,maxB,minB), 1e3*denorm(y,maxB,minB) ,reduction='sum')
+          R_temp += F.mse_loss(1e3*denorm(Bfield_mean.expand_as(y),maxB,minB), 1e3*denorm(y,maxB,minB), reduction='sum')
+
 
         rmse = torch.sqrt(mse_temp/num_samples/grid_space/3)
 

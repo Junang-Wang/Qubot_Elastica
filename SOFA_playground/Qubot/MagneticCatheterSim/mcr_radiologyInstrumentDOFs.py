@@ -74,11 +74,10 @@ def Instrument_DOFs(
         'ConstantForceField', 
         name='CollectorMagneticForceField', 
         indices=np.arange(topo_instruments[0].nbsections[-1]), 
-        forces=np.tile(np.zeros(6), (topo_instruments[0].nbsections[-1],1)),
-        indexFromEnd=False, 
+        forces=np.tile(np.zeros(6)+100, (topo_instruments[0].nbsections[-1],1)),
+        indexFromEnd=True, 
         showArrowSize=1e-2,
         showColor=[1,0,0,1])
-
     PhysicsModel.addObject(
         'ConstantForceField', 
         name='MagneticFieldVisual', 
