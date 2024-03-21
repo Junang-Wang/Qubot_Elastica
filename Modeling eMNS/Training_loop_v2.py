@@ -238,7 +238,7 @@ def train_GM(config):
         adjust_learning_rate_sch(optimizer, learning_rate_decay, epoch, schedule)
         epoch_stop = epoch
 
-    
+
 
     return rmse_history, rmse_val_history,loss_history, iter_history,mse_history, mse_val_history,epoch_stop,Rsquare
 #-------------------------------------------------------------------------------------------------------
