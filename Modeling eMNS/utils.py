@@ -2,6 +2,7 @@ import torch,ray,os
 import matplotlib.pyplot as plt
 import torch.nn.functional as F 
 import numpy as np
+
 def compute_discrete_curl(A_field, device):
     '''
     A_field: (batch, Dimensions, grid_x, grid_y, grid_z)
@@ -189,8 +190,8 @@ class estimate_test_set():
 
         # prediction B field
 
-        self.plot_B_pred = 1e3*denorm(self.model(torch.unsqueeze(plot_sample[0],0).to(dtype=torch.float)), self.train_loop_config['maxB'], self.train_loop_config['minB'], self.train_loop_config['device'])
-        self.plot_B = 1e3*denorm(plot_sample[1], self.train_loop_config['maxB'], self.train_loop_config['minB'], self.train_loop_config['device'])
+        self.plot_B_pred = 1e3*denorm(self.model(torch.unsqueeze(plot_sample[0],0).to(device=self.train_loop_config['device'],dtype=torch.float)), self.train_loop_config['maxB'], self.train_loop_config['minB'], self.train_loop_config['device'])
+        self.plot_B = 1e3*denorm(plot_sample[1].to(device=self.train_loop_config['device']), self.train_loop_config['maxB'], self.train_loop_config['minB'], self.train_loop_config['device'])
 
         ylables=['Bx(mT)','By(mT)','Bz(mT)']
         plot_rmse = torch.sqrt(F.mse_loss(self.plot_B, torch.squeeze(self.plot_B_pred,0), reduction='mean'))
@@ -201,12 +202,12 @@ class estimate_test_set():
 
             B_est_temp =self.plot_B_pred[0,i-1,:,:,z_plane_index].detach()
             ax = f.add_subplot(3,2,2*i-1)
-            img_plot = ax.imshow( B_est_temp )    
+            img_plot = ax.imshow( B_est_temp.cpu() )    
             plt.ylabel(ylables[i-1])
 
             Bfield_temp = self.plot_B[i-1,:,:,z_plane_index]
             ax2 = f.add_subplot(3,2,2*i)
-            img_plot=ax2.imshow(Bfield_temp)
+            img_plot=ax2.imshow(Bfield_temp.cpu())
             plt.colorbar(img_plot,ax=[ax,ax2])
             # plt.ylabel(ylables[i-1])
         plt.show()
@@ -220,9 +221,9 @@ class estimate_test_set():
         position = torch.cat(torch.meshgrid([x,y,z],indexing='ij')).reshape(3,16,16,16)
         print(position.shape)
         print(torch.squeeze(self.plot_B_pred,0).shape)
-        plot_3D_vector_field(position[:,:,:,::15], torch.squeeze(self.plot_B_pred,0).detach()[:,:,:,::15], length=length)
+        plot_3D_vector_field(position[:,:,:,::15], torch.squeeze(self.plot_B_pred,0).detach()[:,:,:,::15].cpu(), length=length)
 
-        plot_3D_vector_field(position[:,:,:,::15], self.plot_B[:,:,:,::15], length=length)
+        plot_3D_vector_field(position[:,:,:,::15], self.plot_B[:,:,:,::15].cpu(), length=length)
 
 #----------------------------------------------------------------
 def grad_loss(preds, y):

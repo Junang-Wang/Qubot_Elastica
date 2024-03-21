@@ -9,7 +9,8 @@
             "type": "python",
             "request": "launch",
             "module": "enter-your-module-name",
-            "justMyCode": true
+            "justMyCode": true,
+            "env": {"PL_TORCH_DISTRIBUTED_BACKEND":"gloo"}
         }
     ]
 }
