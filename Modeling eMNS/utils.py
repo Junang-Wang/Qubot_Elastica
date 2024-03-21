@@ -1,5 +1,7 @@
-import torch
+import torch,ray,os
 import matplotlib.pyplot as plt
+import torch.nn.functional as F 
+import numpy as np
 def compute_discrete_curl(A_field, device):
     '''
     A_field: (batch, Dimensions, grid_x, grid_y, grid_z)
@@ -42,10 +44,10 @@ def plot_3D_vector_field(position, vectorField, figsize=(5,5), length=1):
     '''
     Plot 3D vector field
     -----------input----------
-    position: position of grids shape: (1,dimensions,grid_x,grid_y,grid_z)
-    vectorField: shape (1,dimensions,grid_x,grid_y,grid_z)
+    position: position of grids shape: (dimensions,grid_x,grid_y,grid_z)
+    vectorField: shape (dimensions,grid_x,grid_y,grid_z)
     '''
-    fig = plt.figure(figsize=(5,5))
+    fig = plt.figure(figsize=figsize)
     ax = fig.add_subplot(111,projection='3d') 
     p = gridData_reshape(position) #(-1, dimension)
     vector = gridData_reshape(vectorField) #(-1, dimension)
@@ -58,7 +60,233 @@ def denorm(x_norm, Bmax, Bmin, device):
     This function de-normalize the max-min normalization
     x = 0.5*(x_norm+1)*(Bmax-Bmin) - Bmin
     '''
-    x_norm = 0.5*(x+1)*(Bmax.expand_as(x)-Bmin.expand_as(x)) + Bmin.expand_as(x)
-    return x_norm
+    x = 0.5*(x_norm+1)*(Bmax.expand_as(x_norm).to(device)-Bmin.expand_as(x_norm).to(device)) + Bmin.expand_as(x_norm).to(device)
+    return x
+
+def denorm_ray(x_norm, Bmax, Bmin):
+    '''
+    This function de-normalize the max-min normalization
+    x = 0.5*(x_norm+1)*(Bmax-Bmin) - Bmin
+    '''
+    x = 0.5*(x_norm+1)*(Bmax.expand_as(x_norm)-Bmin.expand_as(x_norm)) + Bmin.expand_as(x_norm)
+    return x
 
 
+def max_min_norm(x,device):
+    """
+    Apply min-max normalization to the given tensor.
+    
+    :param tensor: A PyTorch tensor to be normalized.
+    :return: A tensor with values scaled to the range [-1, 1], the max value and the min value.
+    """
+    min_val,_ = torch.min(x, dim=1, keepdim=True)
+    max_val,_ = torch.max(x, dim=1 ,keepdim=True)
+    normalized_x = 2*(x - min_val) / (max_val - min_val) - 1
+    return normalized_x, max_val, min_val
+
+def plot_ray_results(results, metrics_names,legend=False, ylim=None, xlim=None):
+
+    # result_metrics = results.metrics
+    # num_plot = 0
+    # check if multi-result or a single result
+    if type(results)==ray.tune.result_grid.ResultGrid:
+        dfs = {result.path: result.metrics_dataframe for result in results}
+    else:
+        dfs = {results.path: results.metrics_dataframe}
+
+    for metrics_name in metrics_names:
+
+        ax = None 
+        for data in dfs.values():
+            ax = data[metrics_name].plot(ax=ax, legend=legend, ylim=ylim, xlim=xlim)
+
+#-------------------------------------------------------------------------------------------------------
+
+def get_mean_of_dataloader(dataloader,model,device):
+    num_samples = 0
+    b = torch.zeros(1,device=device)
+    model.eval()
+    for x,y in dataloader:
+        y = y.to(device=device,dtype=torch.float)
+        # use sum instead of mean, what do you think?
+        y_sum = y.sum(dim=0,keepdim=True)
+        num_samples += y.shape[0]
+        # print(y.shape[0])
+        b =b+y_sum
+    return b/num_samples
+
+
+
+def check_rmse_CNN(dataloader,model, grid_space, device, DF, maxB=[],minB=[]):
+    '''
+    Check RMSE of CNN
+    '''
+    mse_temp = 0
+    R_temp=0
+    Rsquare=0
+    num_samples = 0
+    # print(Bfield_mean)
+
+    data = next(iter(dataloader))
+    mean = data[0].mean()
+
+    Bfield_mean=get_mean_of_dataloader(dataloader,model,device)
+
+    model.eval() # set model to evaluation model 
+
+    with torch.no_grad():
+        for x,y in dataloader:
+            x = x.to(device=device,dtype=torch.float)
+            y = y.to(device=device,dtype=torch.float)
+            num_samples += x.shape[0]
+            if DF:
+                _, scores = Jacobian3(model(x))
+            else:
+                scores = model(x)
+            
+            # compute mse and R2 by de-normalize data
+            mse_temp += F.mse_loss(1e3*denorm(scores,maxB,minB,device), 1e3*denorm(y,maxB,minB, device) ,reduction='sum')
+            R_temp += F.mse_loss(1e3*denorm(Bfield_mean.expand_as(y),maxB,minB,device), 1e3*denorm(y,maxB,minB,device), reduction='sum')
+
+
+    rmse = torch.sqrt(mse_temp/num_samples/grid_space/3)
+
+    Rsquare=1-mse_temp/R_temp/num_samples
+    print(f'Got rmse {rmse}')
+
+    return rmse, mse_temp/num_samples/grid_space/3, Rsquare
+class estimate_test_set():
+    '''
+    This class estimate the error of the test set
+    '''
+    def __init__(self, checkpoint, test_set, train_loop_config) -> None:
+        
+        self.train_loop_config = train_loop_config
+        #--------------------create test loader------------
+        self.test_set = test_set
+        self.test_loader = torch.utils.data.DataLoader(dataset=test_set,batch_size=train_loop_config['batch_size'],shuffle=True)
+
+        # load checkpoint and model
+        if checkpoint:
+            with checkpoint.as_directory() as checkpoint_dir:
+                self.model = torch.load(
+                    os.path.join(checkpoint_dir, "model.pt"),map_location=train_loop_config['device'])['model']
+        
+    def fit(self):
+        # estimate rmse for test set
+        rmse_test, mse_test, R2_test = check_rmse_CNN(
+            self.test_loader, self.model, self.train_loop_config['grid_space'], self.train_loop_config['device'], self.train_loop_config['DF'], self.train_loop_config['maxB'], self.train_loop_config['minB'])
+        
+        print(f'rmse for test set: {rmse_test:.4f}mT')
+        print(f' mse for test set: {mse_test:.4f}mT')
+        print(f'  R2 for test set: {R2_test:.4f}')
+        return rmse_test, mse_test, R2_test
+    
+    def peek_z(self, z_plane_index):
+        # for plotting a random choice sample in test set
+        plot_index = np.random.choice(self.test_set.indices)
+        plot_sample = self.test_set.dataset[plot_index]
+
+        # prediction B field
+
+        self.plot_B_pred = 1e3*denorm(self.model(torch.unsqueeze(plot_sample[0],0).to(dtype=torch.float)), self.train_loop_config['maxB'], self.train_loop_config['minB'], self.train_loop_config['device'])
+        self.plot_B = 1e3*denorm(plot_sample[1], self.train_loop_config['maxB'], self.train_loop_config['minB'], self.train_loop_config['device'])
+
+        ylables=['Bx(mT)','By(mT)','Bz(mT)']
+        plot_rmse = torch.sqrt(F.mse_loss(self.plot_B, torch.squeeze(self.plot_B_pred,0), reduction='mean'))
+        print(f'plot sample rmse: {plot_rmse:.4f}mT')
+
+        f = plt.figure(figsize=(15,15))
+        for i in range(1,4):
+
+            B_est_temp =self.plot_B_pred[0,i-1,:,:,z_plane_index].detach()
+            ax = f.add_subplot(3,2,2*i-1)
+            img_plot = ax.imshow( B_est_temp )    
+            plt.ylabel(ylables[i-1])
+
+            Bfield_temp = self.plot_B[i-1,:,:,z_plane_index]
+            ax2 = f.add_subplot(3,2,2*i)
+            img_plot=ax2.imshow(Bfield_temp)
+            plt.colorbar(img_plot,ax=[ax,ax2])
+            # plt.ylabel(ylables[i-1])
+        plt.show()
+    
+    def peek_3D(self,length=0.1):
+        from utils import plot_3D_vector_field
+        x = torch.linspace(-10,10,16)
+        y = torch.linspace(-10,10,16)
+        z = torch.linspace(-10,10,16)
+        print(x.shape)
+        position = torch.cat(torch.meshgrid([x,y,z],indexing='ij')).reshape(3,16,16,16)
+        print(position.shape)
+        print(torch.squeeze(self.plot_B_pred,0).shape)
+        plot_3D_vector_field(position[:,:,:,::15], torch.squeeze(self.plot_B_pred,0).detach()[:,:,:,::15], length=length)
+
+        plot_3D_vector_field(position[:,:,:,::15], self.plot_B[:,:,:,::15], length=length)
+
+#----------------------------------------------------------------
+def grad_loss(preds, y):
+   '''
+   preds, y shape: (batch, dimension, grid_x, grid_y, grid_z)
+   This function computes lamda_g*| nabla(y) - nabla(preds)|
+   '''
+   grad_preds = torch.gradient(preds,spacing=1.0)
+   grad_y = torch.gradient(y, spacing=1)
+   grad_loss = 0
+   for i in range(2,5):
+      # accumulate grad loss for grad_x,y,z
+      grad_loss += torch.mean(torch.abs(grad_y[i]-grad_preds[i]))/3
+   return grad_loss
+
+def grad_loss_Jacobain(preds,y):
+  '''
+   preds, y shape: (batch, dimension, grid_x, grid_y, grid_z)
+   This function computes lamda_g*| nabla(y) - nabla(preds)| by Jacobian 
+   '''
+  Jaco_preds,_ = Jacobian3(preds)
+  Jaco_y    ,_ = Jacobian3(y)
+
+  grad_loss = torch.mean(torch.abs(Jaco_preds - Jaco_y))
+
+  return grad_loss
+
+
+def Jacobian3(x):
+  '''
+  Jacobian for 3D vector field
+  -------input----------
+  x shape: (batch, dimension,grid_x, grid_y, grid_z)
+  '''
+
+  dudx = x[:, 0, 1:, :, :] - x[:, 0, :-1, :, :]
+  dvdx = x[:, 1, 1:, :, :] - x[:, 1, :-1, :, :]
+  dwdx = x[:, 2, 1:, :, :] - x[:, 2, :-1, :, :]
+  
+  dudy = x[:, 0, :, 1:, :] - x[:, 0, :, :-1, :]
+  dvdy = x[:, 1, :, 1:, :] - x[:, 1, :, :-1, :]
+  dwdy = x[:, 2, :, 1:, :] - x[:, 2, :, :-1, :]
+
+  dudz = x[:, 0, :, :, 1:] - x[:, 0, :, :, :-1]
+  dvdz = x[:, 1, :, :, 1:] - x[:, 1, :, :, :-1]
+  dwdz = x[:, 2, :, :, 1:] - x[:, 2, :, :, :-1]
+
+  dudx = torch.cat((dudx, torch.unsqueeze(dudx[:,-1],dim=1)), dim=1)
+  dvdx = torch.cat((dvdx, torch.unsqueeze(dvdx[:,-1],dim=1)), dim=1)
+  dwdx = torch.cat((dwdx, torch.unsqueeze(dwdx[:,-1],dim=1)), dim=1)
+
+  dudy = torch.cat((dudy, torch.unsqueeze(dudy[:,:,-1],dim=2)), dim=2)
+  dvdy = torch.cat((dvdy, torch.unsqueeze(dvdy[:,:,-1],dim=2)), dim=2)
+  dwdy = torch.cat((dwdy, torch.unsqueeze(dwdy[:,:,-1],dim=2)), dim=2)
+
+  dudz = torch.cat((dudz, torch.unsqueeze(dudz[:,:,:,-1],dim=3)), dim=3)
+  dvdz = torch.cat((dvdz, torch.unsqueeze(dvdz[:,:,:,-1],dim=3)), dim=3)
+  dwdz = torch.cat((dwdz, torch.unsqueeze(dwdz[:,:,:,-1],dim=3)), dim=3)
+
+  u = dwdy - dvdz
+  v = dudz - dwdx
+  w = dvdx - dudy
+
+  j = torch.stack([dudx,dudy,dudz,dvdx,dvdy,dvdz,dwdx,dwdy,dwdz],axis=1)
+  c = torch.stack([u,v,w],axis=1) #vorticity
+
+  return j,c

@@ -79,7 +79,6 @@ def ReadCurrentAndField_CNN(foldername, filepattern, filenum):
     fileCounter = len(fileList)
     
     for i in range(filenum):
-        print(i)
         if i == 0:
             #read position + field data
             data_temp = ReadData(filename=fileList[i])
