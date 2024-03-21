@@ -5,10 +5,10 @@ import torch.nn.functional as F
 import numpy as np
 # set up dataset class
 class eMNS_Dataset(torch.utils.data.Dataset):
-    def __init__(self,train_x,train_y):
+    def __init__(self,x,y):
         #data loading
-        self.x = train_x 
-        self.y = train_y 
+        self.x = x 
+        self.y = y 
         self.n_samples = self.x.shape[0]
 
     
