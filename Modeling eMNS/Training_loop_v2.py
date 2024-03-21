@@ -104,7 +104,7 @@ def train_GM(config):
     ####################################################
     #--------------model construction------------------
     ####################################################
-    num_input = 8
+    num_input = 12
     output_shape = (3,16,16,16)
     SB_args = (64,64,skip_spacing,num_repeat) # (Cin, Cout, skip_spacing, num_repeat)
     BB_args = (2,num_block) # (scale_factor, num_block)
@@ -229,12 +229,12 @@ def train_GM(config):
         #Send the current training result back to Tune
         train.report({'rmse_val':rmse_val.item(), 'rmse_train': rmse.item(), 'loss':loss.item()}, checkpoint=checkpoint)
 
-        
+        torch.save(model, 'EMS_CNN.pt')	# 这里会存储迄今最优模型的参数
 
         adjust_learning_rate_sch(optimizer, learning_rate_decay, epoch, schedule)
         epoch_stop = epoch
 
-    
+
 
     return rmse_history, rmse_val_history,loss_history, iter_history,mse_history, mse_val_history,epoch_stop,Rsquare
 

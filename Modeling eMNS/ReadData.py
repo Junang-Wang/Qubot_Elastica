@@ -26,27 +26,28 @@ def ReadFolder(foldername, filepattern):
     
     return data
 
-def ReadCurrentAndField(foldername, filepattern):
+def ReadCurrentAndField(foldername, filepattern,filenum):
 
     #Read Current
     CurrentData = pd.read_table('./Data/SampleCurrent.txt',skiprows=0,sep='\\s+',index_col=None,header=None) 
     #print(CurrentData)
 
     fileList = glob.glob(foldername+filepattern)
-    fileCounter = len(fileList)
+    fileList=sorted(fileList, key=natural_sort_key)
 
-    train_file_num = 50
     #print(CurrentData)
-    for i in range(fileCounter):
+    for i in range(filenum):
         if i == 0:
+            print(fileList[i])
             data_temp = ReadData(filename=fileList[i])
             current=CurrentData.loc[i]
             matrix = np.tile(current, (data_temp.shape[0], 1))
             data_temp = np.hstack((matrix,data_temp))
             [row, col] = data_temp.shape
-            data = torch.empty(fileCounter,row,col)
+            data = torch.empty(filenum,row,col)
             data[i] = torch.tensor(data_temp)
         else:
+            print(fileList[i])
             data_temp = ReadData(filename=fileList[i])
             current=CurrentData.loc[i]
             matrix = np.tile(current, (data_temp.shape[0], 1))
@@ -133,3 +134,10 @@ def ReadETHFile(filename):
         data = np.array(f[a_group_key])
 
     return data
+
+def add_gaussian_noise(tensor, noise=0.05):
+    mean = tensor.mean()
+    std = tensor.std()
+    noise = torch.randn(tensor.size()) * std * noise + mean
+    noisy_tensor = tensor + noise
+    return noisy_tensor
