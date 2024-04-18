@@ -258,7 +258,8 @@ def predict_check_rmse_ANN(dataloader, model, config):
                 
                 # compute mse and R2 by de-normalize data
                 mse_temp += F.mse_loss(denorm(Bfield,maxB, minB, device),  denorm(B_est, maxB, minB, device) , reduction='sum')
-
+                print(denorm(Bfield,maxB, minB, device).abs().mean())
+                print(denorm(B_est,maxB, minB, device).abs().mean())
                 #TODO: fix R_temp
                 R_temp += F.mse_loss(denorm(Bfield_mean.expand_as(y),maxB,minB,device), denorm(y,maxB,minB,device), reduction='sum')
 
@@ -284,7 +285,7 @@ def predict_check_rmse_ANN(dataloader, model, config):
     rmse = torch.sqrt(mse)
 
     Rsquare=1-mse_temp/R_temp/num_samples
-    print(f'Got rmse {rmse}')
+    print(f'Got rmse {rmse}, num_samples {num_samples}')
 
     return prediction, rmse, mse, Rsquare
 class estimate_test_set():
