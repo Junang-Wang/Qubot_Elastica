@@ -50,23 +50,26 @@ class SRBF_interpolation():
         '''
         self.eps = eps 
         self.kernel_function = kernel_function
-    def fit(self, samples_p, centers_p, samples_y):
+    
+    def fit(self, centers_p, centers_y,device):
         '''
         compute weight matrix
         -------------------
         weight: shape: (N, dimension)
         '''
         self.centers_p = centers_p
-        phi = self.kernel_function(self.eps, Euclidean_distance(samples_p, centers_p)) #(M,N)
-        samples_y_reshape = gridData_reshape(samples_y) #(M, dimension)
-        self.weight = torch.linalg.inv(phi) @ samples_y_reshape #(N,dimension)
+        phi_temp = self.kernel_function(self.eps, Euclidean_distance(centers_p, centers_p)) #(M,N)
+        # print('phi=',phi_temp[0,0:10])
+        # print(phi_temp.shape)
+        centers_y_reshape = gridData_reshape(centers_y) #(M, dimension)
+        self.weight = torch.linalg.inv(phi_temp).to(device=device) @ centers_y_reshape.to(device=device) #(N,dimension)
         self.N, self.dimension = self.weight.shape
-        self.M = samples_y_reshape.shape[0]
-        return self.weight 
+        self.M = centers_y_reshape.shape[0]
+        return self.weight,phi_temp
 
-    def __call__(self, targets_p):
+    def __call__(self, targets_p,device):
         phi = self.kernel_function(self.eps, Euclidean_distance(targets_p, self.centers_p))
-        return phi@self.weight
+        return ((phi.to(device=device))@self.weight)
 
     def compute_gradient(self, targets_p, kernel_function_grad=grad_Gaussian):
         '''
@@ -80,6 +83,14 @@ class SRBF_interpolation():
         grad = kernel_function_grad(self.eps, gridData_reshape(targets_p)).expand(-1, -1, self.N)
 
         return grad@self.weight
+    
+    # def RBF_3D(self,centers_p,centers_y,samples_p):
+    #     self.weight=self.fit(centers_p, centers_y)
+    #     phi = self.kernel_function(self.eps, Euclidean_distance(samples_p, centers_p)) #(M,N)
+    #     samples_y =phi*self.weight
+    #     return samples_y
+
+
 
 
 

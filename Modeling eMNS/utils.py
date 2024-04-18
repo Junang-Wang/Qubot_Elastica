@@ -2,6 +2,7 @@ import torch,ray,os
 import matplotlib.pyplot as plt
 import torch.nn.functional as F 
 import numpy as np
+from SRBF import SRBF_interpolation
 
 def compute_discrete_curl(A_field, device):
     '''
@@ -187,9 +188,10 @@ class estimate_test_set():
         # for plotting a random choice sample in test set
         plot_index = np.random.choice(self.test_set.indices)
         plot_sample = self.test_set.dataset[plot_index]
-
+        print(torch.unsqueeze(plot_sample[0],0).shape)
         # prediction B field
-
+        print('+++++++++++++++++++')
+        print(plot_sample[0].shape)
         self.plot_B_pred = 1e3*denorm(self.model(torch.unsqueeze(plot_sample[0],0).to(device=self.train_loop_config['device'],dtype=torch.float)), self.train_loop_config['maxB'], self.train_loop_config['minB'], self.train_loop_config['device'])
         self.plot_B = 1e3*denorm(plot_sample[1].to(device=self.train_loop_config['device']), self.train_loop_config['maxB'], self.train_loop_config['minB'], self.train_loop_config['device'])
 
@@ -214,9 +216,9 @@ class estimate_test_set():
     
     def peek_3D(self,length=0.1):
         from utils import plot_3D_vector_field
-        x = torch.linspace(-10,10,16)
-        y = torch.linspace(-10,10,16)
-        z = torch.linspace(-10,10,16)
+        x = torch.linspace(-40,35,16)
+        y = torch.linspace(-40,35,16)
+        z = torch.linspace(-40,35,16)
         print(x.shape)
         position = torch.cat(torch.meshgrid([x,y,z],indexing='ij')).reshape(3,16,16,16)
         print(position.shape)
@@ -224,6 +226,32 @@ class estimate_test_set():
         plot_3D_vector_field(position[:,:,:,::15], torch.squeeze(self.plot_B_pred,0).detach()[:,:,:,::15].cpu(), length=length)
 
         plot_3D_vector_field(position[:,:,:,::15], self.plot_B[:,:,:,::15].cpu(), length=length)
+
+
+
+class model_output():
+    '''
+    This class estimate the error of the test set
+    '''
+    def __init__(self, checkpoint, train_loop_config) -> None:
+        
+        self.train_loop_config = train_loop_config
+        # load checkpoint and model
+        if checkpoint:
+            with checkpoint.as_directory() as checkpoint_dir:
+                self.model = torch.load(
+                    os.path.join(checkpoint_dir, "model.pt"),map_location=train_loop_config['device'])['model']
+                
+    def outputB(self, input_current,position):
+        # prediction B field
+        B_pred = 1e3*denorm(self.model(torch.unsqueeze(input_current,0).to(device=self.train_loop_config['device'],dtype=torch.float)), self.train_loop_config['maxB'], self.train_loop_config['minB'], self.train_loop_config['device'])
+        return B_pred[0,:,position[0],position[1],position[2]] 
+
+
+
+
+
+
 
 #----------------------------------------------------------------
 def grad_loss(preds, y):
@@ -291,3 +319,99 @@ def Jacobian3(x):
   c = torch.stack([u,v,w],axis=1) #vorticity
 
   return j,c
+
+
+
+def get_mean_of_data(data,device):
+    num_samples = 0
+    b = torch.zeros(1,device=device)
+    for x in data:
+        x = x.to(device=device,dtype=torch.float)
+        # use sum instead of mean, what do you think?
+        x_sum = x.sum(dim=0,keepdim=True)
+        num_samples += x.shape[0]
+        # print(y.shape[0])
+        b =b+x_sum
+    return b/num_samples
+
+class check_rmse_interp_CNN():
+    '''
+    Check RMSE of CNN SRBF interpolation
+    '''
+    def __init__(self, checkpoint, train_loop_config):
+        
+        self.train_loop_config = train_loop_config
+        # load checkpoint and model
+        if checkpoint:
+            with checkpoint.as_directory() as checkpoint_dir:
+                self.model = torch.load(
+                    os.path.join(checkpoint_dir, "model.pt"),map_location=train_loop_config['device'])['model']
+
+    def cnn_SRBF(self,dataset,centers_p,samples_p,samples_y,device, DF, maxB=[],minB=[],eps=50):
+        mse_temp=0
+        R_temp=0
+        Rsquare=0
+        num_samples = 0
+        # print(Bfield_mean)
+        gird_interp = samples_p.shape[1]
+        grid_space = gird_interp**3
+        Bfield_mean=get_mean_of_data(samples_y,device)
+        samples_y=samples_y.to(device=device)
+        self.model.eval() # set model to evaluation model 
+        with torch.no_grad():
+            for index,(x,y) in enumerate(dataset):
+                print(index)
+                # print('x.shape: ',x.shape)
+                # print('new shape:',torch.unsqueeze(x,0).to(device=self.train_loop_config['device'],dtype=torch.float).shape)
+                # x = x.to(device=device,dtype=torch.float)
+                y = y.to(device=self.train_loop_config['device'],dtype=torch.float)
+                print('yshape:',y.shape)
+                num_samples += x.shape[0]
+                if DF:
+                    _, scores = Jacobian3(self.model(x))
+                else:
+                    scores = self.model(torch.unsqueeze(x,0).to(device=self.train_loop_config['device'],dtype=torch.float))
+                print('scores.shape',scores.shape)
+                # using SRBF interps
+                RBF= SRBF_interpolation(eps)
+                weight= RBF.fit(centers_p, scores.squeeze(0),device=self.train_loop_config['device'])
+                samples_y_interp=RBF(samples_p,device)
+                y1 = samples_y_interp.reshape(gird_interp,gird_interp,gird_interp,3)
+                print('device',samples_y[index].device)
+                y1 = y1.permute(3,0,1,2)
+                # compute mse and R2 by de-normalize data
+                mse_temp += F.mse_loss(1e3*samples_y[index], 1e3*denorm(y1,maxB,minB, device) ,reduction='sum')
+                R_temp += F.mse_loss(1e3*denorm(Bfield_mean.expand_as(y1),maxB,minB,device), 1e3*y1, reduction='sum')
+
+
+        rmse = torch.sqrt(mse_temp/num_samples/grid_space/3)
+
+        Rsquare=1-mse_temp/R_temp/num_samples
+        print(f'Got rmse {rmse}')
+
+        return rmse, mse_temp/num_samples/grid_space/3, Rsquare
+    
+
+#using SRBF expand data from 9*9*9 to 16*16*16
+def interpolation_data(data,position,Bfield,eps,device):
+    Bfield_interp=torch.zeros(data.shape[0],3,16,16,16)
+    for sample_index in range(0,data.shape[0]):
+
+        centers_p = position[sample_index,:,:,:,:]/0.04
+        centers_y = Bfield[sample_index,:,:,:,:]
+
+        maxb=centers_y.max()
+        minb=centers_y.min()
+
+        centers_y_norm=2*((centers_y-minb)/(maxb-minb))-1
+
+        samples_p = data[sample_index,0:3,2:18,2:18,2:18]/0.04
+        gird_interp=samples_p.shape[2]
+
+
+        RBF= SRBF_interpolation(eps)
+        weight,phi_temp= RBF.fit(centers_p, centers_y_norm,device=device)
+        samples_y_interp_norm=RBF(samples_p,device=device).reshape(gird_interp,gird_interp,gird_interp,3).permute(3,0,1,2)
+        Bfield_interp[sample_index] = denorm(samples_y_interp_norm, maxb, minb,device=device)
+
+    return   Bfield_interp
