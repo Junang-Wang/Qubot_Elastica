@@ -5,8 +5,8 @@ import torch
 from torch.nn.parallel import DistributedDataParallel
 import torch.nn.functional as F
 from early_stopping import EarlyStopping, EarlyDecay
-from utils import Jacobian3, grad_loss_Jacobain, check_rmse_CNN, compute_discrete_curl, compute_discrete_divergence, grad_loss, get_mean_of_dataloader, gridData_reshape
-from Neural_network import ResidualEMNSBlock_3d, BigBlock, Generative_net
+from utils import Jacobian3, grad_loss_Jacobain, check_rmse_ANN,check_rmse_CNN, compute_discrete_curl, compute_discrete_divergence, grad_loss, get_mean_of_dataloader, gridData_reshape
+from Neural_network import ResidualEMNSBlock_3d, BigBlock, Generative_net, NN_net, Plain_fc_block
 import numpy as np
 import ray
 from ray import train, tune
@@ -260,5 +260,191 @@ def construct_model_GM(config):
 
 #-----------------------------------------------------------------
 
+######################################################################################################################################
+
+def train_ANN(config):
+    """
+    Train a model using torch API
+
+    Inputs: 
+    - model: A Pytorch Module giving the model to train
+    - optimizer: An optimizer object we will use to train the model
+    - epochs: A Python integer giving the number of epochs to train for
+
+    Returns: model accuracies, prints model loss during training
+    """
+    #---------------unpack config---------------------
+    # print(config)
+    epochs = config["epochs"]
+    verbose = config['verbose']
+    lr_max = config['lr_max']
+    lr_min = config['lr_min']
+    schedule = config['schedule']
+    learning_rate_decay = config['learning_rate_decay']
+    maxB = config['maxB']
+    minB = config['minB']
+    device = config['device']
+    train_set = config['train_set']
+    valid_set = config['valid_set']
+    loss_func = config['loss_func']
+    backward  = config['backward']
+    
+    ####################################################
+    #--------------model construction------------------
+    ####################################################
+    model = construct_model_ANN(config)
+
+    
+
+    # ####################################################
+    # #---------------GPU parallel-----------------------
+    # ####################################################
+    if torch.cuda.device_count() > 1:
+        model = torch.nn.DataParallel(model)
+        print(f'we are using {torch.cuda.device_count()} GPU')
+    # if device == 'cuda':
+    #     # device = 'cuda:'+str(torch.cuda.current_device())
+    #     device = ray.train.torch.get_device()
+    model.to(device)
+    # # prepare model for training
+    # model = train.torch.prepare_model(model)
+    #####################################################
+    #-------------------data loader----------------------
+    #####################################################
+
+    train_loader = torch.utils.data.DataLoader(dataset=train_set,batch_size=config['batch_size'],shuffle=True)
+    valid_loader = torch.utils.data.DataLoader(dataset=valid_set,batch_size=config['batch_size'],shuffle=True)
+
+    #####################################################
+    #-------------------optimizer--------------------------
+    #####################################################
+    
+    optimizer = torch.optim.Adam(
+        [{'params': model.parameters()}], 
+        lr= config['lr_max'], 
+        weight_decay= config['L2_norm'], 
+        betas=(0.9,0.999))
+    
+    #------------------------------------------------------
+    num_iters = epochs*len(train_loader)
+    print_every = 100 
+    adjust_epoch_count = 0
+    if verbose:
+        num_prints = num_iters // print_every + 1 
+    else:
+        num_prints = epochs 
+    
+    # initial loss history and iter history
+    rmse_history = torch.zeros(num_prints,dtype = torch.float)
+    rmse_val_history = torch.zeros(num_prints,dtype = torch.float)
+    iter_history = torch.zeros(num_prints,dtype = torch.float)
+    loss_history = torch.zeros(num_prints,dtype = torch.float)
+    mse_history= torch.zeros(num_prints,dtype = torch.float)
+    mse_val_history= torch.zeros(num_prints,dtype = torch.float)
+
+    patience = 20	# 当验证集损失在连5次训练周期中都没有得到降低时，停止模型训练，以防止模型过拟合
+    early_stopping = EarlyStopping(patience, verbose=True)     
+    early_decay = EarlyDecay(patience, delta=0.005, lr_min=lr_min)
+    epoch_stop = 0
+
+    ###########################################################
+    # train loop:
+    # step 1: update learning rate
+    # step 2: put model to train model, move data to gpu 
+    # step 3: compute scores, calculate loss function
+    # step 4: Zero out all of gradients for the variables which the optimizer will update
+    # step 5: compute gradient of loss, update parameters
+    ###########################################################
+    for epoch in range(epochs):
+        for t, (x,y) in enumerate(train_loader):
+            model.train()
+            x = x.to(device=device,dtype=torch.float)
+            y = y.to(device=device,dtype=torch.float)
+            # print(f"Outside: input size {x.size()}")
+            # x,_,_ = max_min_norm(x,device)
+            # y,_,_ = max_min_norm(y,device)
+            optimizer.zero_grad() #zero out all of gradient
+
+            preds = model(x)
+            # loss function in the paper "Modeling Electromagnetic Navigation Systems" 
+            
+            if backward:
+                Bfield = x[:, 3:]
+                position = x[:, :3]
+                loss = loss_func(preds, Bfield, position)
+            else:
+                loss = loss_func(preds, y)
+            loss.backward() # compute gradient of loss
+            optimizer.step() #update parameters
+            
+            tt = t + epoch*len(train_loader) +1
+            adjust_learning_rate_cosine(optimizer, lr_max, lr_min, epochs, tt, len(train_loader))
+            # early_decay(loss, optimizer, learning_rate_decay)
+            ###########################################################
+            # print loss during training 
+            if verbose and (tt % print_every == 1 or (epoch == epochs -1 and t == len(train_loader) -1) ) :
+                print(f'Epoch {epoch:d}, Iteration {tt:d}, loss = {loss.item():.4f}')
+                rmse_val,mse_val,Rsquare = check_rmse_ANN(valid_loader,model, config)
+                rmse,mse_train,R_TEMP = check_rmse_ANN(train_loader,model, config)
+                rmse_val_history[tt//print_every] = rmse_val
+                rmse_history[tt // print_every] = rmse 
+                iter_history[tt // print_every] = tt 
+                loss_history[tt // print_every] = loss.item()
+                print()
+                
+            elif not verbose and (t == len(train_loader)-1):
+                print(f'Epoch {epoch:d}, Iteration {tt:d}, loss = {loss.item():.4f}')
+                rmse_val,mse_val,Rsquare= check_rmse_ANN(valid_loader,model, config)
+                rmse,mse_train,R_TEMP = check_rmse_ANN(train_loader,model, config)
+                rmse_val_history[epoch] = rmse_val
+                rmse_history[epoch] = rmse 
+                iter_history[epoch] = tt 
+                loss_history[epoch] = loss.item()
+                mse_history[epoch] = mse_train
+                mse_val_history[epoch] = mse_val
+
+        print()
+        adjust_epoch_count += 1
+
+        if epoch % (epochs-1) == 0: 
+        # create checkpoint only at the begin and the end of epochs
+            base_model = (model.module
+                if isinstance(model, DistributedDataParallel) else model)
+            
+            checkpoint_dir = tempfile.mkdtemp()
+            # checkpoint_dir = config['checkpoint_dir']
+            # if not os.path.exists(checkpoint_dir):
+            #     os.makedirs(checkpoint_dir)
+
+            # load back training state
+            checkpoint_data = {
+                "epoch": epoch,
+                "net_state_dict": base_model.state_dict(),
+                'model': base_model
+                # "optimizer_state_dict": optimizer.state_dict(),
+            }
+            torch.save(checkpoint_data, os.path.join(checkpoint_dir, "model.pt"))
+            checkpoint = Checkpoint.from_directory(checkpoint_dir)
+            # Send the current training result back to Tune
+            train.report({'rmse_val':rmse_val.item(), 'rmse_train': rmse.item(), 'loss':loss.item()},checkpoint=checkpoint)
+        else:
+            train.report({'rmse_val':rmse_val.item(), 'rmse_train': rmse.item(), 'loss':loss.item()})
+
+        
+
+        adjust_learning_rate_sch(optimizer, learning_rate_decay, epoch, schedule)
+        epoch_stop = epoch
 
 
+
+    return rmse_history, rmse_val_history,loss_history, iter_history,mse_history, mse_val_history,epoch_stop,Rsquare
+
+#-------------------------------------------------------------------
+def construct_model_ANN(config):
+
+    fc_stages = config['fc_stages']
+    num_output = config['num_output']
+
+    fc_network = NN_net(None,fc_stages,None,Plain_fc_block, num_output=num_output)
+
+    return fc_network

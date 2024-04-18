@@ -48,6 +48,43 @@ class eMNS_Dataset(torch.utils.data.Dataset):
         self.x = 2*(self.x - min_x) / (max_x - min_x) - 1
         self.y = 2*(self.y - min_y) / (max_y - min_y) - 1
         return (max_x, min_x, max_y, min_y)
+    
+    def train_norm_ANN(self, train_indices, boundary_index):
+        """
+        Apply min-max normalization to the given training two params tensor respectively.
+        
+        :param tensor: A PyTorch tensor to be normalized to range [-1,1].
+        :return: max and min value.
+        """
+        min_x_0 = self.x[train_indices, :boundary_index].min()
+        max_x_0 = self.x[train_indices,:boundary_index].max()
+        min_x_1 = self.x[train_indices, boundary_index:].min()
+        max_x_1 = self.x[train_indices,boundary_index:].max()
+        min_y = self.y[train_indices].min()
+        max_y = self.y[train_indices].max()
+
+        self.x[:,:boundary_index] = 2*(self.x[:,:boundary_index] - min_x_0) / (max_x_0 - min_x_0) - 1
+        self.x[:,boundary_index:] = 2*(self.x[:,boundary_index:] - min_x_1) / (max_x_1 - min_x_1) - 1
+
+        self.y = 2*(self.y - min_y) / (max_y - min_y) - 1
+
+        return (max_x_0, min_x_0, max_x_1, min_x_1, max_y, min_y)
+    
+    def test_norm_ANN(self, extremes, boundary_index):
+
+        """
+        Apply min-max normalization to the given training two params tensor respectively for test set.
+        
+        :param tensor: A PyTorch tensor to be normalized to range [-1,1].
+        """
+
+        max_x_0, min_x_0, max_x_1, min_x_1, max_y, min_y = extremes
+
+        self.x[:,:boundary_index] = 2*(self.x[:,:boundary_index] - min_x_0) / (max_x_0 - min_x_0) - 1
+        self.x[:,boundary_index:] = 2*(self.x[:,boundary_index:] - min_x_1) / (max_x_1 - min_x_1) - 1
+
+        self.y = 2*(self.y - min_y) / (max_y - min_y) - 1
+
 
 
 

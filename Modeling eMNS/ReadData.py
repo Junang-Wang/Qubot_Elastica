@@ -29,7 +29,7 @@ def ReadFolder(foldername, filepattern):
 def ReadCurrentAndField(foldername, filepattern,filenum):
 
     #Read Current
-    CurrentData = pd.read_table('./Data/SampleCurrent.txt',skiprows=0,sep='\\s+',index_col=None,header=None) 
+    CurrentData = pd.read_table('./Data/SampleCurrent.txt',skiprows=0,sep='\\s+',index_col=None,header=None) # unit Ampere
     #print(CurrentData)
 
     fileList = glob.glob(foldername+filepattern)
@@ -38,7 +38,7 @@ def ReadCurrentAndField(foldername, filepattern,filenum):
     #print(CurrentData)
     for i in range(filenum):
         if i == 0:
-            print(fileList[i])
+            # print(fileList[i])
             data_temp = ReadData(filename=fileList[i])
             current=CurrentData.loc[i]
             matrix = np.tile(current, (data_temp.shape[0], 1))
@@ -47,7 +47,7 @@ def ReadCurrentAndField(foldername, filepattern,filenum):
             data = torch.empty(filenum,row,col)
             data[i] = torch.tensor(data_temp)
         else:
-            print(fileList[i])
+            # print(fileList[i])
             data_temp = ReadData(filename=fileList[i])
             current=CurrentData.loc[i]
             matrix = np.tile(current, (data_temp.shape[0], 1))
@@ -117,7 +117,6 @@ def ReadETHFolder(foldername, filenum, data_shape):
 
 
 
-        f_num += 1
 
     return data
 
