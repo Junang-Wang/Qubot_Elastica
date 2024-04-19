@@ -169,7 +169,7 @@ def check_rmse_ANN(dataloader, model, config):
     maxB = config['maxB']
     minB = config['minB']
     backward = config['backward']
-    forward_model = config['forward_model']
+    
 
     # data = next(iter(dataloader))
     # no matter forward or backward_forward model, the output is 3D B field
@@ -180,6 +180,7 @@ def check_rmse_ANN(dataloader, model, config):
     model.eval() # set model to evaluation model 
 
     if backward:
+        forward_model = config['forward_model']
         forward_model.eval()
         with torch.no_grad():
             for x,y in dataloader:
@@ -224,12 +225,14 @@ def predict_check_rmse_ANN(dataloader, model, config):
     Rsquare=0
     num_samples = len(dataloader.dataset)
     num_temp = 0
+    current_mse_temp =0
+
 
     device = config['device']
     maxB = config['maxB']
     minB = config['minB']
     backward = config['backward']
-    forward_model = config['forward_model']
+    
 
     # data = next(iter(dataloader))
 
@@ -243,7 +246,14 @@ def predict_check_rmse_ANN(dataloader, model, config):
     model.eval() # set model to evaluation model 
 
     if backward:
+        forward_model = config['forward_model']
         forward_model.eval()
+
+        current_L2 = 0
+        current_backward_L2 = 0
+
+        maxC = config['maxC']
+        minC = config['minC']
 
         with torch.no_grad():
             for x,y in dataloader:
@@ -258,13 +268,24 @@ def predict_check_rmse_ANN(dataloader, model, config):
                 
                 # compute mse and R2 by de-normalize data
                 mse_temp += F.mse_loss(denorm(Bfield,maxB, minB, device),  denorm(B_est, maxB, minB, device) , reduction='sum')
-                print(denorm(Bfield,maxB, minB, device).abs().mean())
-                print(denorm(B_est,maxB, minB, device).abs().mean())
+
+                current_mse_temp += F.mse_loss(denorm(current,maxC, minC, device),  denorm(y, maxC, minC, device) , reduction='sum')
+
+                current_backward_L2 += F.mse_loss(denorm(current, maxC, minC, device), torch.zeros_like(current), reduction='sum') 
+
+                current_L2 += F.mse_loss(denorm(y, maxC, minC, device), torch.zeros_like(current), reduction='sum') 
+
                 #TODO: fix R_temp
                 R_temp += F.mse_loss(denorm(Bfield_mean.expand_as(y),maxB,minB,device), denorm(y,maxB,minB,device), reduction='sum')
 
                 prediction[num_temp:num_temp+x.shape[0]] = denorm(B_est, maxB, minB, device).to('cpu')
                 num_temp += x.shape[0]
+        
+        C_mse = current_mse_temp/num_samples/12
+        current_L2 = current_L2/num_samples
+        current_backward_L2 = current_backward_L2/num_samples
+        C_rmse = torch.sqrt(C_mse)
+        print(f' current rmse: {C_rmse}, L2 before: {current_L2}, L2 after backward model: {current_backward_L2}')
 
     else:
         with torch.no_grad():
