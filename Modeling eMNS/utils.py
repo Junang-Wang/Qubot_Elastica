@@ -157,7 +157,7 @@ def check_rmse_CNN(dataloader,model, grid_space, device, DF, maxB=[],minB=[]):
 
     return rmse, mse_temp/num_samples/grid_space/3, Rsquare
 
-def check_rmse_ANN(dataloader, model, config):
+def check_rmse_ANN(dataloader, model, config, forward_model):
     '''
     Check RMSE of ANN
     '''
@@ -180,7 +180,7 @@ def check_rmse_ANN(dataloader, model, config):
     model.eval() # set model to evaluation model 
 
     if backward:
-        forward_model = config['forward_model']
+        forward_model = forward_model.to(device)
         forward_model.eval()
         with torch.no_grad():
             for x,y in dataloader:
@@ -246,7 +246,8 @@ def predict_check_rmse_ANN(dataloader, model, config):
     model.eval() # set model to evaluation model 
 
     if backward:
-        forward_model = config['forward_model']
+        
+        forward_model = torch.load(config['forward_model_path'])['model'].to(device)
         forward_model.eval()
 
         current_L2 = 0

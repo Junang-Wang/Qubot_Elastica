@@ -262,7 +262,7 @@ def construct_model_GM(config):
 
 ######################################################################################################################################
 
-def train_ANN(config):
+def train_ANN(train_set, valid_set, config):
     """
     Train a model using torch API
 
@@ -281,14 +281,16 @@ def train_ANN(config):
     lr_min = config['lr_min']
     schedule = config['schedule']
     learning_rate_decay = config['learning_rate_decay']
-    maxB = config['maxB']
-    minB = config['minB']
     device = config['device']
-    train_set = config['train_set']
-    valid_set = config['valid_set']
     loss_func = config['loss_func']
     backward  = config['backward']
-    
+
+    if config['forward_model_path']:
+        forward_model = torch.load(config['forward_model_path'])['model'].to(device)
+        forward_model.eval()
+    else:
+        forward_model = None
+
     ####################################################
     #--------------model construction------------------
     ####################################################
@@ -371,7 +373,8 @@ def train_ANN(config):
             if backward:
                 Bfield = x[:, 3:]
                 position = x[:, :3]
-                loss = loss_func(preds, Bfield, position)
+                forward_model.to(device)
+                loss = loss_func(preds, Bfield, position, forward_model)
             else:
                 loss = loss_func(preds, y)
             loss.backward() # compute gradient of loss
@@ -384,8 +387,8 @@ def train_ANN(config):
             # print loss during training 
             if verbose and (tt % print_every == 1 or (epoch == epochs -1 and t == len(train_loader) -1) ) :
                 print(f'Epoch {epoch:d}, Iteration {tt:d}, loss = {loss.item():.4f}')
-                rmse_val,mse_val,Rsquare = check_rmse_ANN(valid_loader,model, config)
-                rmse,mse_train,R_TEMP = check_rmse_ANN(train_loader,model, config)
+                rmse_val,mse_val,Rsquare = check_rmse_ANN(valid_loader,model, config, forward_model)
+                rmse,mse_train,R_TEMP = check_rmse_ANN(train_loader,model, config, forward_model)
                 rmse_val_history[tt//print_every] = rmse_val
                 rmse_history[tt // print_every] = rmse 
                 iter_history[tt // print_every] = tt 
@@ -394,8 +397,8 @@ def train_ANN(config):
                 
             elif not verbose and (t == len(train_loader)-1):
                 print(f'Epoch {epoch:d}, Iteration {tt:d}, loss = {loss.item():.4f}')
-                rmse_val,mse_val,Rsquare= check_rmse_ANN(valid_loader,model, config)
-                rmse,mse_train,R_TEMP = check_rmse_ANN(train_loader,model, config)
+                rmse_val,mse_val,Rsquare= check_rmse_ANN(valid_loader,model, config, forward_model)
+                rmse,mse_train,R_TEMP = check_rmse_ANN(train_loader,model, config, forward_model)
                 rmse_val_history[epoch] = rmse_val
                 rmse_history[epoch] = rmse 
                 iter_history[epoch] = tt 
