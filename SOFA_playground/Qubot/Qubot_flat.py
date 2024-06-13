@@ -4,8 +4,8 @@ import Sofa
 import SofaRuntime
 import Sofa.Gui
 from tqdm import tqdm
-# env_stl = './SOFA_playground/mesh/qubot_flat_models/neurovascular_2D_s.stl'
-env_stl = './SOFA_playground/mesh/3D_models/Segmentation_Segment_1_m.stl'
+env_stl = './SOFA_playground/mesh/qubot_flat_models/neurovascular_2D_s.stl'
+# env_stl = './SOFA_playground/mesh/3D_models/Segmentation_Segment_1_m.stl'
 USE_GUI = True
 iterations = 100
 
